@@ -2,6 +2,8 @@ package org.emoflon.ibex.tgg.compiler;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -176,52 +178,76 @@ public class TGGCompiler {
 	}
 	
 	/**
-	 * This method augments a rule pattern with negative invocations to deal with 0..1 multiplicities.
-	 * For every created edge in the pattern that has a 0..1 multiplicity, a negative invocation
+	 * This method augments a rule pattern with negative invocations to deal with 0..n multiplicities.
+	 * For every created edge in the pattern that has a 0..n multiplicity, a negative invocation
 	 * is added which ensures that the multiplicity is not violated by applying the rule.
 	 * 
 	 * @param patterns The collection of all patterns for the current rule. 
 	 * 		  The patterns created for the negative invocations are added here.
 	 * @param pattern The pattern to augment with negative invocations.
-	 */
+	 */    
+	
+    //TODO [fstolte]: check if there are several edges with the same type from the same source, modify patterns accordingly.
+    
 	private void addPatternInvocationsForMultiplicityConstraints(Collection<IbexPattern> patterns, RulePartPattern pattern) {
 		TGGRule rule = pattern.getRule();
-		Resource constraintResource = rule.eResource();
-		
-		rule.getEdges().stream()
-					   .filter(e -> e.getType().getUpperBound() > 0
-					   		   && e.getBindingType() == BindingType.CREATE
-					   		   && e.getSrcNode().getBindingType() == BindingType.CONTEXT)
-					   .forEach(e -> {
-						   Collection<TGGRuleElement> signatureElements = new ArrayList<TGGRuleElement>();
-						   Collection<TGGRuleElement> bodyElements = new ArrayList<TGGRuleElement>();
+        Resource constraintResource = rule.eResource(); //TODO check if this is necessary after pattern matcher is fixed
+        HashMap<TGGRuleNode, HashSet<EReference>> sourceToProcessedEdgeTypes = new HashMap<TGGRuleNode, HashSet<EReference>>();
 
-						   TGGRuleNode src = e.getSrcNode();
-						   signatureElements.add(src);
-						   
-						   if (e.getTrgNode().getBindingType() == BindingType.CONTEXT)
-					   		   signatureElements.add(e.getTrgNode());
-						   else if (e.getTrgNode().getBindingType() == BindingType.NEGATIVE)
-					   		   throw new IllegalArgumentException("TGG invalid: CREATE edge connected to a NEGATIVE node");
-						   
-						   for (int i = 1; i <= e.getType().getUpperBound(); i++) {
-							   TGGRuleNode trg = EcoreUtil.copy(e.getTrgNode());
-							   TGGRuleEdge edge = EcoreUtil.copy(e);
-							   constraintResource.getContents().add(trg);
-							   constraintResource.getContents().add(edge);
-							   
-							   trg.setName(trg.getName()+i);
-							   edge.setSrcNode(src);
-							   edge.setTrgNode(trg);
-							   
-							   bodyElements.add(trg);
-							   bodyElements.add(edge);
-						   }
+        Collection<TGGRuleEdge> relevantEdges = rule.getEdges().stream()
+        													   .filter(e -> e.getType().getUpperBound() > 0
+        															   && e.getBindingType() == BindingType.CREATE
+        															   && e.getSrcNode().getBindingType() == BindingType.CONTEXT)
+        													   .collect(Collectors.toList());
 
-						   ConstraintPattern constraint = new ConstraintPattern(rule, signatureElements, bodyElements);
-						   patterns.add(constraint);
-						   pattern.addTGGNegativeInvocation(constraint);
-					    });
+        for (TGGRuleEdge e : relevantEdges) {
+			TGGRuleNode src = e.getSrcNode();
+			
+			// skip this edge if another edge of same type and with same source has already been processed
+			Collection<EReference> processedEdgeTypes = sourceToProcessedEdgeTypes.get(src);
+			if (processedEdgeTypes != null && processedEdgeTypes.contains(e.getType())) {
+				continue;
+			}
+			
+			// add edge to processed edges for its type and source node
+			if (sourceToProcessedEdgeTypes.get(src) == null) {
+				sourceToProcessedEdgeTypes.put(src, new HashSet<EReference>());
+			}
+			sourceToProcessedEdgeTypes.get(src).add(e.getType());
+			
+			// calculate number of edges with the same type from this source node
+			long similarEdgesCount = rule.getEdges().stream()
+			                                        .filter(edge -> edge.getType() == e.getType()
+			                                                    && edge.getSrcNode() == src
+                                                    			&& edge.getBindingType() == BindingType.CREATE)
+			                                        .count();
+
+			Collection<TGGRuleElement> signatureElements = new ArrayList<TGGRuleElement>();
+			Collection<TGGRuleElement> bodyElements = new ArrayList<TGGRuleElement>();
+			signatureElements.add(src);
+            
+//            bodyElements.add(e.getTrgNode());    // testing
+//            bodyElements.add(e);                // testing
+
+		   for (int i = 1; i <= e.getType().getUpperBound()+1-similarEdgesCount; i++) {
+			   TGGRuleNode trg = EcoreUtil.copy(e.getTrgNode());
+			   TGGRuleEdge edge = EcoreUtil.copy(e);
+			   constraintResource.getContents().add(trg);
+			   constraintResource.getContents().add(edge);
+			   
+			   trg.setName(trg.getName()+i);
+			   edge.setSrcNode(src);
+			   edge.setTrgNode(trg);
+			   
+			   bodyElements.add(trg);
+			   bodyElements.add(edge);
+		   }
+
+		   ConstraintPattern constraint = new ConstraintPattern(rule, signatureElements, bodyElements);
+		   patterns.add(constraint);
+		   pattern.addTGGNegativeInvocation(constraint);
+        }
 	}
+	
 
 }
