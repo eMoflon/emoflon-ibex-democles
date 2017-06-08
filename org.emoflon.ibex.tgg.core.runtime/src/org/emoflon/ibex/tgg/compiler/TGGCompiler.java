@@ -123,6 +123,7 @@ public class TGGCompiler {
 			modelgen.addTGGPositiveInvocation(trgContext);
 			modelgen.addTGGPositiveInvocation(corrContext);
 			addPatternInvocationsForMultiplicityConstraints(patterns, modelgen);
+			addPatternInvocationsForContainmentReferenceConstraints(patterns, modelgen);
 
 			WholeRulePattern whole = new WholeRulePattern(rule);
 			patterns.add(whole);
@@ -186,14 +187,12 @@ public class TGGCompiler {
 	 * 		  The patterns created for the negative invocations are added here.
 	 * @param pattern The pattern to augment with negative invocations.
 	 */    
-	
-    //TODO [fstolte]: check if there are several edges with the same type from the same source, modify patterns accordingly.
-    
 	private void addPatternInvocationsForMultiplicityConstraints(Collection<IbexPattern> patterns, RulePartPattern pattern) {
 		TGGRule rule = pattern.getRule();
         Resource constraintResource = rule.eResource(); //TODO check if this is necessary after pattern matcher is fixed
         HashMap<TGGRuleNode, HashSet<EReference>> sourceToProcessedEdgeTypes = new HashMap<TGGRuleNode, HashSet<EReference>>();
 
+        // collect edges that need a multiplicity NAC
         Collection<TGGRuleEdge> relevantEdges = rule.getEdges().stream()
         													   .filter(e -> e.getType().getUpperBound() > 0
         															   && e.getBindingType() == BindingType.CREATE
@@ -215,7 +214,7 @@ public class TGGCompiler {
 			}
 			sourceToProcessedEdgeTypes.get(src).add(e.getType());
 			
-			// calculate number of edges with the same type from this source node
+			// calculate number of create-edges with the same type coming from this source node
 			long similarEdgesCount = rule.getEdges().stream()
 			                                        .filter(edge -> edge.getType() == e.getType()
 			                                                    && edge.getSrcNode() == src
@@ -224,30 +223,85 @@ public class TGGCompiler {
 
 			Collection<TGGRuleElement> signatureElements = new ArrayList<TGGRuleElement>();
 			Collection<TGGRuleElement> bodyElements = new ArrayList<TGGRuleElement>();
-			signatureElements.add(src);
             
 //            bodyElements.add(e.getTrgNode());    // testing
 //            bodyElements.add(e);                // testing
 
-		   for (int i = 1; i <= e.getType().getUpperBound()+1-similarEdgesCount; i++) {
-			   TGGRuleNode trg = EcoreUtil.copy(e.getTrgNode());
-			   TGGRuleEdge edge = EcoreUtil.copy(e);
-			   constraintResource.getContents().add(trg);
-			   constraintResource.getContents().add(edge);
-			   
-			   trg.setName(trg.getName()+i);
-			   edge.setSrcNode(src);
-			   edge.setTrgNode(trg);
-			   
-			   bodyElements.add(trg);
-			   bodyElements.add(edge);
-		   }
+			// create/add elements to the pattern
+			signatureElements.add(src);
 
-		   ConstraintPattern constraint = new ConstraintPattern(rule, signatureElements, bodyElements);
-		   patterns.add(constraint);
-		   pattern.addTGGNegativeInvocation(constraint);
+			for (int i = 1; i <= e.getType().getUpperBound()+1-similarEdgesCount; i++) {
+				TGGRuleNode trg = EcoreUtil.copy(e.getTrgNode());
+				TGGRuleEdge edge = EcoreUtil.copy(e);
+				constraintResource.getContents().add(trg);
+				constraintResource.getContents().add(edge);
+				
+				trg.setName(trg.getName()+i);
+				edge.setSrcNode(src);
+				edge.setTrgNode(trg);
+				
+				bodyElements.add(trg);
+				bodyElements.add(edge);
+			}
+
+			// create pattern and invocation
+			ConstraintPattern constraint = new ConstraintPattern(rule, signatureElements, bodyElements, e.getSrcNode().getName()
+																										+ "_"
+																										+ e.getType().getName()
+																										+ "Edge"
+																										+ "_Multiplicity");
+			patterns.add(constraint);
+			pattern.addTGGNegativeInvocation(constraint);
         }
 	}
-	
+
+	/**
+	 * This method augments a rule pattern with negative invocations to deal with containment references.
+	 * For every created containment edge in the pattern with a context node as target, a negative invocation
+	 * is added which ensures that the target node is not already contained in another reference.
+	 * 
+	 * @param patterns The collection of all patterns for the current rule. 
+	 * 		  The patterns created for the negative invocations are added here.
+	 * @param pattern The pattern to augment with negative invocations.
+	 */
+	private void addPatternInvocationsForContainmentReferenceConstraints(Collection<IbexPattern> patterns, RulePartPattern pattern) {
+		TGGRule rule = pattern.getRule();
+        Resource constraintResource = rule.eResource(); //TODO check if this is necessary after pattern matcher is fixed
+
+        // collect edges that need a multiplicity NAC
+        Collection<TGGRuleEdge> relevantEdges = rule.getEdges().stream()
+        													   .filter(e -> e.getType().isContainment()
+        															   && e.getBindingType() == BindingType.CREATE
+        															   && e.getTrgNode().getBindingType() == BindingType.CONTEXT)
+        													   .collect(Collectors.toList());
+
+        for (TGGRuleEdge e : relevantEdges) {
+			TGGRuleNode trg = e.getTrgNode();
+			
+			Collection<TGGRuleElement> signatureElements = new ArrayList<TGGRuleElement>();
+			Collection<TGGRuleElement> bodyElements = new ArrayList<TGGRuleElement>();
+
+			// create/add elements to the pattern
+			TGGRuleNode src = EcoreUtil.copy(e.getSrcNode());
+			TGGRuleEdge edge = EcoreUtil.copy(e);
+			constraintResource.getContents().add(src);
+			constraintResource.getContents().add(edge);
+			
+			edge.setSrcNode(src);
+			edge.setTrgNode(trg);
+			
+			bodyElements.add(src);
+			bodyElements.add(edge);
+			signatureElements.add(trg);
+
+			// create pattern and invocation
+			ConstraintPattern constraint = new ConstraintPattern(rule, signatureElements, bodyElements, e.getType().getName()
+																										+ "Edge_"
+																										+ e.getTrgNode().getName()
+																										+ "_Containment");
+			patterns.add(constraint);
+			pattern.addTGGNegativeInvocation(constraint);
+        }
+	}
 
 }

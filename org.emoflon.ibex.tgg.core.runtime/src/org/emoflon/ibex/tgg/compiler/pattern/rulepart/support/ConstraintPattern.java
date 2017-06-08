@@ -19,14 +19,17 @@ public class ConstraintPattern extends RulePartPattern {
 	private Collection<TGGRuleNode> bodyNodes = new ArrayList<>();
 	private Collection<TGGRuleEdge> bodyEdges = new ArrayList<>();
 	
+	private String constraintName;
+	
 	/**
 	 * Creates a new ConstraintPattern. The body and signature are initialized with the given parameters.
 	 * @param rule The {@link TGGRule} that this constraint belongs to.
 	 * @param signatureElements The {@link TGGElements} that shall be part of this constraint's signature.
 	 * @param bodyElements The {@link TGGElements} that shall be part of this constraint, but not part of the signature).
 	 */
-	public ConstraintPattern(TGGRule rule, Collection<TGGRuleElement> signatureElements, Collection<TGGRuleElement> bodyElements) {
+	public ConstraintPattern(TGGRule rule, Collection<TGGRuleElement> signatureElements, Collection<TGGRuleElement> bodyElements, String name) {
 		this.rule = rule;
+		this.constraintName = "_" + name;
 		this.signatureElements = signatureElements;
 		
 		this.bodyNodes = bodyElements.stream()
@@ -40,6 +43,11 @@ public class ConstraintPattern extends RulePartPattern {
 				 .collect(Collectors.toSet());
 		
 		this.initialize();
+	}
+	
+	@Override
+	public String getName() {
+		return rule.getName() + constraintName + getPatternNameSuffix();
 	}
 
 	@Override
