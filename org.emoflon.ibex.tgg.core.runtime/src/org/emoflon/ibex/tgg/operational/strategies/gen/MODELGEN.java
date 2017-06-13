@@ -30,6 +30,10 @@ public abstract class MODELGEN extends OperationalStrategy {
 		super(projectName, workspacePath, debug);
 	}
 	
+	public MODELGEN(String projectName, String workspacePath, boolean flatten, boolean debug) throws IOException {
+		super(projectName, workspacePath, flatten, debug);
+	}
+	
 	public void setStopCriterion(MODELGENStopCriterion stop) {
 		this.stopCriterion = stop;
 	}

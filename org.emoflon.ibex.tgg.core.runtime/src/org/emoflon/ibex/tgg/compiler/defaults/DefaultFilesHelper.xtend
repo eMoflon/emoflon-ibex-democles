@@ -111,6 +111,10 @@ class DefaultFilesHelper {
 				super(projectName, workspacePath, debug);
 			}
 		
+			public «fileName»(String projectName, String workspacePath, boolean flatten, boolean debug) throws IOException {
+				super(projectName, workspacePath, flatten, debug);
+			}
+		
 			public static void main(String[] args) throws IOException {
 				BasicConfigurator.configure();
 		

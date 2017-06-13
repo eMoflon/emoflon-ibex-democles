@@ -72,15 +72,19 @@ public abstract class OperationalStrategy {
 	protected TCustomHashSet<RuntimeEdge> markedEdges = new TCustomHashSet<>(new RuntimeEdgeHashingStrategy());
 	protected THashMap<TGGRuleApplication, IMatch> brokenRuleApplications = new THashMap<>();
 
-	public OperationalStrategy(String projectName, String workspacePath, boolean debug) throws IOException {
+	public OperationalStrategy(String projectName, String workspacePath, boolean flatten, boolean debug) throws IOException {
 		this.projectPath = projectName;
 		base = URI.createPlatformResourceURI("/", true);
 		createAndPrepareResourceSet(workspacePath);
 		registerInternalMetamodels(); 
 		registerUserMetamodels();
-		loadTGG();
+		loadTGG(flatten);
 		initialiseEngine(debug);
 		loadModels();
+	}
+	
+	public OperationalStrategy(String projectName, String workspacePath, boolean debug) throws IOException {
+		this(projectName, workspacePath, false, debug);
 	}
 	
 	protected abstract void registerUserMetamodels() throws IOException;
@@ -114,8 +118,13 @@ public abstract class OperationalStrategy {
 		engine.terminate();
 	}
 	
-	protected void loadTGG() throws IOException {
-		Resource res = loadResource(projectPath + "/model/" + projectPath + ".tgg.xmi");
+	protected void loadTGG(boolean flatten) throws IOException {
+		Resource res = null;
+		if (flatten) {
+			res = loadResource(projectPath + "/model/" + projectPath + "_flattened.tgg.xmi");
+		} else {
+			res = loadResource(projectPath + "/model/" + projectPath + ".tgg.xmi");
+		}
 		tgg = (TGG) res.getContents().get(0);
 		rs.getResources().remove(res);
 		
