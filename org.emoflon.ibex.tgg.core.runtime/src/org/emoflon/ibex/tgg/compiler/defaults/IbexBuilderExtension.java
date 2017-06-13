@@ -18,7 +18,7 @@ public class IbexBuilderExtension implements BuilderExtension {
 	@Override
 	public void run(IbexTGGBuilder builder, TripleGraphGrammarFile editorModel, TripleGraphGrammarFile flattenedEditorModel) {
 		try {
-			Optional<TGGProject> internalModel = new EditorTGGtoInternalTGG().generateInternalModels(flattenedEditorModel, builder.getProject());
+			Optional<TGGProject> internalModel = new EditorTGGtoInternalTGG().generateInternalModels(editorModel, flattenedEditorModel, builder.getProject());
 			internalModel.ifPresent(m -> new AttrCondDefLibraryProvider().generateAttrCondLibsAndStubs(m, builder.getProject()));
 			builder.createDefaultFile("MODELGEN_App", DefaultFilesHelper::generateModelGenFile);
 			builder.createDefaultFile("SYNC_App", DefaultFilesHelper::generateSyncAppFile);
