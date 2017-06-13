@@ -446,7 +446,7 @@ public class DemoclesHelper implements MatchEventListener {
 		final String type = event.getEventType();
 		final DataFrame frame = event.getMatching();
 		
-		logger.debug("Received match:  " + event);
+		if (debug) logger.debug("Received match:  " + event);
 
 		Optional<Pattern> p = patterns.stream().filter(pattern -> getPatternID(pattern).equals(event.getSource().toString())).findAny();
 

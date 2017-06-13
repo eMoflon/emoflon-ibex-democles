@@ -71,8 +71,11 @@ public abstract class OperationalStrategy {
 
 	protected TCustomHashSet<RuntimeEdge> markedEdges = new TCustomHashSet<>(new RuntimeEdgeHashingStrategy());
 	protected THashMap<TGGRuleApplication, IMatch> brokenRuleApplications = new THashMap<>();
+	
+	public boolean debug;
 
 	public OperationalStrategy(String projectName, String workspacePath, boolean flatten, boolean debug) throws IOException {
+		this.debug = debug;
 		this.projectPath = projectName;
 		base = URI.createPlatformResourceURI("/", true);
 		createAndPrepareResourceSet(workspacePath);
@@ -255,7 +258,7 @@ public abstract class OperationalStrategy {
 			prepareProtocol(ruleName, match, comatch);
 		}
 
-		logger.debug("Successfully applied: " + match.patternName());
+		if (debug) logger.debug("Successfully applied: " + match.patternName());
 		
 		return true;
 	}
