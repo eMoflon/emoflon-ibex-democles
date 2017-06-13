@@ -120,6 +120,8 @@ public class TGGCompiler {
 			bwd.addTGGPositiveInvocation(srcContext);
 
 			MODELGENPattern modelgen = new MODELGENPattern(rule);
+			// add dummy nodes to MODELGENPatterns that are necessary for pattern invocation to patterns of super-rule
+			addDummyNodes(modelgen);
 			patterns.add(modelgen);
 			modelgen.addTGGPositiveInvocation(srcContext);
 			modelgen.addTGGPositiveInvocation(trgContext);
@@ -140,21 +142,14 @@ public class TGGCompiler {
 			ruleToPatterns.put(rule, patterns);
 		}
 		
-		List<IbexPattern> modelgenPatterns = ruleToPatterns.values().stream()
-				   													.flatMap(p -> p.stream())
-				   													.filter(p -> p instanceof MODELGENPattern)
-				   													.collect(Collectors.toList());
-		
-		// add dummy nodes to MODELGENPatterns that are necessary for pattern invocation to patterns of super-rule
-		for (IbexPattern pattern : modelgenPatterns) {
-			addDummyNodes((MODELGENPattern)pattern);
-		}
-		
       // add pattern invocations to MODELGENPatterns for rule refinement
-		modelgenPatterns.forEach(p -> p.getRule().getRefines().stream()
-															  .flatMap(r -> ruleToPatterns.get(r).stream())
-															  .filter(pattern -> pattern instanceof MODELGENPattern)
-															  .forEach(r -> p.addTGGPositiveInvocation(r)));
+		ruleToPatterns.values().stream()
+				   			   .flatMap(p -> p.stream())
+				   			   .filter(p -> p instanceof MODELGENPattern)
+				   			   .forEach(p -> p.getRule().getRefines().stream()
+				   					   								 .flatMap(r -> ruleToPatterns.get(r).stream())
+				   					   								 .filter(pattern -> pattern instanceof MODELGENPattern)
+				   					   								 .forEach(r -> p.addTGGPositiveInvocation(r)));
 
 
 
@@ -224,10 +219,14 @@ public class TGGCompiler {
 	 */    
 	private void addPatternInvocationsForMultiplicityConstraints(Collection<IbexPattern> patterns, RulePartPattern pattern) {
 		TGGRule rule = pattern.getRule();
+		TGGRule flattenedRule = flattenedTgg.getRules().stream()
+				   .filter(r -> r.getName().equals(rule.getName()))
+				   .findAny()
+				   .get();
         HashMap<TGGRuleNode, HashSet<EReference>> sourceToProcessedEdgeTypes = new HashMap<TGGRuleNode, HashSet<EReference>>();
 
         // collect edges that need a multiplicity NAC
-        Collection<TGGRuleEdge> relevantEdges = rule.getEdges().stream()
+        Collection<TGGRuleEdge> relevantEdges = flattenedRule.getEdges().stream()
         													   .filter(e -> e.getType().getUpperBound() > 0
         															   && e.getBindingType() == BindingType.CREATE
         															   && e.getSrcNode().getBindingType() == BindingType.CONTEXT)
@@ -249,11 +248,11 @@ public class TGGCompiler {
 			sourceToProcessedEdgeTypes.get(src).add(e.getType());
 			
 			// calculate number of create-edges with the same type coming from this source node
-			long similarEdgesCount = rule.getEdges().stream()
-			                                        .filter(edge -> edge.getType() == e.getType()
-			                                                    && edge.getSrcNode() == src
-                                                    			&& edge.getBindingType() == BindingType.CREATE)
-			                                        .count();
+			long similarEdgesCount = flattenedRule.getEdges().stream()
+															 .filter(edge -> edge.getType() == e.getType()
+															 				&& edge.getSrcNode() == src
+															 				&& edge.getBindingType() == BindingType.CREATE)
+															 .count();
 
 			Collection<TGGRuleElement> signatureElements = new ArrayList<TGGRuleElement>();
 			Collection<TGGRuleElement> bodyElements = new ArrayList<TGGRuleElement>();
@@ -295,9 +294,13 @@ public class TGGCompiler {
 	 */
 	private void addPatternInvocationsForContainmentReferenceConstraints(Collection<IbexPattern> patterns, RulePartPattern pattern) {
 		TGGRule rule = pattern.getRule();
+		TGGRule flattenedRule = flattenedTgg.getRules().stream()
+													   .filter(r -> r.getName().equals(rule.getName()))
+													   .findAny()
+													   .get();
 
         // collect edges that need a multiplicity NAC
-        Collection<TGGRuleEdge> relevantEdges = rule.getEdges().stream()
+        Collection<TGGRuleEdge> relevantEdges = flattenedRule.getEdges().stream()
         													   .filter(e -> e.getType().isContainment()
         															   && e.getBindingType() == BindingType.CREATE
         															   && e.getTrgNode().getBindingType() == BindingType.CONTEXT)
