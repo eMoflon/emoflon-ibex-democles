@@ -135,7 +135,7 @@ public abstract class OperationalStrategy {
 		rs.getResources().remove(res);
 		rs.getResources().remove(flattenedRes);
 		
-		ruleInfos = new RuleInfos(tgg); //TODO [fstolte]: change this to flattenedTGG
+		ruleInfos = new RuleInfos(flattenedTgg);
 		this.operationalMatchContainer = new MatchContainer(tgg);
 	}
 
