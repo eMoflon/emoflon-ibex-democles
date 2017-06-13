@@ -89,6 +89,7 @@ public class DemoclesHelper implements MatchEventListener {
 	private Collection<RetePattern> patternMatchers;
 	protected OperationalStrategy app;
 	private TGG tgg;
+	private TGG flattenedTgg;
 	private HashMap<IbexPattern, Pattern> patternMap;
 	private boolean debug;
 	private DemoclesAttributeHelper dAttrHelper;
@@ -101,13 +102,14 @@ public class DemoclesHelper implements MatchEventListener {
 
 	private List<MarkedPattern> markedPatterns;
 
-	public DemoclesHelper(ResourceSet rs, OperationalStrategy app, TGG tgg, String projectPath, boolean debug) throws IOException {
+	public DemoclesHelper(ResourceSet rs, OperationalStrategy app, TGG tgg, TGG flattenedTgg, String projectPath, boolean debug) throws IOException {
 		this.rs = rs;
 		patterns = new ArrayList<>();
 		matches = new HashMap<>();
 		patternMatchers = new ArrayList<>();
 		this.app = app;
 		this.tgg = tgg;
+		this.flattenedTgg = flattenedTgg;
 		patternMap = new HashMap<>();
 		this.debug = debug;
 		this.dAttrHelper = new DemoclesAttributeHelper();
@@ -166,7 +168,7 @@ public class DemoclesHelper implements MatchEventListener {
 	}
 
 	private void createDemoclesPatterns() {
-		TGGCompiler compiler = new TGGCompiler(tgg);
+		TGGCompiler compiler = new TGGCompiler(tgg, flattenedTgg);
 		compiler.preparePatterns();
 		markedPatterns = compiler.getMarkedPatterns();
 

@@ -61,6 +61,7 @@ public abstract class OperationalStrategy {
 	protected Resource p;
 	
 	protected TGG tgg;
+	protected TGG flattenedTgg;
 	
 	protected DemoclesHelper engine;
 	
@@ -114,7 +115,7 @@ public abstract class OperationalStrategy {
 	abstract public void loadModels() throws IOException;
 	
 	protected void initialiseEngine(boolean debug) throws IOException {
-		engine = new DemoclesHelper(rs, this, tgg, projectPath, debug);		
+		engine = new DemoclesHelper(rs, this, tgg, flattenedTgg, projectPath, debug);		
 	}
 
 	public void terminate() throws IOException {
@@ -122,16 +123,19 @@ public abstract class OperationalStrategy {
 	}
 	
 	protected void loadTGG(boolean flatten) throws IOException {
-		Resource res = null;
+		Resource res = loadResource(projectPath + "/model/" + projectPath + ".tgg.xmi");
+		Resource flattenedRes = loadResource(projectPath + "/model/" + projectPath + "_flattened.tgg.xmi");
 		if (flatten) {
-			res = loadResource(projectPath + "/model/" + projectPath + "_flattened.tgg.xmi");
+			tgg = (TGG) flattenedRes.getContents().get(0);
 		} else {
-			res = loadResource(projectPath + "/model/" + projectPath + ".tgg.xmi");
+			tgg = (TGG) res.getContents().get(0);
 		}
-		tgg = (TGG) res.getContents().get(0);
-		rs.getResources().remove(res);
+		flattenedTgg = (TGG) flattenedRes.getContents().get(0);
 		
-		ruleInfos = new RuleInfos(tgg);
+		rs.getResources().remove(res);
+		rs.getResources().remove(flattenedRes);
+		
+		ruleInfos = new RuleInfos(tgg); //TODO [fstolte]: change this to flattenedTGG
 		this.operationalMatchContainer = new MatchContainer(tgg);
 	}
 
