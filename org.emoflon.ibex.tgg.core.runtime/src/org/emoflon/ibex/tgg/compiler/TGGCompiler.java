@@ -44,11 +44,13 @@ public class TGGCompiler {
 	private Map<TGGRule, Collection<IbexPattern>> ruleToPatterns = new LinkedHashMap<>();
 
 	private TGG tgg;
+	private TGG flattenedTgg;
 	
 	private DECTrackingHelper decTC;
 
-	public TGGCompiler(TGG tgg) {
+	public TGGCompiler(TGG tgg, TGG flattenedTgg) {
 		this.tgg = tgg;
+		this.flattenedTgg = flattenedTgg;
 		
 		// initialise DECTrackingContainer that contains information for DEC
 		// generation such as which patterns belongs to which rule or the
@@ -137,6 +139,23 @@ public class TGGCompiler {
 
 			ruleToPatterns.put(rule, patterns);
 		}
+		
+		List<IbexPattern> modelgenPatterns = ruleToPatterns.values().stream()
+				   													.flatMap(p -> p.stream())
+				   													.filter(p -> p instanceof MODELGENPattern)
+				   													.collect(Collectors.toList());
+		
+		// add dummy nodes to MODELGENPatterns that are necessary for pattern invocation to patterns of super-rule
+		for (IbexPattern pattern : modelgenPatterns) {
+			addDummyNodes((MODELGENPattern)pattern);
+		}
+		
+      // add pattern invocations to MODELGENPatterns for rule refinement
+		modelgenPatterns.forEach(p -> p.getRule().getRefines().stream()
+															  .flatMap(r -> ruleToPatterns.get(r).stream())
+															  .filter(pattern -> pattern instanceof MODELGENPattern)
+															  .forEach(r -> p.addTGGPositiveInvocation(r)));
+
 
 
 		// add no DEC patterns to Src- and TrgPattern, respectively and register them
@@ -178,6 +197,22 @@ public class TGGCompiler {
 		markedPatterns.add(signProtocolTrgMarkedPattern);
 	}
 	
+	private void addDummyNodes(MODELGENPattern pattern) {
+		TGGRule rule = pattern.getRule();
+		TGGRule flattenedRule = flattenedTgg.getRules().stream()
+													   .filter(r -> r.getName().equals(rule.getName()))
+													   .findAny().get();
+		
+		flattenedRule.getNodes().stream()
+								.filter(n -> n.getBindingType() == BindingType.CONTEXT)
+								.filter(n -> !pattern.getSignatureElements().stream()
+										  									.anyMatch(sigNode -> sigNode.getName().equals(n.getName())))
+								.forEach(n -> {
+									TGGRuleNode dummy = EcoreUtil.copy(n);
+									pattern.getSignatureElements().add(dummy);
+								});
+	}
+	
 	/**
 	 * This method augments a rule pattern with negative invocations to deal with 0..n multiplicities.
 	 * For every created edge in the pattern that has a 0..n multiplicity, a negative invocation
@@ -189,7 +224,6 @@ public class TGGCompiler {
 	 */    
 	private void addPatternInvocationsForMultiplicityConstraints(Collection<IbexPattern> patterns, RulePartPattern pattern) {
 		TGGRule rule = pattern.getRule();
-        Resource constraintResource = rule.eResource(); //TODO check if this is necessary after pattern matcher is fixed
         HashMap<TGGRuleNode, HashSet<EReference>> sourceToProcessedEdgeTypes = new HashMap<TGGRuleNode, HashSet<EReference>>();
 
         // collect edges that need a multiplicity NAC
@@ -223,9 +257,6 @@ public class TGGCompiler {
 
 			Collection<TGGRuleElement> signatureElements = new ArrayList<TGGRuleElement>();
 			Collection<TGGRuleElement> bodyElements = new ArrayList<TGGRuleElement>();
-            
-//            bodyElements.add(e.getTrgNode());    // testing
-//            bodyElements.add(e);                // testing
 
 			// create/add elements to the pattern
 			signatureElements.add(src);
@@ -233,8 +264,6 @@ public class TGGCompiler {
 			for (int i = 1; i <= e.getType().getUpperBound()+1-similarEdgesCount; i++) {
 				TGGRuleNode trg = EcoreUtil.copy(e.getTrgNode());
 				TGGRuleEdge edge = EcoreUtil.copy(e);
-				constraintResource.getContents().add(trg);
-				constraintResource.getContents().add(edge);
 				
 				trg.setName(trg.getName()+i);
 				edge.setSrcNode(src);
@@ -266,7 +295,6 @@ public class TGGCompiler {
 	 */
 	private void addPatternInvocationsForContainmentReferenceConstraints(Collection<IbexPattern> patterns, RulePartPattern pattern) {
 		TGGRule rule = pattern.getRule();
-        Resource constraintResource = rule.eResource(); //TODO check if this is necessary after pattern matcher is fixed
 
         // collect edges that need a multiplicity NAC
         Collection<TGGRuleEdge> relevantEdges = rule.getEdges().stream()
@@ -284,8 +312,6 @@ public class TGGCompiler {
 			// create/add elements to the pattern
 			TGGRuleNode src = EcoreUtil.copy(e.getSrcNode());
 			TGGRuleEdge edge = EcoreUtil.copy(e);
-			constraintResource.getContents().add(src);
-			constraintResource.getContents().add(edge);
 			
 			edge.setSrcNode(src);
 			edge.setTrgNode(trg);
