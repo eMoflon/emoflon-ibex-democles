@@ -26,6 +26,7 @@ import org.emoflon.ibex.tgg.compiler.pattern.rulepart.RulePartPattern;
 import org.emoflon.ibex.tgg.compiler.pattern.rulepart.WholeRulePattern;
 import org.emoflon.ibex.tgg.compiler.pattern.rulepart.support.ConstraintPattern;
 import org.emoflon.ibex.tgg.compiler.pattern.rulepart.support.CorrContextPattern;
+import org.emoflon.ibex.tgg.compiler.pattern.rulepart.support.MODELGENNoNACsPattern;
 import org.emoflon.ibex.tgg.compiler.pattern.rulepart.support.SrcContextPattern;
 import org.emoflon.ibex.tgg.compiler.pattern.rulepart.support.SrcPattern;
 import org.emoflon.ibex.tgg.compiler.pattern.rulepart.support.SrcProtocolAndDECPattern;
@@ -118,14 +119,20 @@ public class TGGCompiler {
 			bwd.addTGGPositiveInvocation(trgProtocolDECs);
 			bwd.addTGGPositiveInvocation(corrContext);
 			bwd.addTGGPositiveInvocation(srcContext);
+			
+			MODELGENNoNACsPattern modelgenNoNACs = new MODELGENNoNACsPattern(rule);
+			// add dummy nodes to MODELGENNoNACsPattern that are necessary for pattern invocation to patterns of super-rule
+			addDummyNodes(modelgenNoNACs);
+			patterns.add(modelgenNoNACs);
+			modelgenNoNACs.addTGGPositiveInvocation(srcContext);
+			modelgenNoNACs.addTGGPositiveInvocation(trgContext);
+			modelgenNoNACs.addTGGPositiveInvocation(corrContext);
 
 			MODELGENPattern modelgen = new MODELGENPattern(rule);
-			// add dummy nodes to MODELGENPatterns that are necessary for pattern invocation to patterns of super-rule
+			// add dummy nodes to MODELGENPattern that are necessary for pattern invocation to patterns of super-rule
 			addDummyNodes(modelgen);
 			patterns.add(modelgen);
-			modelgen.addTGGPositiveInvocation(srcContext);
-			modelgen.addTGGPositiveInvocation(trgContext);
-			modelgen.addTGGPositiveInvocation(corrContext);
+			modelgen.addTGGPositiveInvocation(modelgenNoNACs);
 			addPatternInvocationsForMultiplicityConstraints(patterns, modelgen);
 			addPatternInvocationsForContainmentReferenceConstraints(patterns, modelgen);
 
@@ -145,10 +152,10 @@ public class TGGCompiler {
       // add pattern invocations to MODELGENPatterns for rule refinement
 		ruleToPatterns.values().stream()
 				   			   .flatMap(p -> p.stream())
-				   			   .filter(p -> p instanceof MODELGENPattern)
+				   			   .filter(p -> p instanceof MODELGENNoNACsPattern)
 				   			   .forEach(p -> p.getRule().getRefines().stream()
 				   					   								 .flatMap(r -> ruleToPatterns.get(r).stream())
-				   					   								 .filter(pattern -> pattern instanceof MODELGENPattern)
+				   					   								 .filter(pattern -> pattern instanceof MODELGENNoNACsPattern)
 				   					   								 .forEach(r -> p.addTGGPositiveInvocation(r)));
 
 
@@ -192,7 +199,10 @@ public class TGGCompiler {
 		markedPatterns.add(signProtocolTrgMarkedPattern);
 	}
 	
-	private void addDummyNodes(MODELGENPattern pattern) {
+	private void addDummyNodes(RulePartPattern pattern) {
+		// This method only works for pattern types whose signatureElements can be altered.
+		// This means that changes to the collection returned by getSignatureElements()
+		// need to be recognized by the pattern.
 		TGGRule rule = pattern.getRule();
 		TGGRule flattenedRule = flattenedTgg.getRules().stream()
 													   .filter(r -> r.getName().equals(rule.getName()))

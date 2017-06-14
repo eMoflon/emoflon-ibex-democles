@@ -41,14 +41,22 @@ public class PatternSuffixes {
 	/** Contains the context of the corr component of the pattern */
 	public static final String CORR_CONTEXT = SEP + "CONTEXT_CORR";
 
+	/** Used for constraints, currently only multiplicity NACs */
 	public static final String CONSTRAINT = SEP + "CONSTRAINT";
-	
+
 	/** 
-	 * Contains the entire context of the original TGG rule.  
+	 * Contains the entire context of the original TGG rule and invocations to
+	 * the corresponding patterns of super-rules.
+	 */	
+	public static final String MODELGEN_NO_NACS = SEP + "MODELGEN_NO_NACS";
+
+	/** 
+	 * Contains the entire context of the original TGG rule together with
+	 * multiplicity NACs.
 	 * Used for applying the original TGG rules, i.e., for the model generator. 
 	 */
 	public static final String MODELGEN = SEP + "MODELGEN";
-
+	
 	/**
 	 * Forbid this pattern to ensure that all source elements created by the original
 	 * rule have not yet been translated (marked)
