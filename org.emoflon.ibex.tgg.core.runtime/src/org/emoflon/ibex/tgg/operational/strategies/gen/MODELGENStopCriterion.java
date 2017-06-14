@@ -47,7 +47,8 @@ public class MODELGENStopCriterion {
 
 	protected boolean dont(String ruleName) {
 
-		if (maxRuleCount.containsKey(ruleName) && (maxRuleCount.get(ruleName) == 0 || currentRuleCount.get(ruleName) == maxRuleCount.get(ruleName)))
+		if (maxRuleCount.containsKey(ruleName) && ((maxRuleCount.get(ruleName).equals(new Integer(0))
+													|| maxRuleCount.get(ruleName).equals(currentRuleCount.get(ruleName)))))
 			return true;
 		
 		return dont();
