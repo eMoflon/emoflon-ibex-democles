@@ -30,6 +30,8 @@ public class RuleInfos {
 	protected HashMap<String, Collection<TGGRuleCorr>> blackCorrNodes = new LinkedHashMap<>();
 
 	protected HashMap<String, TGGAttributeConstraintLibrary> rule2constraintLibrary = new LinkedHashMap<>();
+	
+	protected HashMap<String, Boolean> rule2isAbstract = new LinkedHashMap<>();
 
 	public RuleInfos(TGG tgg) {
 		tgg.getRules().forEach(this::prepareRuleInfo);
@@ -38,6 +40,7 @@ public class RuleInfos {
 	private void prepareRuleInfo(TGGRule r) {
 		String ruleName = r.getName();
 		rule2constraintLibrary.put(r.getName(), r.getAttributeConditionLibrary());
+		rule2isAbstract.put(ruleName, r.isAbstract());
 
 		greenSrcNodes.put(ruleName,
 				r.getNodes().stream()
@@ -136,5 +139,9 @@ public class RuleInfos {
 		return blackSrcNodes.get(ruleName).isEmpty() &&
 			   blackTrgNodes.get(ruleName).isEmpty() &&
 			   blackCorrNodes.get(ruleName).isEmpty();	
+	}
+	
+	public boolean isAbstract(String ruleName){
+		return rule2isAbstract.get(ruleName);	
 	}
 }
