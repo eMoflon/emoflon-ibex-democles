@@ -210,9 +210,6 @@ public abstract class OperationalStrategy {
 	}
 
 	public boolean processOperationalRuleMatch(String ruleName, IMatch match) {
-		if (ruleInfos.isAbstract(ruleName))
-			return false;
-		
 		if (match.patternName().endsWith(PatternSuffixes.FWD) && !markingSrc())
 			return false;
 		

@@ -1,8 +1,10 @@
 package org.emoflon.ibex.tgg.operational.strategies.gen;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 import language.TGG;
+import language.TGGRule;
 
 public class MODELGENStopCriterion {
 
@@ -21,9 +23,16 @@ public class MODELGENStopCriterion {
 	private HashMap<String, Integer> maxRuleCount = new HashMap<>();
 
 	private HashMap<String, Integer> currentRuleCount = new HashMap<>();
+	
+	private HashSet<String> abstractRules = new HashSet<>();
 
 	public MODELGENStopCriterion(TGG tgg) {
 		this.tgg = tgg;
+		
+		for (TGGRule rule : tgg.getRules()) {
+			if (rule.isAbstract())
+				abstractRules.add(rule.getName());
+		}
 	}
 	
 	public void setTimeOutInMS(long timeOutInMS) {
@@ -46,7 +55,11 @@ public class MODELGENStopCriterion {
 	}
 
 	protected boolean dont(String ruleName) {
+		// prevent abstract rules from being applied
+		if (abstractRules.contains(ruleName))
+			return true;
 
+		// prevent rule from being applied if max number of applications is reached
 		if (maxRuleCount.containsKey(ruleName) && ((maxRuleCount.get(ruleName).equals(new Integer(0))
 													|| maxRuleCount.get(ruleName).equals(currentRuleCount.get(ruleName)))))
 			return true;
