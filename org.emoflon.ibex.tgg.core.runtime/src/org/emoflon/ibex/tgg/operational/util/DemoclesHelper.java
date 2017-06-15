@@ -474,6 +474,10 @@ public class DemoclesHelper implements MatchEventListener {
 						 						  .findAny();
 				
 				match.ifPresent(m -> {
+					if(m.patternName().endsWith(PatternSuffixes.PROTOCOL)){
+						app.addBrokenMatch(m);
+					}
+					
 					app.removeOperationalRuleMatch(m);
 					if (matches.get(frame).size() > 1) {
 						matches.get(frame).remove(m);
