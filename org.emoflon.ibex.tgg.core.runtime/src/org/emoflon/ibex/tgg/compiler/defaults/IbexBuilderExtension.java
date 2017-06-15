@@ -22,6 +22,7 @@ public class IbexBuilderExtension implements BuilderExtension {
 			internalModel.ifPresent(m -> new AttrCondDefLibraryProvider().generateAttrCondLibsAndStubs(m, builder.getProject()));
 			builder.createDefaultFile("MODELGEN_App", DefaultFilesHelper::generateModelGenFile);
 			builder.createDefaultFile("SYNC_App", DefaultFilesHelper::generateSyncAppFile);
+			builder.createDefaultFile("CC_App", DefaultFilesHelper::generateCCAppFile);
 		} catch (CoreException e) {
 			LogUtils.error(logger, e);
 		}

@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.emoflon.ibex.tgg.compiler.PatternSuffixes;
 import org.emoflon.ibex.tgg.operational.OperationalStrategy;
 import org.emoflon.ibex.tgg.operational.edge.RuntimeEdge;
 import org.emoflon.ibex.tgg.operational.edge.RuntimeEdgeHashingStrategy;
@@ -54,8 +55,43 @@ public abstract class CC extends OperationalStrategy {
 		super(projectName, workspacePath, debug);
 	}
 	
+	public CC(String projectName, String workspacePath, boolean flatten, boolean debug) throws IOException {
+		super(projectName, workspacePath, flatten, debug);
+	}
+	
 	@Override
-	protected void finalize() {
+	protected boolean manipulateSrc() {
+		return false;
+	}
+
+	@Override
+	protected boolean manipulateTrg() {
+		return false;
+	}
+	
+	@Override
+	public void loadModels() throws IOException {
+		s = loadResource(projectPath + "/instances/src.xmi");
+		t = loadResource(projectPath + "/instances/trg.xmi");
+		c = createResource(projectPath + "/instances/corr.xmi");
+		p = createResource(projectPath + "/instances/protocol.xmi");
+		
+		EcoreUtil.resolveAll(rs);
+	}
+	
+	@Override
+	public void saveModels() throws IOException {
+		c.save(null);
+	 	p.save(null);
+	}
+	
+	@Override
+	public boolean isPatternRelevant(String patternName) {
+		return patternName.endsWith(PatternSuffixes.CC);
+	}
+	
+	@Override
+	protected void wrapUp() {
 		for(int v : chooseTGGRuleApplications()){
 			if(v < 0){
 				IMatch match = idToMatch.get(-v);
