@@ -29,7 +29,7 @@ public class NoDECsPatterns extends RulePartPattern {
 	private DECTrackingHelper decTC;
 	private DomainType domain;
 	
-	private DECStrategy strategy = DECStrategy.FILTER_NACS_AND_PACS;
+	private DECStrategy strategy = DECStrategy.NONE;
 
 	public NoDECsPatterns(TGGRule rule, DECTrackingHelper decTC, DomainType domain) {
 		super(rule);
