@@ -165,6 +165,10 @@ public class TGGCompiler {
 			NoDECsPatterns srcNoDecPatterns = new NoDECsPatterns(rule, decTC, DomainType.SRC);
 			NoDECsPatterns trgNoDecPatterns = new NoDECsPatterns(rule, decTC, DomainType.TRG);
 
+			
+			//FIXME:  Are these checks for isEmpty() necessary or even wrong/dangerous??
+			//FIXME:  CC patterns should invoke NoDEC patterns as well
+			
 			if (!srcNoDecPatterns.isEmpty()) {
 				ruleToPatterns.get(rule).add(srcNoDecPatterns);
 				ruleToPatterns.get(rule).stream().filter(r -> r instanceof SrcProtocolAndDECPattern).forEach(r -> r.addTGGPositiveInvocation(srcNoDecPatterns));
