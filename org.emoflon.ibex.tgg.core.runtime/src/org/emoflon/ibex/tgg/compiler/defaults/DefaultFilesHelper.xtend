@@ -136,6 +136,7 @@ class DefaultFilesHelper {
 		
 			protected void registerUserMetamodels() throws IOException {
 				loadAndRegisterMetamodel(projectPath + "/model/" + projectPath + ".ecore");
+				
 				//FIXME load and register source and target metamodels
 			}
 		}
@@ -147,27 +148,83 @@ class DefaultFilesHelper {
 			package org.emoflon.ibex.tgg.run;
 			
 			import java.io.IOException;
+			import org.apache.log4j.BasicConfigurator;
 			import org.emoflon.ibex.tgg.operational.strategies.sync.SYNC;
 			
 			public class «fileName» extends SYNC {
 			
 				public «fileName»(String projectName, String workspacePath, boolean debug) throws IOException {
-					super(projectName, workspacePath, debug);
+							super(projectName, workspacePath, debug);
+						}
+
+				public «fileName»(String projectName, String workspacePath, boolean flatten, boolean debug) throws IOException {
+					super(projectName, workspacePath, flatten, debug);
 				}
+			
+				public static void main(String[] args) throws IOException {
+						BasicConfigurator.configure();
+				
+						«fileName» sync = new «fileName»("«projectName»", "./../", true);
+						
+						logger.info("Starting SYNC");
+						long tic = System.currentTimeMillis();
+						sync.forward();
+						long toc = System.currentTimeMillis();
+						logger.info("Completed SYNC in: " + (toc - tic) + " ms");
+				
+						sync.saveModels();
+						sync.terminate();
+					}
 			
 				@Override
 				protected void registerUserMetamodels() throws IOException {
-					// TODO Auto-generated method stub
+					loadAndRegisterMetamodel(projectPath + "/model/" + projectPath + ".ecore");
+					
+					//FIXME load and register source and target metamodels
+				}
+			}
+
+		'''
+	}
+	
+	static def generateCCAppFile(String projectName, String fileName){
+		return '''
+			package org.emoflon.ibex.tgg.run;
+			
+			import java.io.IOException;
+			import org.apache.log4j.BasicConfigurator;
+			import org.emoflon.ibex.tgg.operational.strategies.cc.CC;
+			
+			public class «fileName» extends CC {
+			
+				public «fileName»(String projectName, String workspacePath, boolean debug) throws IOException {
+					super(projectName, workspacePath, debug);
+				}
+
+				public «fileName»(String projectName, String workspacePath, boolean flatten, boolean debug) throws IOException {
+					super(projectName, workspacePath, flatten, debug);
 				}
 			
-				@Override
-				public void saveModels() throws IOException {
-					// TODO Auto-generated method stub
-				}
+				public static void main(String[] args) throws IOException {
+						BasicConfigurator.configure();
+				
+						«fileName» cc = new «fileName»("«projectName»", "./../", true);
+						
+						logger.info("Starting CC");
+						long tic = System.currentTimeMillis();
+						cc.run();
+						long toc = System.currentTimeMillis();
+						logger.info("Completed CC in: " + (toc - tic) + " ms");
+				
+						cc.saveModels();
+						cc.terminate();
+					}
 			
 				@Override
-				public void loadModels() throws IOException {
-					// TODO Auto-generated method stub
+				protected void registerUserMetamodels() throws IOException {
+					loadAndRegisterMetamodel(projectPath + "/model/" + projectPath + ".ecore");
+					
+					//FIXME load and register source and target metamodels
 				}
 			}
 
