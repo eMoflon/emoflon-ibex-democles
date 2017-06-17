@@ -1,6 +1,5 @@
 package org.emoflon.ibex.tgg.operational;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,15 +22,10 @@ import org.emoflon.ibex.tgg.operational.csp.RuntimeTGGAttributeConstraintContain
 import org.emoflon.ibex.tgg.operational.csp.constraints.factories.RuntimeTGGAttrConstraintProvider;
 import org.emoflon.ibex.tgg.operational.edge.RuntimeEdge;
 import org.emoflon.ibex.tgg.operational.edge.RuntimeEdgeHashingStrategy;
-import org.emoflon.ibex.tgg.operational.util.DemoclesHelper;
 import org.emoflon.ibex.tgg.operational.util.IMatch;
 import org.emoflon.ibex.tgg.operational.util.ManipulationUtil;
 import org.emoflon.ibex.tgg.operational.util.MatchContainer;
 import org.emoflon.ibex.tgg.operational.util.RuleInfos;
-import org.gervarro.democles.specification.emf.EMFDemoclesPatternMetamodelPlugin;
-import org.gervarro.democles.specification.emf.SpecificationPackage;
-import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFTypePackage;
-import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintPackage;
 
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.TCustomHashSet;
@@ -62,9 +56,7 @@ public abstract class OperationalStrategy {
 	
 	protected TGG tgg;
 	protected TGG flattenedTgg;
-	
-	protected DemoclesHelper engine;
-	
+		
 	protected RuleInfos ruleInfos;
 	protected MatchContainer operationalMatchContainer;
 
@@ -73,22 +65,33 @@ public abstract class OperationalStrategy {
 	protected TCustomHashSet<RuntimeEdge> markedEdges = new TCustomHashSet<>(new RuntimeEdgeHashingStrategy());
 	protected THashMap<TGGRuleApplication, IMatch> brokenRuleApplications = new THashMap<>();
 	
+	protected String workspacePath;
+	
 	public boolean debug;
+	protected boolean flatten;
+	
+	private PatternMatchingEngine engine;
 
-	public OperationalStrategy(String projectName, String workspacePath, boolean flatten, boolean debug) throws IOException {
+	public OperationalStrategy(String projectName, String workspacePath, boolean flatten, boolean debug) {
 		this.debug = debug;
 		this.projectPath = projectName;
 		base = URI.createPlatformResourceURI("/", true);
+		this.workspacePath = workspacePath;
+		this.flatten = flatten;
+	}
+	
+	public OperationalStrategy(String projectName, String workspacePath, boolean debug) throws IOException {
+		this(projectName, workspacePath, false, debug);
+	}
+	
+	public void registerPatternMatchingEngine(PatternMatchingEngine engine) throws IOException {
+		this.engine = engine;
 		createAndPrepareResourceSet(workspacePath);
 		registerInternalMetamodels(); 
 		registerUserMetamodels();
 		loadTGG(flatten);
 		initialiseEngine(debug);
 		loadModels();
-	}
-	
-	public OperationalStrategy(String projectName, String workspacePath, boolean debug) throws IOException {
-		this(projectName, workspacePath, false, debug);
 	}
 	
 	protected abstract void registerUserMetamodels() throws IOException;
@@ -115,7 +118,7 @@ public abstract class OperationalStrategy {
 	abstract public void loadModels() throws IOException;
 	
 	protected void initialiseEngine(boolean debug) throws IOException {
-		engine = new DemoclesHelper(rs, this, tgg, flattenedTgg, projectPath, debug);		
+		engine.initialise(rs, this, tgg, flattenedTgg, projectPath, debug);		
 	}
 
 	public void terminate() throws IOException {
@@ -144,16 +147,13 @@ public abstract class OperationalStrategy {
 	 * plugin:/resource/ -> file:/to/workspace/root/
 	 * @throws IOException
 	 */
-	protected void createAndPrepareResourceSet(String workspacePath) throws IOException {		
-		rs = EMFDemoclesPatternMetamodelPlugin.createDefaultResourceSet();
-		EMFDemoclesPatternMetamodelPlugin.setWorkspaceRootDirectory(rs, new File(workspacePath).getCanonicalPath());
+	protected void createAndPrepareResourceSet(String workspacePath) {		
+		rs = engine.createAndPrepareResourceSet(workspacePath);
 	}
 
 	protected void registerInternalMetamodels() {
-		// Register internals for Democles
-		SpecificationPackage.init();
-		RelationalConstraintPackage.init();
-		EMFTypePackage.init();
+		// Register internals for engine
+		engine.registerInternalMetamodels();
 
 		// Register internals for Ibex
 		LanguagePackageImpl.init();

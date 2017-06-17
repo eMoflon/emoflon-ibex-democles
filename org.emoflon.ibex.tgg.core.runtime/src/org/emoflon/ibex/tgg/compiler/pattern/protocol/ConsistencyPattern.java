@@ -9,8 +9,6 @@ import org.emoflon.ibex.tgg.compiler.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.pattern.IbexPattern;
 import org.emoflon.ibex.tgg.compiler.pattern.InvocationHelper;
 import org.emoflon.ibex.tgg.compiler.pattern.common.MarkedPattern;
-import org.gervarro.democles.specification.emf.PatternInvocationConstraint;
-import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable;
 
 import language.BindingType;
 import language.DomainType;

@@ -29,7 +29,7 @@ public class DECHelper {
 	 * These edge counting rules only work in the context of dec because we filter those rules where our entry point is not set to context
 	 */
 	protected static boolean isEdgeInTGG(TGG tgg, EReference eType, EdgeDirection eDirection, boolean findRescuePattern, DomainType mode) {
-		return tgg.getRules().parallelStream().filter(r -> DECHelper.countEdgeInRule(r, eType, eDirection, findRescuePattern, mode).getLeft() > 0).count() != 0;
+		return tgg.getRules().stream().filter(r -> DECHelper.countEdgeInRule(r, eType, eDirection, findRescuePattern, mode).getLeft() > 0).count() != 0;
 	}
 
 	protected static Triple<Integer, TGGRuleNode, TGGRuleNode> countEdgeInRule(TGGRule rule, EReference edgeType, EdgeDirection eDirection, boolean findRescuePattern, DomainType mode) {

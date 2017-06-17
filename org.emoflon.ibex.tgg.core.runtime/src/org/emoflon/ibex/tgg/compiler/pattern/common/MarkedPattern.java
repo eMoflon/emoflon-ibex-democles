@@ -3,7 +3,6 @@ package org.emoflon.ibex.tgg.compiler.pattern.common;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.emoflon.ibex.tgg.compiler.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.pattern.IbexPattern;
-import org.emoflon.ibex.tgg.operational.util.IbexMatch;
 
 import language.BindingType;
 import language.DomainType;
