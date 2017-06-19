@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -119,7 +120,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		this.debug = debug;
 		this.dAttrHelper = new DemoclesAttributeHelper();
 		this.projectPath = projectPath;
-		
+
 		createAndRegisterPatterns();
 	}
 
@@ -138,11 +139,13 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// 2) EMF-independent to pattern matcher runtime (i.e., Rete network)
 		// transformation
 		retePatternMatcherModule.build(internalPatterns.toArray(new DefaultPattern[internalPatterns.size()]));
-		if (debug) saveDemoclesPatterns();
-		
+		if (debug)
+			saveDemoclesPatterns();
+
 		retePatternMatcherModule.getSession().setAutoCommitMode(false);
-		if (debug) printReteNetwork();
-		
+		if (debug)
+			printReteNetwork();
+
 		// Attach match listener to pattern matchers
 		retrievePatternMatchers();
 		patternMatchers.forEach(pm -> pm.addEventListener(this));
@@ -208,17 +211,15 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// Pattern invocations
 		for (IbexPattern inv : ibexPattern.getPositiveInvocations()) {
 			if (patternIsNotEmpty(inv)) {
-				PatternInvocationConstraint invCon = createInvocationConstraint(ibexPattern, inv, true, nodeToVar);
-				if (!invCon.getParameters().isEmpty())
-					constraints.add(invCon);
+				Collection<PatternInvocationConstraint> invCons = createInvocationConstraint(ibexPattern, inv, true, nodeToVar);
+				invCons.stream().filter(invCon -> !invCon.getParameters().isEmpty()).forEach(invCon -> constraints.add(invCon));
 			}
 		}
 
 		for (IbexPattern inv : ibexPattern.getNegativeInvocations()) {
 			if (patternIsNotEmpty(inv)) {
-				PatternInvocationConstraint invCon = createInvocationConstraint(ibexPattern, inv, false, nodeToVar);
-				if (!invCon.getParameters().isEmpty())
-					constraints.add(invCon);
+				Collection<PatternInvocationConstraint> invCons = createInvocationConstraint(ibexPattern, inv, false, nodeToVar);
+				invCons.stream().filter(invCon -> !invCon.getParameters().isEmpty()).forEach(invCon -> constraints.add(invCon));
 			}
 		}
 
@@ -332,15 +333,15 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 		// Force injective matches through unequals-constraints
 		if (ibexPattern instanceof RulePartPattern)
-			forceInjectiveMatchesForPattern((RulePartPattern)ibexPattern, body, nodeToVar);
-		
+			forceInjectiveMatchesForPattern((RulePartPattern) ibexPattern, body, nodeToVar);
+
 		return constraints;
 	}
-	
+
 	private void forceInjectiveMatchesForPattern(RulePartPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 		pattern.getInjectivityChecks().stream().forEach(pair -> {
 			RelationalConstraint unequal = rcFactory.createUnequal();
-			
+
 			ConstraintParameter p1 = factory.createConstraintParameter();
 			ConstraintParameter p2 = factory.createConstraintParameter();
 			unequal.getParameters().add(p1);
@@ -352,16 +353,25 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		});
 	}
 
-	private PatternInvocationConstraint createInvocationConstraint(IbexPattern root, IbexPattern inv, boolean isTrue, Map<TGGRuleNode, EMFVariable> nodeToVar) {
-		PatternInvocationConstraint invCon = factory.createPatternInvocationConstraint();
-		invCon.setPositive(isTrue);
-		invCon.setInvokedPattern(ibexToDemocles(inv));
-		for (TGGRuleElement element : inv.getSignatureElements()) {
-			ConstraintParameter parameter = factory.createConstraintParameter();
-			invCon.getParameters().add(parameter);
-			parameter.setReference(nodeToVar.get(root.getMappedRuleElement(inv, element)));
+	private Collection<PatternInvocationConstraint> createInvocationConstraint(IbexPattern root, IbexPattern inv, boolean isTrue, Map<TGGRuleNode, EMFVariable> nodeToVar) {
+		List<PatternInvocationConstraint> invCons = new LinkedList<>();
+		for (int i = 0; i < root.getMappedRuleElement(inv, inv.getSignatureElements().stream().findFirst().get()).size(); i++) {
+			PatternInvocationConstraint invCon = factory.createPatternInvocationConstraint();
+			invCon.setPositive(isTrue);
+			invCon.setInvokedPattern(ibexToDemocles(inv));
+			invCons.add(invCon);
 		}
-		return invCon;
+
+		for (TGGRuleElement element : inv.getSignatureElements()) {
+			for (int i = 0; i < root.getMappedRuleElement(inv, inv.getSignatureElements().stream().findFirst().get()).size(); i++) {
+				TGGRuleElement invElem = root.getMappedRuleElement(inv, element).get(i);
+				ConstraintParameter parameter = factory.createConstraintParameter();
+				invCons.get(i).getParameters().add(parameter);
+				parameter.setReference(nodeToVar.get(invElem));
+
+			}
+		}
+		return invCons;
 	}
 
 	private void retrievePatternMatchers() {
@@ -427,16 +437,15 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// React to events
 		final String type = event.getEventType();
 		final DataFrame frame = event.getMatching();
-		
-		if (debug) logger.debug("Received match:  " + event);
+
+		if (debug)
+			logger.debug("Received match:  " + event);
 
 		Optional<Pattern> p = patterns.stream().filter(pattern -> getPatternID(pattern).equals(event.getSource().toString())).findAny();
 
 		p.ifPresent(pattern -> {
 			// React to create
-			if (type.contentEquals(MatchEvent.INSERT) 
-					&& (!matches.keySet().contains(frame)
-							|| matches.get(frame).stream().allMatch(m -> !m.patternName().equals(pattern.getName())))) {
+			if (type.contentEquals(MatchEvent.INSERT) && (!matches.keySet().contains(frame) || matches.get(frame).stream().allMatch(m -> !m.patternName().equals(pattern.getName())))) {
 				IMatch match = new IbexMatch(frame, pattern);
 				if (matches.keySet().contains(frame)) {
 					matches.get(frame).add(match);
@@ -450,16 +459,13 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 			// React to delete
 			if (type.equals(MatchEvent.DELETE)) {
 				Collection<IMatch> matchList = matches.get(frame);
-				Optional<IMatch> match = matchList == null ? Optional.empty() : 
-										 matchList.stream()
-						 						  .filter(m -> m.patternName().equals(pattern.getName()))
-						 						  .findAny();
-				
+				Optional<IMatch> match = matchList == null ? Optional.empty() : matchList.stream().filter(m -> m.patternName().equals(pattern.getName())).findAny();
+
 				match.ifPresent(m -> {
-					if(m.patternName().endsWith(PatternSuffixes.PROTOCOL)){
+					if (m.patternName().endsWith(PatternSuffixes.PROTOCOL)) {
 						app.addBrokenMatch(m);
 					}
-					
+
 					app.removeOperationalRuleMatch(m);
 					if (matches.get(frame).size() > 1) {
 						matches.get(frame).remove(m);
