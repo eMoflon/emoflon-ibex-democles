@@ -8,11 +8,11 @@ import org.emoflon.ibex.tgg.operational.util.IMatch;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.specification.emf.Pattern;
 
-public class IbexMatch implements IMatch {
+public class DemoclesMatch implements IMatch {
 	private IDataFrame frame;
 	private Pattern pattern;
 
-	public IbexMatch(IDataFrame frame, Pattern pattern) {
+	public DemoclesMatch(IDataFrame frame, Pattern pattern) {
 		this.frame = frame;
 		this.pattern = pattern;
 	}
@@ -39,6 +39,5 @@ public class IbexMatch implements IMatch {
 				return i;
 		}
 		return -1;
-//		throw new IllegalArgumentException("Not able to find variable " + varName + " in match of " + pattern.getName());
 	}
 }

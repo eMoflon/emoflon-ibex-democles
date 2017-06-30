@@ -446,7 +446,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		p.ifPresent(pattern -> {
 			// React to create
 			if (type.contentEquals(MatchEvent.INSERT) && (!matches.keySet().contains(frame) || matches.get(frame).stream().allMatch(m -> !m.patternName().equals(pattern.getName())))) {
-				IMatch match = new IbexMatch(frame, pattern);
+				IMatch match = new DemoclesMatch(frame, pattern);
 				if (matches.keySet().contains(frame)) {
 					matches.get(frame).add(match);
 				} else {
