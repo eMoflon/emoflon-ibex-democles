@@ -6,7 +6,7 @@ import org.eclipse.emf.ecore.presentation.EcoreEditor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.ui.IEditorPart;
-import org.emoflon.ibex.tgg.ui.ide.visualisation.IbexVisualiser;
+import org.emoflon.ibex.tgg.ide.visualisation.IbexVisualiser;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.PatternBody;
 

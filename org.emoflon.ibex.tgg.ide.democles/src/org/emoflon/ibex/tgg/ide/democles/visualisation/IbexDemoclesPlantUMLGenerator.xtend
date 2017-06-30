@@ -7,7 +7,7 @@ import org.gervarro.democles.specification.emf.PatternInvocationConstraint
 import org.gervarro.democles.specification.emf.Variable
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable
 import org.gervarro.democles.specification.emf.constraint.emf.emf.Reference
-import org.emoflon.ibex.tgg.ui.ide.visualisation.IbexPlantUMLGenerator
+import org.emoflon.ibex.tgg.ide.visualisation.IbexPlantUMLGenerator
 
 class IbexDemoclesPlantUMLGenerator extends IbexPlantUMLGenerator {
 	

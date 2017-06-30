@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Democles
+Bundle-Name: org.emoflon.ibex.tgg.runtime.democles
 Bundle-SymbolicName: org.emoflon.ibex.tgg.runtime.democles;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.gervarro.democles.common;bundle-version="3.0.0",
