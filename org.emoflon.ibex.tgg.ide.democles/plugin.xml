@@ -7,5 +7,11 @@
             providerClass="org.emoflon.ibex.tgg.ide.democles.visualisation.IbexDemoclesPatternVisualiser">
       </diagramTextProvider>
    </extension>
+   <extension
+         point="org.emoflon.ibex.tgg.ide.IbexTGGBuilderExtension">
+      <builder_extension
+            class="org.emoflon.ibex.tgg.compiler.democles.defaults.IbexDemoclesBuilderExtension">
+      </builder_extension>
+   </extension>
 
 </plugin>

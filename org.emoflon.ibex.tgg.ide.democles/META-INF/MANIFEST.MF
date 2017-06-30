@@ -15,5 +15,9 @@ Require-Bundle: org.emoflon.ibex.tgg.ide;bundle-version="1.0.0",
  com.google.guava,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
- org.eclipse.xtend.lib.macro
+ org.eclipse.xtend.lib.macro,
+ org.emoflon.ibex.tgg.core.language;bundle-version="1.0.0",
+ org.emoflon.ibex.tgg.core.runtime;bundle-version="1.0.0",
+ org.emoflon.ibex.tgg.editor,
+ org.eclipse.core.runtime;bundle-version="3.12.0"
 
