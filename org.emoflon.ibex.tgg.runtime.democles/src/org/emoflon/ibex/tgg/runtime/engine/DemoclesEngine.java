@@ -26,6 +26,7 @@ import org.emoflon.ibex.tgg.compiler.pattern.rulepart.RulePartPattern;
 import org.emoflon.ibex.tgg.operational.OperationalStrategy;
 import org.emoflon.ibex.tgg.operational.PatternMatchingEngine;
 import org.emoflon.ibex.tgg.operational.util.IMatch;
+import org.emoflon.ibex.tgg.operational.util.IbexOptions;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.PatternMatcherPlugin;
@@ -77,7 +78,6 @@ import org.gervarro.democles.specification.impl.DefaultPatternBody;
 import org.gervarro.democles.specification.impl.DefaultPatternFactory;
 import org.gervarro.democles.specification.impl.PatternInvocationConstraintModule;
 
-import language.TGG;
 import language.TGGRule;
 import language.TGGRuleCorr;
 import language.TGGRuleEdge;
@@ -95,12 +95,9 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private EMFPatternBuilder<DefaultPattern, DefaultPatternBody> patternBuilder;
 	private Collection<RetePattern> patternMatchers;
 	protected OperationalStrategy app;
-	private TGG tgg;
-	private TGG flattenedTgg;
 	private HashMap<IbexPattern, Pattern> patternMap;
-	private boolean debug;
 	private DemoclesAttributeHelper dAttrHelper;
-	private String projectPath;
+	private IbexOptions options;
 
 	// Factories
 	private final SpecificationFactory factory = SpecificationFactory.eINSTANCE;
@@ -108,18 +105,15 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private final RelationalConstraintFactory rcFactory = RelationalConstraintFactory.eINSTANCE;
 
 	@Override
-	public void initialise(ResourceSet rs, OperationalStrategy app, TGG tgg, TGG flattenedTgg, String projectPath, boolean debug) {
+	public void initialise(ResourceSet rs, OperationalStrategy app, IbexOptions options) {
 		this.rs = rs;
+		this.options = options;
 		patterns = new ArrayList<>();
 		matches = new HashMap<>();
 		patternMatchers = new ArrayList<>();
 		this.app = app;
-		this.tgg = tgg;
-		this.flattenedTgg = flattenedTgg;
 		patternMap = new HashMap<>();
-		this.debug = debug;
 		this.dAttrHelper = new DemoclesAttributeHelper();
-		this.projectPath = projectPath;
 
 		createAndRegisterPatterns();
 	}
@@ -139,11 +133,11 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// 2) EMF-independent to pattern matcher runtime (i.e., Rete network)
 		// transformation
 		retePatternMatcherModule.build(internalPatterns.toArray(new DefaultPattern[internalPatterns.size()]));
-		if (debug)
+		if (options.debug())
 			saveDemoclesPatterns();
 
 		retePatternMatcherModule.getSession().setAutoCommitMode(false);
-		if (debug)
+		if (options.debug())
 			printReteNetwork();
 
 		// Attach match listener to pattern matchers
@@ -165,7 +159,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void saveDemoclesPatterns() {
-		Resource r = rs.createResource(URI.createPlatformResourceURI(projectPath + "/debug/patterns.xmi", true));
+		Resource r = rs.createResource(URI.createPlatformResourceURI(options.projectPath()+ "/debug/patterns.xmi", true));
 		r.getContents().addAll(patterns);
 		try {
 			r.save(null);
@@ -176,7 +170,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void createDemoclesPatterns() {
-		TGGCompiler compiler = new TGGCompiler(tgg, flattenedTgg);
+		TGGCompiler compiler = new TGGCompiler(options);
 		compiler.preparePatterns();
 
 		for (TGGRule r : compiler.getRuleToPatternMap().keySet()) {
@@ -438,7 +432,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		final String type = event.getEventType();
 		final DataFrame frame = event.getMatching();
 
-		if (debug)
+		if (options.debug())
 			logger.debug("Received match:  " + event);
 
 		Optional<Pattern> p = patterns.stream().filter(pattern -> getPatternID(pattern).equals(event.getSource().toString())).findAny();
