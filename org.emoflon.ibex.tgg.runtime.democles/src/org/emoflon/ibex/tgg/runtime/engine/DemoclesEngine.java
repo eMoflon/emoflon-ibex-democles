@@ -446,7 +446,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 				} else {
 					matches.put(frame, new ArrayList<IMatch>(Arrays.asList(match)));
 				}
-				// TODO [anjorin] Better way of accessing rule name.
+				// TODO [Anjorin] Better way of accessing rule name.
 				app.addOperationalRuleMatch(PatternSuffixes.removeSuffix(pattern.getName()), match);
 			}
 
