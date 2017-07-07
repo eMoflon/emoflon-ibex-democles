@@ -456,7 +456,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 				Optional<IMatch> match = matchList == null ? Optional.empty() : matchList.stream().filter(m -> m.patternName().equals(pattern.getName())).findAny();
 
 				match.ifPresent(m -> {
-					if (m.patternName().endsWith(PatternSuffixes.PROTOCOL)) {
+					if (m.patternName().endsWith(PatternSuffixes.CONSISTENCY)) {
 						app.addBrokenMatch(m);
 					}
 
