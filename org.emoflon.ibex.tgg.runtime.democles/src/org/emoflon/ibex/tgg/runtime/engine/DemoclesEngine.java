@@ -19,10 +19,10 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.tgg.compiler.TGGCompiler;
-import org.emoflon.ibex.tgg.compiler.patterns.IbexPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
-import org.emoflon.ibex.tgg.compiler.patterns.common.MarkedPattern;
-import org.emoflon.ibex.tgg.compiler.patterns.rulepart.RulePartPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.IbexPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.RulePartPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.translation_app_conds.CheckTranslationStatePattern;
 import org.emoflon.ibex.tgg.operational.OperationalStrategy;
 import org.emoflon.ibex.tgg.operational.PatternMatchingEngine;
 import org.emoflon.ibex.tgg.operational.util.IMatch;
@@ -280,7 +280,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		dAttrHelper.clearAll();
 
 		// Edges as constraints
-		if (!(ibexPattern instanceof MarkedPattern && ((MarkedPattern) ibexPattern).isLocal()))
+		if (!(ibexPattern instanceof CheckTranslationStatePattern && ((CheckTranslationStatePattern) ibexPattern).isLocal()))
 			for (TGGRuleEdge edge : ibexPattern.getBodyEdges()) {
 				Reference ref = emfTypeFactory.createReference();
 				ref.setEModelElement(edge.getType());
