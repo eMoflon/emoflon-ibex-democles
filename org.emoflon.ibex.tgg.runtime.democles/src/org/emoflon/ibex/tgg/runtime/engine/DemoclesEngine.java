@@ -43,13 +43,13 @@ import org.gervarro.democles.notification.emf.NotificationModule;
 import org.gervarro.democles.operation.RelationalOperationBuilder;
 import org.gervarro.democles.operation.emf.DefaultEMFBatchAdornmentStrategy;
 import org.gervarro.democles.operation.emf.DefaultEMFIncrementalAdornmentStrategy;
+import org.gervarro.democles.operation.emf.EMFBatchOperationBuilder;
 import org.gervarro.democles.operation.emf.EMFIdentifierProviderBuilder;
 import org.gervarro.democles.operation.emf.EMFInterpretableIncrementalOperationBuilder;
 import org.gervarro.democles.plan.incremental.builder.AdornedNativeOperationDrivenComponentBuilder;
 import org.gervarro.democles.plan.incremental.builder.FilterComponentBuilder;
 import org.gervarro.democles.plan.incremental.leaf.ReteSearchPlanAlgorithm;
 import org.gervarro.democles.runtime.AdornedNativeOperationBuilder;
-import org.gervarro.democles.runtime.GenericOperationBuilder;
 import org.gervarro.democles.runtime.InterpretableAdornedOperation;
 import org.gervarro.democles.runtime.JavaIdentifierProvider;
 import org.gervarro.democles.specification.emf.Constant;
@@ -397,7 +397,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// EMF native
 		final EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule = new EMFInterpretableIncrementalOperationBuilder<VariableRuntime>(retePatternMatcherModule, emfTypeModule);
 		// EMF batch
-		final GenericOperationBuilder<VariableRuntime> emfBatchOperationModule = new GenericOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFBatchAdornmentStrategy.INSTANCE);
+		final EMFBatchOperationBuilder<VariableRuntime> emfBatchOperationModule = new EMFBatchOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFBatchAdornmentStrategy.INSTANCE);
 		final EMFIdentifierProviderBuilder<VariableRuntime> emfIdentifierProviderModule = new EMFIdentifierProviderBuilder<VariableRuntime>(JavaIdentifierProvider.INSTANCE);
 		// Relational
 		final ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime> relationalOperationModule = new ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime>(
