@@ -10,8 +10,8 @@ Democles-specific component for emoflon-ibex
   - Xtext
   - PlantUML Feature, PlantUML Library Feature
   - Kermeta EPackage registrationFeature
-  - Democles Pattern Matcher Interpreter
-  - Democles Pattern Specification
+  - Democles Pattern Matcher Interpreter (+ Source)
+  - Democles Pattern Specification (+ Source)
   - Democles Advanced Features
 5. Check encoding for Xtend Files
   - In Eclipse: Go to ```Window->Preferences->General->Workspace```
