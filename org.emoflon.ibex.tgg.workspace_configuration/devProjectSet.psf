@@ -8,6 +8,8 @@
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.editor.ui"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.ide"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.ide.democles"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.ide.democles.feature"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.ide.democles.updatesite"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.runtime.democles"/>
 </provider>
 <workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1496663509760_2" label="ibex-common" name="ibex-common">
@@ -18,6 +20,8 @@
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.emoflon.ibex.tgg.democles.workspace_configuration" type="4"/>
 <item elementID="=org.emoflon.ibex.tgg.runtime.democles" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.emoflon.ibex.tgg.ide.democles" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.ide.feature" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.ide.updatesite" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 </workingSets>
 <workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1496663526007_3" label="ibex-ui" name="ibex-ui">
 <item elementID="=org.emoflon.ibex.tgg.editor.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
