@@ -10950,20 +10950,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.emoflon.ibex.tgg.core.language.diagram"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.emoflon.ibex.tgg.core.language.idtgg"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.emoflon.ibex.tgg.core.runtime"
          download-size="0"
          install-size="0"
