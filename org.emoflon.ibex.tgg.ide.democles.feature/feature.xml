@@ -16,6 +16,15 @@
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import feature="org.gervarro.democles.feature.advanced" version="0.5.0.v20170708-0016" match="greaterOrEqual"/>
+      <import feature="org.gervarro.democles.feature.interpreter" version="0.5.0.v20170709-2342" match="greaterOrEqual"/>
+      <import feature="org.gervarro.democles.feature.specification" version="0.5.0.v20170708-0007" match="greaterOrEqual"/>
+      <import feature="net.sourceforge.plantuml.feature" version="1.1.18.201704180954" match="greaterOrEqual"/>
+      <import feature="net.sourceforge.plantuml.lib.feature" version="1.1.18.8059" match="greaterOrEqual"/>
+      <import feature="org.eclipse.xtext.runtime" version="2.10.0.v201605250459" match="greaterOrEqual"/>
+   </requires>
+
    <plugin
          id="org.emoflon.ibex.tgg.core.language"
          download-size="0"
