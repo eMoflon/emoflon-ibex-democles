@@ -16,7 +16,6 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.tgg.compiler.TGGCompiler;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
@@ -88,11 +87,10 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 	private static final Logger logger = Logger.getLogger(DemoclesEngine.class);
 
-	private Registry reg;
+	private ResourceSet rs;
 	private Collection<Pattern> patterns;
 	private HashMap<IDataFrame, Collection<IMatch>> matches;
 	private RetePatternMatcherModule retePatternMatcherModule;
-	private EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule;
 	private EMFPatternBuilder<DefaultPattern, DefaultPatternBody> patternBuilder;
 	private Collection<RetePattern> patternMatchers;
 	protected OperationalStrategy app;
@@ -104,10 +102,10 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private final SpecificationFactory factory = SpecificationFactory.eINSTANCE;
 	private final EMFTypeFactory emfTypeFactory = EMFTypeFactory.eINSTANCE;
 	private final RelationalConstraintFactory rcFactory = RelationalConstraintFactory.eINSTANCE;
-	
+
 	@Override
 	public void initialise(ResourceSet rs, OperationalStrategy app, IbexOptions options) {
-		this.reg = rs.getPackageRegistry();
+		this.rs = rs;
 		this.options = options;
 		patterns = new ArrayList<>();
 		matches = new HashMap<>();
@@ -116,23 +114,15 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		patternMap = new HashMap<>();
 		this.dAttrHelper = new DemoclesAttributeHelper();
 
-		createAndRegisterPatterns(rs);
-	}
-	
-	@Override
-	public void initialiseAgain(ResourceSet rs) {
-		rs.setPackageRegistry(reg);
-
-		// Install model event listeners on the resource set
-		NotificationModule.installNotificationAdapter(rs, emfNativeOperationModule);
+		createAndRegisterPatterns();
 	}
 
-	private void createAndRegisterPatterns(ResourceSet rs) {
+	private void createAndRegisterPatterns() {
 		// Create EMF-based pattern specification
 		createDemoclesPatterns();
 
 		// Democles configuration
-		emfNativeOperationModule = configureDemocles(rs.getPackageRegistry());
+		final EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule = configureDemocles();
 
 		// Build the pattern matchers in 2 phases
 		// 1) EMF-based to EMF-independent transformation
@@ -141,7 +131,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// 2) EMF-independent to pattern matcher runtime (i.e., Rete network) transformation
 		retePatternMatcherModule.build(internalPatterns.toArray(new DefaultPattern[internalPatterns.size()]));
 		if (options.debug())
-			saveDemoclesPatterns(rs);
+			saveDemoclesPatterns();
 
 		retePatternMatcherModule.getSession().setAutoCommitMode(false);
 		if (options.debug())
@@ -165,7 +155,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		}
 	}
 
-	private void saveDemoclesPatterns(ResourceSet rs) {
+	private void saveDemoclesPatterns() {
 		Resource r = rs.createResource(URI.createPlatformResourceURI(options.projectPath()+ "/debug/patterns.xmi", true));
 		r.getContents().addAll(patterns);
 		try {
@@ -387,8 +377,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		return PatternMatcherPlugin.getIdentifier(pattern.getName(), pattern.getSymbolicParameters().size());
 	}
 
-	private EMFInterpretableIncrementalOperationBuilder<VariableRuntime> configureDemocles(Registry reg) {
-		final EMFConstraintModule emfTypeModule = new EMFConstraintModule(reg);
+	private EMFInterpretableIncrementalOperationBuilder<VariableRuntime> configureDemocles() {
+		final EMFConstraintModule emfTypeModule = new EMFConstraintModule(rs);
 		final EMFTypeModule internalEMFTypeModule = new EMFTypeModule(emfTypeModule);
 		final RelationalTypeModule internalRelationalTypeModule = new RelationalTypeModule(CoreConstraintModule.INSTANCE);
 
