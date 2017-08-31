@@ -29,16 +29,23 @@ import org.emoflon.ibex.tgg.operational.util.IbexOptions;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.PatternMatcherPlugin;
+import org.gervarro.democles.common.runtime.CategoryBasedQueueFactory;
 import org.gervarro.democles.common.runtime.ListOperationBuilder;
+import org.gervarro.democles.common.runtime.Task;
 import org.gervarro.democles.common.runtime.VariableRuntime;
 import org.gervarro.democles.constraint.CoreConstraintModule;
 import org.gervarro.democles.constraint.emf.EMFConstraintModule;
 import org.gervarro.democles.event.MatchEvent;
 import org.gervarro.democles.event.MatchEventListener;
+import org.gervarro.democles.incremental.emf.ModelDeltaCategorizer;
+import org.gervarro.democles.incremental.emf.NotificationProcessor;
 import org.gervarro.democles.interpreter.incremental.rete.RetePattern;
 import org.gervarro.democles.interpreter.incremental.rete.RetePatternBody;
 import org.gervarro.democles.interpreter.incremental.rete.RetePatternMatcherModule;
-import org.gervarro.democles.notification.emf.NotificationModule;
+import org.gervarro.democles.notification.emf.BidirectionalReferenceFilter;
+import org.gervarro.democles.notification.emf.EdgeDeltaFeeder;
+import org.gervarro.democles.notification.emf.ReferenceToEdgeConverter;
+import org.gervarro.democles.notification.emf.UndirectedEdgeToDirectedEdgeConverter;
 import org.gervarro.democles.operation.RelationalOperationBuilder;
 import org.gervarro.democles.operation.emf.DefaultEMFBatchAdornmentStrategy;
 import org.gervarro.democles.operation.emf.DefaultEMFIncrementalAdornmentStrategy;
@@ -76,6 +83,7 @@ import org.gervarro.democles.specification.impl.DefaultPattern;
 import org.gervarro.democles.specification.impl.DefaultPatternBody;
 import org.gervarro.democles.specification.impl.DefaultPatternFactory;
 import org.gervarro.democles.specification.impl.PatternInvocationConstraintModule;
+import org.gervarro.notification.model.ModelDelta;
 
 import language.TGGRule;
 import language.TGGRuleCorr;
@@ -142,7 +150,13 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		patternMatchers.forEach(pm -> pm.addEventListener(this));
 
 		// Install model event listeners on the resource set
-		NotificationModule.installNotificationAdapter(rs, emfNativeOperationModule);
+		EdgeDeltaFeeder edgeDeltaFeeder = new EdgeDeltaFeeder(emfNativeOperationModule);
+		UndirectedEdgeToDirectedEdgeConverter undirectedEdgeToDirectedEdgeConverter = new UndirectedEdgeToDirectedEdgeConverter(edgeDeltaFeeder);
+		ReferenceToEdgeConverter referenceToEdgeConverter = new ReferenceToEdgeConverter(undirectedEdgeToDirectedEdgeConverter);
+		BidirectionalReferenceFilter bidirectionalReferenceFilter = new BidirectionalReferenceFilter(referenceToEdgeConverter); 
+		
+		final NotificationProcessor observer = new NotificationProcessor(bidirectionalReferenceFilter, new CategoryBasedQueueFactory<ModelDelta>(ModelDeltaCategorizer.INSTANCE));
+		observer.install(rs);
 	}
 
 	private void printReteNetwork() {
@@ -391,6 +405,9 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		patternBuilder.addVariableTypeSwitch(internalEMFTypeModule.getVariableTypeSwitch());
 
 		retePatternMatcherModule = new RetePatternMatcherModule();
+		
+		retePatternMatcherModule.setTaskQueueFactory(new CategoryBasedQueueFactory<Task>(org.gervarro.democles.runtime.IncrementalTaskCategorizer.INSTANCE));
+		
 		// EMF native
 		final EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule = new EMFInterpretableIncrementalOperationBuilder<VariableRuntime>(retePatternMatcherModule, emfTypeModule);
 		// EMF batch
