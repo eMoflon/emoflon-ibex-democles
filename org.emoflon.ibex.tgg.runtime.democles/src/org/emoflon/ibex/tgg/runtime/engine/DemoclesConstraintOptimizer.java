@@ -17,7 +17,7 @@ public class DemoclesConstraintOptimizer {
 	 * This method takes a pair of nodes which potentially need an unequal-constraint
 	 * and checks if this is really necessary.
 	 * @param nodes The pair of nodes between which a unequal-constraint might be necessary.
-	 * @return true, if the pair does not need an unequal-constraint.
+	 * @return true, if the pair requires an unequal-constraint.
 	 */
 	public boolean unequalConstraintNecessary(Pair<TGGRuleNode, TGGRuleNode> nodes) {
 		return !equalConstantAttributeValues(nodes)
@@ -65,7 +65,7 @@ public class DemoclesConstraintOptimizer {
 		
 		// if the roots of both nodes' trees are not equal, they are in unconnected trees,
 		// which makes unequal-constraints necessary
-		if (leftHierarchy.get(leftHierarchy.size()-1).equals(rightHierarchy.get(rightHierarchy.size()-1)))
+		if (!leftHierarchy.get(leftHierarchy.size()-1).equals(rightHierarchy.get(rightHierarchy.size()-1)))
 			return false;
 
 		// if the parents of both nodes are equal,
