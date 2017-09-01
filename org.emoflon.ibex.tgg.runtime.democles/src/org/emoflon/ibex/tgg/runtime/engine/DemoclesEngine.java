@@ -87,7 +87,6 @@ import org.gervarro.notification.model.ModelDelta;
 
 import language.TGGRule;
 import language.TGGRuleCorr;
-import language.TGGRuleEdge;
 import language.TGGRuleElement;
 import language.TGGRuleNode;
 
@@ -294,20 +293,23 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 		// Edges as constraints
 		if (!(ibexPattern instanceof CheckTranslationStatePattern && ((CheckTranslationStatePattern) ibexPattern).isLocal()))
-			for (TGGRuleEdge edge : ibexPattern.getBodyEdges()) {
-				Reference ref = emfTypeFactory.createReference();
-				ref.setEModelElement(edge.getType());
+			ibexPattern.getBodyEdges()
+				.stream()
+				.filter(e -> optimizer.retainAsOpposite(e, ibexPattern))
+				.forEach(edge -> {
+					Reference ref = emfTypeFactory.createReference();
+					ref.setEModelElement(edge.getType());
 
-				ConstraintParameter from = factory.createConstraintParameter();
-				from.setReference(nodeToVar.get(edge.getSrcNode()));
-				ref.getParameters().add(from);
+					ConstraintParameter from = factory.createConstraintParameter();
+					from.setReference(nodeToVar.get(edge.getSrcNode()));
+					ref.getParameters().add(from);
 
-				ConstraintParameter to = factory.createConstraintParameter();
-				to.setReference(nodeToVar.get(edge.getTrgNode()));
-				ref.getParameters().add(to);
+					ConstraintParameter to = factory.createConstraintParameter();
+					to.setReference(nodeToVar.get(edge.getTrgNode()));
+					ref.getParameters().add(to);
 
-				constraints.add(ref);
-			}
+					constraints.add(ref);
+			});
 
 		// Handle Corrs
 		for (TGGRuleCorr corr : ibexPattern.getBodyCorrNodes()) {
@@ -348,7 +350,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private void forceInjectiveMatchesForPattern(RulePartPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 		// measure how many unequal-constraints can be saved in each pattern
 //		if (pattern.getInjectivityChecks().size() > 0) {
-//			System.out.print(pattern.getInjectivityChecks().size()+" ");
+//			System.out.print(pattern.getName() + ": " + pattern.getInjectivityChecks().size()+" ");
 //			System.out.println(pattern.getInjectivityChecks().stream()
 //					  		.filter(pair -> optimizer.unequalConstraintNecessary(pair)).count());
 //		}

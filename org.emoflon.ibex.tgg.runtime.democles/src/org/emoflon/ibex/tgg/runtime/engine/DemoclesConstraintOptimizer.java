@@ -3,8 +3,11 @@ package org.emoflon.ibex.tgg.runtime.engine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.emf.ecore.EReference;
+import org.emoflon.ibex.tgg.compiler.patterns.common.IbexPattern;
 
 import language.TGGRuleEdge;
 import language.TGGRuleNode;
@@ -94,6 +97,39 @@ public class DemoclesConstraintOptimizer {
 		}
 		
 		return hierarchy;
+	}
+
+	/**
+	 * Used to avoid redundant reference constraints due to EMF eOpposite
+	 * semantics.
+	 * 
+	 * @param e
+	 * @param ibexPattern 
+	 * @return true if e either does not have an eOpposite in the body edges, or
+	 *         if it has an eOpposite but it is alphabetically "larger" than it.
+	 */
+	public boolean retainAsOpposite(TGGRuleEdge edge, IbexPattern ibexPattern) {
+		EReference eOpposite = edge.getType().getEOpposite();
+		
+		// No eOpposite possible anyway
+		if(eOpposite == null) return true;
+				
+		List<TGGRuleEdge> eOpposites = ibexPattern.getBodyEdges()
+				.stream()
+				.filter(otherEdge -> eOpposite.equals(otherEdge.getType()) &&
+						             edge.getSrcNode().equals(otherEdge.getTrgNode()) &&
+									 edge.getTrgNode().equals(otherEdge.getSrcNode()))
+				.collect(Collectors.toList());
+		
+		// No eOpposite amongst bodyEdges
+		if(eOpposites.isEmpty()) return true;
+		
+		// Not alphabetically larger than eOpposite
+		if(edge.getType().getName().compareTo(eOpposite.getName()) > 0)
+			return true;
+		
+		// If not can be skipped!
+		return false;
 	}
 	
 }
