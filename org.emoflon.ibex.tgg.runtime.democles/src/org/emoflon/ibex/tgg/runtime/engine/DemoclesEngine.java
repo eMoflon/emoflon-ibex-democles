@@ -105,6 +105,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private HashMap<IbexPattern, Pattern> patternMap;
 	private DemoclesAttributeHelper dAttrHelper;
 	private IbexOptions options;
+	private DemoclesConstraintOptimizer optimizer;
 
 	// Factories
 	private final SpecificationFactory factory = SpecificationFactory.eINSTANCE;
@@ -121,6 +122,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		this.app = app;
 		patternMap = new HashMap<>();
 		this.dAttrHelper = new DemoclesAttributeHelper();
+		optimizer = new DemoclesConstraintOptimizer();
 
 		createAndRegisterPatterns();
 	}
@@ -344,7 +346,15 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void forceInjectiveMatchesForPattern(RulePartPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
-		pattern.getInjectivityChecks().stream().forEach(pair -> {
+		// measure how many unequal-constraints can be saved in each pattern
+//		if (pattern.getInjectivityChecks().size() > 0) {
+//			System.out.print(pattern.getInjectivityChecks().size()+" ");
+//			System.out.println(pattern.getInjectivityChecks().stream()
+//					  		.filter(pair -> optimizer.unequalConstraintNecessary(pair)).count());
+//		}
+		pattern.getInjectivityChecks().stream()
+									  .filter(pair -> optimizer.unequalConstraintNecessary(pair))
+									  .forEach(pair -> {
 			RelationalConstraint unequal = rcFactory.createUnequal();
 
 			ConstraintParameter p1 = factory.createConstraintParameter();
