@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
@@ -18,6 +19,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.tgg.compiler.TGGCompiler;
+import org.emoflon.ibex.tgg.compiler.patterns.IbexPatternOptimiser;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.RulePartPattern;
@@ -104,7 +106,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private HashMap<IbexPattern, Pattern> patternMap;
 	private DemoclesAttributeHelper dAttrHelper;
 	private IbexOptions options;
-	private DemoclesConstraintOptimizer optimizer;
+	private IbexPatternOptimiser optimizer;
 
 	// Factories
 	private final SpecificationFactory factory = SpecificationFactory.eINSTANCE;
@@ -121,7 +123,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		this.app = app;
 		patternMap = new HashMap<>();
 		this.dAttrHelper = new DemoclesAttributeHelper();
-		optimizer = new DemoclesConstraintOptimizer();
+		optimizer = new IbexPatternOptimiser();
 
 		createAndRegisterPatterns();
 	}
@@ -190,6 +192,14 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 				if (patternIsNotEmpty(pattern) && app.isPatternRelevant(pattern.getName()))
 					ibexToDemocles(pattern);
 			}
+		}
+		
+		if(options.debug()){
+			logger.debug(patterns.stream()
+					 .map(p -> p.getBodies().get(0).getConstraints().size())
+					 .sorted()
+					 .map(i -> " " + i)
+					 .collect(Collectors.joining()));
 		}
 	}
 
@@ -287,8 +297,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// add new variables as nodes
 		locals.addAll(dAttrHelper.getEMFVariables());
 
-		// reset attribute helper. Do it here before the recursive call of this
-		// method
+		// reset attribute helper. Do it here before the recursive call of this method
 		dAttrHelper.clearAll();
 
 		// Edges as constraints
