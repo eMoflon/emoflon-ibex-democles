@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -96,7 +97,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 	private static final Logger logger = Logger.getLogger(DemoclesEngine.class);
 
-	private ResourceSet rs;
+	private Registry registry;
 	private Collection<Pattern> patterns;
 	private HashMap<IDataFrame, Collection<IMatch>> matches;
 	private RetePatternMatcherModule retePatternMatcherModule;
@@ -107,6 +108,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private DemoclesAttributeHelper dAttrHelper;
 	private IbexOptions options;
 	private IbexPatternOptimiser optimizer;
+	private NotificationProcessor observer;
 
 	// Factories
 	private final SpecificationFactory factory = SpecificationFactory.eINSTANCE;
@@ -114,8 +116,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private final RelationalConstraintFactory rcFactory = RelationalConstraintFactory.eINSTANCE;
 
 	@Override
-	public void initialise(ResourceSet rs, OperationalStrategy app, IbexOptions options) {
-		this.rs = rs;
+	public void initialise(Registry registry, OperationalStrategy app, IbexOptions options) {
+		this.registry = registry;
 		this.options = options;
 		patterns = new ArrayList<>();
 		matches = new HashMap<>();
@@ -126,6 +128,16 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		optimizer = new IbexPatternOptimiser();
 
 		createAndRegisterPatterns();
+	}
+	
+	@Override
+	public void monitor(ResourceSet rs) {
+		if (options.debug()){
+			saveDemoclesPatterns(rs);		
+			printReteNetwork(rs);
+		}
+		
+		observer.install(rs);
 	}
 
 	private void createAndRegisterPatterns() {
@@ -141,13 +153,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 		// 2) EMF-independent to pattern matcher runtime (i.e., Rete network) transformation
 		retePatternMatcherModule.build(internalPatterns.toArray(new DefaultPattern[internalPatterns.size()]));
-		if (options.debug())
-			saveDemoclesPatterns();
-
 		retePatternMatcherModule.getSession().setAutoCommitMode(false);
-		if (options.debug())
-			printReteNetwork();
-
+		
 		// Attach match listener to pattern matchers
 		retrievePatternMatchers();
 		patternMatchers.forEach(pm -> pm.addEventListener(this));
@@ -157,12 +164,10 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		UndirectedEdgeToDirectedEdgeConverter undirectedEdgeToDirectedEdgeConverter = new UndirectedEdgeToDirectedEdgeConverter(edgeDeltaFeeder);
 		ReferenceToEdgeConverter referenceToEdgeConverter = new ReferenceToEdgeConverter(undirectedEdgeToDirectedEdgeConverter);
 		BidirectionalReferenceFilter bidirectionalReferenceFilter = new BidirectionalReferenceFilter(referenceToEdgeConverter); 
-		
-		final NotificationProcessor observer = new NotificationProcessor(bidirectionalReferenceFilter, new CategoryBasedQueueFactory<ModelDelta>(ModelDeltaCategorizer.INSTANCE));
-		observer.install(rs);
+		observer = new NotificationProcessor(bidirectionalReferenceFilter, new CategoryBasedQueueFactory<ModelDelta>(ModelDeltaCategorizer.INSTANCE));
 	}
 
-	private void printReteNetwork() {
+	private void printReteNetwork(ResourceSet rs) {
 		for (final RetePattern retePattern : retePatternMatcherModule.getPatterns()) {
 			final List<RetePatternBody> bodies = retePattern.getBodies();
 			for (int i = 0; i < bodies.size(); i++) {
@@ -172,8 +177,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		}
 	}
 
-	private void saveDemoclesPatterns() {
-		Resource r = rs.createResource(URI.createPlatformResourceURI(options.projectPath()+ "/debug/patterns.xmi", true));
+	private void saveDemoclesPatterns(ResourceSet rs) {
+		Resource r = rs.createResource(URI.createPlatformResourceURI(options.projectPath() + "/debug/patterns.xmi", true));
 		r.getContents().addAll(patterns);
 		try {
 			r.save(null);
@@ -357,12 +362,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void forceInjectiveMatchesForPattern(RulePartPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
-		// measure how many unequal-constraints can be saved in each pattern
-//		if (pattern.getInjectivityChecks().size() > 0) {
-//			System.out.print(pattern.getName() + ": " + pattern.getInjectivityChecks().size()+" ");
-//			System.out.println(pattern.getInjectivityChecks().stream()
-//					  		.filter(pair -> optimizer.unequalConstraintNecessary(pair)).count());
-//		}
 		pattern.getInjectivityChecks().stream()
 									  .filter(pair -> optimizer.unequalConstraintNecessary(pair))
 									  .forEach(pair -> {
@@ -413,7 +412,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private EMFInterpretableIncrementalOperationBuilder<VariableRuntime> configureDemocles() {
-		final EMFConstraintModule emfTypeModule = new EMFConstraintModule(rs);
+		final EMFConstraintModule emfTypeModule = new EMFConstraintModule(registry);
 		final EMFTypeModule internalEMFTypeModule = new EMFTypeModule(emfTypeModule);
 		final RelationalTypeModule internalRelationalTypeModule = new RelationalTypeModule(CoreConstraintModule.INSTANCE);
 
