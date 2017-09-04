@@ -10,14 +10,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.tgg.compiler.TGGCompiler;
+import org.emoflon.ibex.tgg.compiler.patterns.IbexPatternOptimiser;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.RulePartPattern;
@@ -29,16 +32,23 @@ import org.emoflon.ibex.tgg.operational.util.IbexOptions;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.PatternMatcherPlugin;
+import org.gervarro.democles.common.runtime.CategoryBasedQueueFactory;
 import org.gervarro.democles.common.runtime.ListOperationBuilder;
+import org.gervarro.democles.common.runtime.Task;
 import org.gervarro.democles.common.runtime.VariableRuntime;
 import org.gervarro.democles.constraint.CoreConstraintModule;
 import org.gervarro.democles.constraint.emf.EMFConstraintModule;
 import org.gervarro.democles.event.MatchEvent;
 import org.gervarro.democles.event.MatchEventListener;
+import org.gervarro.democles.incremental.emf.ModelDeltaCategorizer;
+import org.gervarro.democles.incremental.emf.NotificationProcessor;
 import org.gervarro.democles.interpreter.incremental.rete.RetePattern;
 import org.gervarro.democles.interpreter.incremental.rete.RetePatternBody;
 import org.gervarro.democles.interpreter.incremental.rete.RetePatternMatcherModule;
-import org.gervarro.democles.notification.emf.NotificationModule;
+import org.gervarro.democles.notification.emf.BidirectionalReferenceFilter;
+import org.gervarro.democles.notification.emf.EdgeDeltaFeeder;
+import org.gervarro.democles.notification.emf.ReferenceToEdgeConverter;
+import org.gervarro.democles.notification.emf.UndirectedEdgeToDirectedEdgeConverter;
 import org.gervarro.democles.operation.RelationalOperationBuilder;
 import org.gervarro.democles.operation.emf.DefaultEMFBatchAdornmentStrategy;
 import org.gervarro.democles.operation.emf.DefaultEMFIncrementalAdornmentStrategy;
@@ -76,10 +86,10 @@ import org.gervarro.democles.specification.impl.DefaultPattern;
 import org.gervarro.democles.specification.impl.DefaultPatternBody;
 import org.gervarro.democles.specification.impl.DefaultPatternFactory;
 import org.gervarro.democles.specification.impl.PatternInvocationConstraintModule;
+import org.gervarro.notification.model.ModelDelta;
 
 import language.TGGRule;
 import language.TGGRuleCorr;
-import language.TGGRuleEdge;
 import language.TGGRuleElement;
 import language.TGGRuleNode;
 
@@ -87,7 +97,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 	private static final Logger logger = Logger.getLogger(DemoclesEngine.class);
 
-	private ResourceSet rs;
+	private Registry registry;
 	private Collection<Pattern> patterns;
 	private HashMap<IDataFrame, Collection<IMatch>> matches;
 	private RetePatternMatcherModule retePatternMatcherModule;
@@ -97,6 +107,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private HashMap<IbexPattern, Pattern> patternMap;
 	private DemoclesAttributeHelper dAttrHelper;
 	private IbexOptions options;
+	private IbexPatternOptimiser optimizer;
+	private NotificationProcessor observer;
 
 	// Factories
 	private final SpecificationFactory factory = SpecificationFactory.eINSTANCE;
@@ -104,8 +116,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private final RelationalConstraintFactory rcFactory = RelationalConstraintFactory.eINSTANCE;
 
 	@Override
-	public void initialise(ResourceSet rs, OperationalStrategy app, IbexOptions options) {
-		this.rs = rs;
+	public void initialise(Registry registry, OperationalStrategy app, IbexOptions options) {
+		this.registry = registry;
 		this.options = options;
 		patterns = new ArrayList<>();
 		matches = new HashMap<>();
@@ -113,8 +125,19 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		this.app = app;
 		patternMap = new HashMap<>();
 		this.dAttrHelper = new DemoclesAttributeHelper();
+		optimizer = new IbexPatternOptimiser();
 
 		createAndRegisterPatterns();
+	}
+	
+	@Override
+	public void monitor(ResourceSet rs) {
+		if (options.debug()){
+			saveDemoclesPatterns(rs);		
+			printReteNetwork(rs);
+		}
+		
+		observer.install(rs);
 	}
 
 	private void createAndRegisterPatterns() {
@@ -130,22 +153,21 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 		// 2) EMF-independent to pattern matcher runtime (i.e., Rete network) transformation
 		retePatternMatcherModule.build(internalPatterns.toArray(new DefaultPattern[internalPatterns.size()]));
-		if (options.debug())
-			saveDemoclesPatterns();
-
 		retePatternMatcherModule.getSession().setAutoCommitMode(false);
-		if (options.debug())
-			printReteNetwork();
-
+		
 		// Attach match listener to pattern matchers
 		retrievePatternMatchers();
 		patternMatchers.forEach(pm -> pm.addEventListener(this));
 
 		// Install model event listeners on the resource set
-		NotificationModule.installNotificationAdapter(rs, emfNativeOperationModule);
+		EdgeDeltaFeeder edgeDeltaFeeder = new EdgeDeltaFeeder(emfNativeOperationModule);
+		UndirectedEdgeToDirectedEdgeConverter undirectedEdgeToDirectedEdgeConverter = new UndirectedEdgeToDirectedEdgeConverter(edgeDeltaFeeder);
+		ReferenceToEdgeConverter referenceToEdgeConverter = new ReferenceToEdgeConverter(undirectedEdgeToDirectedEdgeConverter);
+		BidirectionalReferenceFilter bidirectionalReferenceFilter = new BidirectionalReferenceFilter(referenceToEdgeConverter); 
+		observer = new NotificationProcessor(bidirectionalReferenceFilter, new CategoryBasedQueueFactory<ModelDelta>(ModelDeltaCategorizer.INSTANCE));
 	}
 
-	private void printReteNetwork() {
+	private void printReteNetwork(ResourceSet rs) {
 		for (final RetePattern retePattern : retePatternMatcherModule.getPatterns()) {
 			final List<RetePatternBody> bodies = retePattern.getBodies();
 			for (int i = 0; i < bodies.size(); i++) {
@@ -155,8 +177,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		}
 	}
 
-	private void saveDemoclesPatterns() {
-		Resource r = rs.createResource(URI.createPlatformResourceURI(options.projectPath()+ "/debug/patterns.xmi", true));
+	private void saveDemoclesPatterns(ResourceSet rs) {
+		Resource r = rs.createResource(URI.createPlatformResourceURI(options.projectPath() + "/debug/patterns.xmi", true));
 		r.getContents().addAll(patterns);
 		try {
 			r.save(null);
@@ -175,6 +197,14 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 				if (patternIsNotEmpty(pattern) && app.isPatternRelevant(pattern.getName()))
 					ibexToDemocles(pattern);
 			}
+		}
+		
+		if(options.debug()){
+			logger.debug(patterns.stream()
+					 .map(p -> p.getBodies().get(0).getConstraints().size())
+					 .sorted()
+					 .map(i -> " " + i)
+					 .collect(Collectors.joining()));
 		}
 	}
 
@@ -272,26 +302,28 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// add new variables as nodes
 		locals.addAll(dAttrHelper.getEMFVariables());
 
-		// reset attribute helper. Do it here before the recursive call of this
-		// method
+		// reset attribute helper. Do it here before the recursive call of this method
 		dAttrHelper.clearAll();
 
 		// Edges as constraints
 		if (!(ibexPattern instanceof CheckTranslationStatePattern && ((CheckTranslationStatePattern) ibexPattern).isLocal()))
-			for (TGGRuleEdge edge : ibexPattern.getBodyEdges()) {
-				Reference ref = emfTypeFactory.createReference();
-				ref.setEModelElement(edge.getType());
+			ibexPattern.getBodyEdges()
+				.stream()
+				.filter(e -> optimizer.retainAsOpposite(e, ibexPattern))
+				.forEach(edge -> {
+					Reference ref = emfTypeFactory.createReference();
+					ref.setEModelElement(edge.getType());
 
-				ConstraintParameter from = factory.createConstraintParameter();
-				from.setReference(nodeToVar.get(edge.getSrcNode()));
-				ref.getParameters().add(from);
+					ConstraintParameter from = factory.createConstraintParameter();
+					from.setReference(nodeToVar.get(edge.getSrcNode()));
+					ref.getParameters().add(from);
 
-				ConstraintParameter to = factory.createConstraintParameter();
-				to.setReference(nodeToVar.get(edge.getTrgNode()));
-				ref.getParameters().add(to);
+					ConstraintParameter to = factory.createConstraintParameter();
+					to.setReference(nodeToVar.get(edge.getTrgNode()));
+					ref.getParameters().add(to);
 
-				constraints.add(ref);
-			}
+					constraints.add(ref);
+			});
 
 		// Handle Corrs
 		for (TGGRuleCorr corr : ibexPattern.getBodyCorrNodes()) {
@@ -330,7 +362,9 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void forceInjectiveMatchesForPattern(RulePartPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
-		pattern.getInjectivityChecks().stream().forEach(pair -> {
+		pattern.getInjectivityChecks().stream()
+									  .filter(pair -> optimizer.unequalConstraintNecessary(pair))
+									  .forEach(pair -> {
 			RelationalConstraint unequal = rcFactory.createUnequal();
 
 			ConstraintParameter p1 = factory.createConstraintParameter();
@@ -378,7 +412,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private EMFInterpretableIncrementalOperationBuilder<VariableRuntime> configureDemocles() {
-		final EMFConstraintModule emfTypeModule = new EMFConstraintModule(rs);
+		final EMFConstraintModule emfTypeModule = new EMFConstraintModule(registry);
 		final EMFTypeModule internalEMFTypeModule = new EMFTypeModule(emfTypeModule);
 		final RelationalTypeModule internalRelationalTypeModule = new RelationalTypeModule(CoreConstraintModule.INSTANCE);
 
@@ -391,6 +425,9 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		patternBuilder.addVariableTypeSwitch(internalEMFTypeModule.getVariableTypeSwitch());
 
 		retePatternMatcherModule = new RetePatternMatcherModule();
+		
+		retePatternMatcherModule.setTaskQueueFactory(new CategoryBasedQueueFactory<Task>(org.gervarro.democles.runtime.IncrementalTaskCategorizer.INSTANCE));
+		
 		// EMF native
 		final EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule = new EMFInterpretableIncrementalOperationBuilder<VariableRuntime>(retePatternMatcherModule, emfTypeModule);
 		// EMF batch
