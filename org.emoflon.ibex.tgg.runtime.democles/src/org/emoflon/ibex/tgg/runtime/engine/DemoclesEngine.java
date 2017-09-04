@@ -20,7 +20,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.tgg.compiler.TGGCompiler;
-import org.emoflon.ibex.tgg.compiler.patterns.IbexPatternOptimiser;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.RulePartPattern;
@@ -107,7 +106,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private HashMap<IbexPattern, Pattern> patternMap;
 	private DemoclesAttributeHelper dAttrHelper;
 	private IbexOptions options;
-	private IbexPatternOptimiser optimizer;
 	private NotificationProcessor observer;
 
 	// Factories
@@ -125,7 +123,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		this.app = app;
 		patternMap = new HashMap<>();
 		this.dAttrHelper = new DemoclesAttributeHelper();
-		optimizer = new IbexPatternOptimiser();
 
 		createAndRegisterPatterns();
 	}
@@ -309,7 +306,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		if (!(ibexPattern instanceof CheckTranslationStatePattern && ((CheckTranslationStatePattern) ibexPattern).isLocal()))
 			ibexPattern.getBodyEdges()
 				.stream()
-				.filter(e -> optimizer.retainAsOpposite(e, ibexPattern))
 				.forEach(edge -> {
 					Reference ref = emfTypeFactory.createReference();
 					ref.setEModelElement(edge.getType());
@@ -363,7 +359,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 	private void forceInjectiveMatchesForPattern(RulePartPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 		pattern.getInjectivityChecks().stream()
-									  .filter(pair -> optimizer.unequalConstraintNecessary(pair))
 									  .forEach(pair -> {
 			RelationalConstraint unequal = rcFactory.createUnequal();
 
