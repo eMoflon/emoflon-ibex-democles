@@ -19,4 +19,5 @@ Make sure you enable "contact all update sites" in the update manager so all dep
   - Go to package ```src/org.moflon.tgg.mosl```
   - Right-click on GenerateTGG.mwe2
   - Press ```Run As -> MWE2 Workflow```
-9. Set up your runtime and test workspaces by starting a runtime Eclipse workspace from your dev workspace, and importing the other PSF files in the workspace-config.  Run the JUnit tests to ensure that all is well (everything should be green).
+9. Set up your runtime and test workspaces by starting a runtime Eclipse workspace from your dev workspace, and importing this PSF file: https://github.com/eMoflon/emoflon-ibex-tests/blob/master/org.emoflon.ibex.tests.workspace_configuration/testProjectSet.psf  
+Run the JUnit tests to ensure that all is well (everything should be green).
