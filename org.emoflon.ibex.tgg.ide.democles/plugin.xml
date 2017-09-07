@@ -4,6 +4,7 @@
    <extension
          point="net.sourceforge.plantuml.eclipse.diagramTextProvider">
       <diagramTextProvider
+            priority="2"
             providerClass="org.emoflon.ibex.tgg.ide.democles.visualisation.IbexDemoclesPatternVisualiser">
       </diagramTextProvider>
    </extension>
