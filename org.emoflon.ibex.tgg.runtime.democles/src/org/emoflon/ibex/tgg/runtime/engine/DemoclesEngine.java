@@ -307,6 +307,10 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 			ibexPattern.getBodyEdges()
 				.stream()
 				.forEach(edge -> {
+					assert(edge.getSrcNode() != null);
+					assert(edge.getTrgNode() != null);
+					assert(edge.getType() != null);
+					
 					Reference ref = emfTypeFactory.createReference();
 					ref.setEModelElement(edge.getType());
 
@@ -388,7 +392,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 				ConstraintParameter parameter = factory.createConstraintParameter();
 				invCons.get(i).getParameters().add(parameter);
 				parameter.setReference(nodeToVar.get(invElem));
-
+				assert(parameter.getReference() != null);
 			}
 		}
 		return invCons;
