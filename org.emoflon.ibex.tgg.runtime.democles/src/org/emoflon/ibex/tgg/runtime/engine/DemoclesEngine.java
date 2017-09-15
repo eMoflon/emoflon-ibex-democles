@@ -457,7 +457,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	public void terminate() {
-		patternMatchers.forEach(pm -> pm.removeEventListener(this));
+		if (patternMatchers != null)
+			patternMatchers.forEach(pm -> pm.removeEventListener(this));
 	}
 
 	public void handleEvent(final MatchEvent event) {
