@@ -22,7 +22,8 @@
       <import feature="org.gervarro.democles.feature.specification" version="0.5.0.v20170708-0007" match="greaterOrEqual"/>
       <import feature="net.sourceforge.plantuml.feature" version="1.1.18.201704180954" match="greaterOrEqual"/>
       <import feature="net.sourceforge.plantuml.lib.feature" version="1.1.18.8059" match="greaterOrEqual"/>
-      <import feature="org.eclipse.xtext.runtime" version="2.10.0.v201605250459" match="greaterOrEqual"/>
+      <import feature="org.eclipse.xtext.sdk" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
+      <import feature="org.eclipse.xtend.sdk" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
    </requires>
 
    <plugin
