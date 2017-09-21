@@ -40,4 +40,8 @@ public class DemoclesMatch implements IMatch {
 		}
 		return -1;
 	}
+	
+	public String toString() {
+		return patternName();
+	}
 }
