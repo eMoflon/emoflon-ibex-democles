@@ -3,7 +3,6 @@
 <provider id="org.eclipse.egit.core.GitProvider">
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.tgg.core.language"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.tgg.core.runtime"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.workspace_configuration"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.editor"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.editor.ui"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.ide"/>
@@ -17,7 +16,6 @@
 <item elementID="=org.emoflon.ibex.tgg.core.runtime" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 </workingSets>
 <workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1496663535943_4" label="ibex-democles" name="ibex-democles">
-<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.emoflon.ibex.tgg.democles.workspace_configuration" type="4"/>
 <item elementID="=org.emoflon.ibex.tgg.runtime.democles" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.emoflon.ibex.tgg.ide.democles" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 </workingSets>
