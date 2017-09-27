@@ -203,7 +203,7 @@ public class DemoclesAttributeHelper {
 	}
 	
 	protected Object convertLiteral(String literal, EDataType type) {
-		if(type.equals(EcorePackage.Literals.ESTRING) ) {
+		if(type.equals(EcorePackage.Literals.ESTRING) || type.getInstanceClass().isAssignableFrom(String.class)) {
 			if(!(literal.startsWith("\"") && literal.endsWith("\""))) 
 				throw new RuntimeException("Trimming of the string did not work. Your string should start and end with \"");
 			return literal.substring(1, literal.length() - 1);
