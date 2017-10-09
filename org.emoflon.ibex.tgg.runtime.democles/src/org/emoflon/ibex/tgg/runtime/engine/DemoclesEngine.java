@@ -122,7 +122,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		patternMatchers = new ArrayList<>();
 		this.app = app;
 		patternMap = new HashMap<>();
-		this.dAttrHelper = new DemoclesAttributeHelper();
 
 		createAndRegisterPatterns();
 	}
@@ -248,6 +247,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private EList<Constraint> ibexToDemocles(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+		dAttrHelper = new DemoclesAttributeHelper();
+		
 		// Constraints
 		EList<Constraint> constraints = body.getConstraints();
 
@@ -298,9 +299,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 		// add new variables as nodes
 		locals.addAll(dAttrHelper.getEMFVariables());
-
-		// reset attribute helper. Do it here before the recursive call of this method
-		dAttrHelper.clearAll();
 
 		// Edges as constraints
 		if (!(ibexPattern instanceof CheckTranslationStatePattern && ((CheckTranslationStatePattern) ibexPattern).isLocal()))

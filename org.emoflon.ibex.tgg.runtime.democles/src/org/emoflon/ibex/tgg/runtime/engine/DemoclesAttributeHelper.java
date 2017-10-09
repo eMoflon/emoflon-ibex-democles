@@ -232,9 +232,4 @@ public class DemoclesAttributeHelper {
 		
 		throw new RuntimeException(type + " is not yet supported as a Datatype");
 	}
-	
-	protected void clearAll() {
-		varToAttr = new HashMap<>();
-		varToVar = new HashMap<>();
-	}
 }
