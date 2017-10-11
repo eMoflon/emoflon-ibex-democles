@@ -33,10 +33,13 @@ import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintM
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintOperationBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGNativeOperationBuilder;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations.EqStrNativeOperation;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations.TGGAttributeNativeOperation;
 import org.gervarro.democles.common.Adornment;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.PatternMatcherPlugin;
+import org.gervarro.democles.common.runtime.AdornmentAssignmentStrategy;
 import org.gervarro.democles.common.runtime.CategoryBasedQueueFactory;
 import org.gervarro.democles.common.runtime.ListOperationBuilder;
 import org.gervarro.democles.common.runtime.Task;
@@ -66,6 +69,7 @@ import org.gervarro.democles.plan.incremental.leaf.ReteSearchPlanAlgorithm;
 import org.gervarro.democles.runtime.AdornedNativeOperationBuilder;
 import org.gervarro.democles.runtime.InterpretableAdornedOperation;
 import org.gervarro.democles.runtime.JavaIdentifierProvider;
+import org.gervarro.democles.runtime.NativeOperation;
 import org.gervarro.democles.specification.emf.Constraint;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.EMFDemoclesPatternMetamodelPlugin;
@@ -75,6 +79,7 @@ import org.gervarro.democles.specification.emf.PatternBody;
 import org.gervarro.democles.specification.emf.PatternInvocationConstraint;
 import org.gervarro.democles.specification.emf.SpecificationFactory;
 import org.gervarro.democles.specification.emf.SpecificationPackage;
+import org.gervarro.democles.specification.emf.TypeModule;
 import org.gervarro.democles.specification.emf.Variable;
 import org.gervarro.democles.specification.emf.constraint.EMFTypeModule;
 import org.gervarro.democles.specification.emf.constraint.PatternInvocationTypeModule;
@@ -407,18 +412,12 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		final EMFTypeModule internalEMFTypeModule = new EMFTypeModule(emfTypeModule);
 		final RelationalTypeModule internalRelationalTypeModule = new RelationalTypeModule(CoreConstraintModule.INSTANCE);
 		
-		// TGG Attribute Constraints
-		final TGGAttributeConstraintTypeModule tggAttributeConstraintTypeModule = new TGGAttributeConstraintTypeModule(TGGAttributeConstraintModule.INSTANCE);
-
 		patternBuilder = new EMFPatternBuilder<DefaultPattern, DefaultPatternBody>(new DefaultPatternFactory());
 		final PatternInvocationConstraintModule<DefaultPattern, DefaultPatternBody> patternInvocationTypeModule = new PatternInvocationConstraintModule<DefaultPattern, DefaultPatternBody>(patternBuilder);
 		final PatternInvocationTypeModule<DefaultPattern, DefaultPatternBody> internalPatternInvocationTypeModule = new PatternInvocationTypeModule<DefaultPattern, DefaultPatternBody>(patternInvocationTypeModule);
 		patternBuilder.addConstraintTypeSwitch(internalPatternInvocationTypeModule.getConstraintTypeSwitch());
 		patternBuilder.addConstraintTypeSwitch(internalRelationalTypeModule.getConstraintTypeSwitch());
 		patternBuilder.addConstraintTypeSwitch(internalEMFTypeModule.getConstraintTypeSwitch());
-		
-		// TGG Attribute Constraints
-		patternBuilder.addConstraintTypeSwitch(tggAttributeConstraintTypeModule.getConstraintTypeSwitch());
 		
 		patternBuilder.addVariableTypeSwitch(internalEMFTypeModule.getVariableTypeSwitch());
 
@@ -435,9 +434,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		final ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime> relationalOperationModule = new ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime>(
 				new RelationalOperationBuilder<VariableRuntime>());
 		
-		// TGG Attribute Constraints
-		final TGGAttributeConstraintOperationBuilder<VariableRuntime> tggAttrConstrOpModule = new TGGAttributeConstraintOperationBuilder<VariableRuntime>();
-
 		final ReteSearchPlanAlgorithm algorithm = new ReteSearchPlanAlgorithm();
 		// EMF incremental
 		final AdornedNativeOperationBuilder<VariableRuntime> emfIncrementalOperationModule = new AdornedNativeOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFIncrementalAdornmentStrategy.INSTANCE);
@@ -446,33 +442,57 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// Relational component
 		algorithm.addComponentBuilder(new FilterComponentBuilder<VariableRuntime>(relationalOperationModule));
 		
-		// TGG Attribute Constraints
-		final TGGNativeOperationBuilder<VariableRuntime> tggAttributeConstraintOperationModule = new TGGNativeOperationBuilder<VariableRuntime>(tggAttrConstrOpModule,  TGGAttributeConstraintAdornmentStrategy.INSTANCE);
-		
 		retePatternMatcherModule.setSearchPlanAlgorithm(algorithm);
 		retePatternMatcherModule.addOperationBuilder(emfBatchOperationModule);
 		retePatternMatcherModule.addOperationBuilder(relationalOperationModule);
-		
-		// TGG Attribute Constraints
-		retePatternMatcherModule.addOperationBuilder(tggAttributeConstraintOperationModule);
-		addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, Adornment.create(Adornment.BOUND, Adornment.BOUND));
-		addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, Adornment.create(Adornment.BOUND, Adornment.FREE));
-		addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, Adornment.create(Adornment.FREE, Adornment.BOUND));
-		addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, Adornment.create(Adornment.FREE, Adornment.FREE));
-		
+	
 		retePatternMatcherModule.addIdentifierProviderBuilder(emfIdentifierProviderModule);
+		
+		// TGG attribute constraints
+		handleTGGAttributeConstraints(algorithm);
 		
 		return emfNativeOperationModule;
 	}
 
+	private void handleTGGAttributeConstraints(ReteSearchPlanAlgorithm algorithm) {
+		// 1.  Extend TGGAttributeConstraintTypeModule/TGGAttributeConstraintModule to handle new constraint for the EMF to Java transformation
+		//     Or add a new constraint type module to this list of all constraint type modules
+		List<TypeModule<?>> typeModules = Arrays.asList(new TGGAttributeConstraintTypeModule(TGGAttributeConstraintModule.INSTANCE));
+		
+		// 2.  Add new native operation for constraint to this list of native operations
+		List<TGGAttributeNativeOperation> nativeOps = Arrays.asList(new EqStrNativeOperation());
+		
+		// All the rest is generic and does not have to be changed for a new [constraint + native operation]
+		for (TypeModule<?> tggAttributeConstraintTypeModule : typeModules)
+			patternBuilder.addConstraintTypeSwitch(tggAttributeConstraintTypeModule.getConstraintTypeSwitch());		
+
+		for (TGGAttributeNativeOperation nativeOperation : nativeOps) {			
+			TGGAttributeConstraintOperationBuilder<VariableRuntime> tggAttrConstrOpModule = new TGGAttributeConstraintOperationBuilder<VariableRuntime>(nativeOperation);
+			TGGNativeOperationBuilder<VariableRuntime> tggAttributeConstraintOperationModule = new TGGNativeOperationBuilder<VariableRuntime>(tggAttrConstrOpModule, TGGAttributeConstraintAdornmentStrategy.INSTANCE);
+			retePatternMatcherModule.addOperationBuilder(tggAttributeConstraintOperationModule);
+			
+			for (Adornment adornment : nativeOperation.getAllowedAdornments())
+				addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, adornment);				
+		}		
+	}
+
 	private void addComponentForTGGAttributeConstraints(final TGGAttributeConstraintOperationBuilder<VariableRuntime> tggAttrConstrOpModule, final ReteSearchPlanAlgorithm algorithm, Adornment adornment) {
 		algorithm.addComponentBuilder(new AdornedNativeOperationDrivenComponentBuilder<VariableRuntime>(
-				new AdornedNativeOperationBuilder<VariableRuntime>(
-						tggAttrConstrOpModule, 
-						TGGAttributeConstraintAdornmentStrategy.INSTANCE.getStrategy(adornment)
-					)
-			)
-		);
+				new AdornedNativeOperationBuilder<VariableRuntime>(tggAttrConstrOpModule, getStrategyForAdornment(adornment))));
+	}
+
+	private AdornmentAssignmentStrategy<Adornment, NativeOperation> getStrategyForAdornment(Adornment adornment) {
+		return new AdornmentAssignmentStrategy<Adornment, NativeOperation>() {
+			@Override
+			public Adornment getAdornmentForNativeVariableOperation(NativeOperation nativeOperation) {
+				return adornment;
+			}
+
+			@Override
+			public Adornment getAdornmentForNativeConstraintOperation(NativeOperation nativeOperation) {
+				return adornment;
+			}
+		};
 	}
 
 	public void updateMatches() {

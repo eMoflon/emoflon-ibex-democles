@@ -30,5 +30,7 @@ public class TGGAttributeConstraintTypeModule extends TypeModule<TGGAttributeCon
 		public ConstraintType caseEqStr(EqStr object) {
 			return ((TGGAttributeConstraintModule) typeModule).getConstraintType(TGGAttributeConstraintModule.EQ_STRING_LABEL);
 		}
+		
+		// Add case for new constraint here
 	}
 }

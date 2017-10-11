@@ -1,12 +1,16 @@
 package org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.emoflon.ibex.tgg.operational.csp.RuntimeTGGAttributeConstraint;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
 import org.gervarro.democles.common.Adornment;
 import org.gervarro.democles.runtime.InternalDataFrameProvider;
-import org.gervarro.democles.runtime.NativeOperation;
 import org.gervarro.democles.runtime.RemappedDataFrame;
+import org.gervarro.democles.specification.ConstraintType;
 
-public class EqStrNativeOperation extends NativeOperation{
+public class EqStrNativeOperation extends TGGAttributeNativeOperation {
 
 	@Override
 	public InternalDataFrameProvider getDataFrame(RemappedDataFrame frame, Adornment adornment) {
@@ -50,5 +54,20 @@ public class EqStrNativeOperation extends NativeOperation{
 	@Override
 	public String toString() {
 		return "eq_string";
+	}
+
+	@Override
+	public ConstraintType getConstraintType() {
+		return TGGAttributeConstraintModule.EQ_STRING;
+	}
+
+
+	@Override
+	public List<Adornment> getAllowedAdornments() {
+		return Arrays.asList(
+				Adornment.create(Adornment.BOUND, Adornment.BOUND),
+				Adornment.create(Adornment.BOUND, Adornment.FREE),
+				Adornment.create(Adornment.FREE, Adornment.BOUND),
+				Adornment.create(Adornment.FREE, Adornment.FREE));
 	}
 }
