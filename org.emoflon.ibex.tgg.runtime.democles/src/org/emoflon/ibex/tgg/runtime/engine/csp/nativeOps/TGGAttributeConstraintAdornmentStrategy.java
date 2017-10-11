@@ -21,4 +21,19 @@ public enum TGGAttributeConstraintAdornmentStrategy implements AdornmentAssignme
 				Adornment.create(Adornment.FREE, Adornment.BOUND),
 				Adornment.create(Adornment.FREE, Adornment.FREE));
 	}
+	
+	public AdornmentAssignmentStrategy<Adornment, NativeOperation> getStrategy(Adornment adornment){
+		return new AdornmentAssignmentStrategy<Adornment, NativeOperation>() {
+			
+			@Override
+			public Adornment getAdornmentForNativeVariableOperation(NativeOperation nativeOperation) {
+				return adornment;
+			}
+			
+			@Override
+			public Adornment getAdornmentForNativeConstraintOperation(NativeOperation nativeOperation) {
+				return adornment;
+			}
+		};
+	}
 }

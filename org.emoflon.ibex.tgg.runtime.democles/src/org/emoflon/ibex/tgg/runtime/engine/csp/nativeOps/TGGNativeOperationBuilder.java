@@ -14,14 +14,14 @@ import org.gervarro.democles.runtime.DelegatingAdornedOperation;
 import org.gervarro.democles.runtime.InterpretableAdornedOperation;
 import org.gervarro.democles.runtime.NativeOperation;
 
-public class TGGAdornedNativeOperationBuilder<VR extends VariableRuntime> extends
+public class TGGNativeOperationBuilder<VR extends VariableRuntime> extends
 		AdornedElementBuilder<VR, List<Adornment>, NativeOperation, InterpretableAdornedOperation, List<InterpretableAdornedOperation>>
 		implements OperationBuilder<InterpretableAdornedOperation, List<InterpretableAdornedOperation>, VR> {
 
 	// Caching maps
 	private final Map<NativeOperation, List<InterpretableAdornedOperation>> nativeConstraintOperationToAdornedOperation = new HashMap<NativeOperation, List<InterpretableAdornedOperation>>();
 
-	public TGGAdornedNativeOperationBuilder(
+	public TGGNativeOperationBuilder(
 			final OperationBuilder<NativeOperation, NativeOperation, VR> nativeOperationBuilder,
 			final AdornmentAssignmentStrategy<List<Adornment>, NativeOperation> adornmentAssignmentStrategy) {
 		super(nativeOperationBuilder, adornmentAssignmentStrategy);

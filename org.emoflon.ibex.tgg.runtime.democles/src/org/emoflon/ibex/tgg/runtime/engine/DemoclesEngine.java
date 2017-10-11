@@ -28,11 +28,12 @@ import org.emoflon.ibex.tgg.operational.OperationalStrategy;
 import org.emoflon.ibex.tgg.operational.PatternMatchingEngine;
 import org.emoflon.ibex.tgg.operational.util.IMatch;
 import org.emoflon.ibex.tgg.operational.util.IbexOptions;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAdornedNativeOperationBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintOperationBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGNativeOperationBuilder;
+import org.gervarro.democles.common.Adornment;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.PatternMatcherPlugin;
@@ -446,8 +447,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		algorithm.addComponentBuilder(new FilterComponentBuilder<VariableRuntime>(relationalOperationModule));
 		
 		// TGG Attribute Constraints
-		final TGGAdornedNativeOperationBuilder<VariableRuntime> tggAttributeConstraintOperationModule = new TGGAdornedNativeOperationBuilder<VariableRuntime>(tggAttrConstrOpModule,  TGGAttributeConstraintAdornmentStrategy.INSTANCE);
-		algorithm.addComponentBuilder(new AdornedNativeOperationDrivenComponentBuilder<VariableRuntime>(tggAttrConstrOpModule));
+		final TGGNativeOperationBuilder<VariableRuntime> tggAttributeConstraintOperationModule = new TGGNativeOperationBuilder<VariableRuntime>(tggAttrConstrOpModule,  TGGAttributeConstraintAdornmentStrategy.INSTANCE);
 		
 		retePatternMatcherModule.setSearchPlanAlgorithm(algorithm);
 		retePatternMatcherModule.addOperationBuilder(emfBatchOperationModule);
@@ -455,10 +455,24 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		
 		// TGG Attribute Constraints
 		retePatternMatcherModule.addOperationBuilder(tggAttributeConstraintOperationModule);
+		addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, Adornment.create(Adornment.BOUND, Adornment.BOUND));
+		addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, Adornment.create(Adornment.BOUND, Adornment.FREE));
+		addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, Adornment.create(Adornment.FREE, Adornment.BOUND));
+		addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, Adornment.create(Adornment.FREE, Adornment.FREE));
 		
 		retePatternMatcherModule.addIdentifierProviderBuilder(emfIdentifierProviderModule);
 		
 		return emfNativeOperationModule;
+	}
+
+	private void addComponentForTGGAttributeConstraints(final TGGAttributeConstraintOperationBuilder<VariableRuntime> tggAttrConstrOpModule, final ReteSearchPlanAlgorithm algorithm, Adornment adornment) {
+		algorithm.addComponentBuilder(new AdornedNativeOperationDrivenComponentBuilder<VariableRuntime>(
+				new AdornedNativeOperationBuilder<VariableRuntime>(
+						tggAttrConstrOpModule, 
+						TGGAttributeConstraintAdornmentStrategy.INSTANCE.getStrategy(adornment)
+					)
+			)
+		);
 	}
 
 	public void updateMatches() {
