@@ -3,109 +3,186 @@ package org.emoflon.ibex.tgg.runtime.engine;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.emoflon.ibex.tgg.compiler.patterns.common.IbexPattern;
 import org.gervarro.democles.specification.emf.Constant;
+import org.gervarro.democles.specification.emf.Constraint;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.ConstraintVariable;
+import org.gervarro.democles.specification.emf.PatternBody;
 import org.gervarro.democles.specification.emf.SpecificationFactory;
+import org.gervarro.democles.specification.emf.Variable;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.Attribute;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFTypeFactory;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraint;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintFactory;
 
+import TGGAttributeConstraint.AttributeConstraint;
+import TGGAttributeConstraint.TGGAttributeConstraintFactory;
 import language.TGGRuleNode;
 import language.basic.expressions.TGGAttributeExpression;
 import language.basic.expressions.TGGEnumExpression;
 import language.basic.expressions.TGGExpression;
 import language.basic.expressions.TGGLiteralExpression;
+import language.basic.expressions.TGGParamValue;
+import language.csp.TGGAttributeConstraint;
 import language.inplaceAttributes.TGGAttributeConstraintOperators;
 import language.inplaceAttributes.TGGInplaceAttributeExpression;
 
 public class DemoclesAttributeHelper {
-
 	private final static String ATTR_STRING = "_attr_";
-
-	private Map<EMFVariable, Attribute> varToAttr;
-
-	private Map<EMFVariable, List<Pair<ConstraintVariable, RelationalConstraint>>> varToVar;
-
+	
+	// Maps for attribute constraints
+	private Map<Object, Constant> constants;
+	private Map<String, EMFVariable> attr_vars; 
+	private Map<String, Attribute> attrs;
+	private Set<Constraint> ops;
+		
+	
 	public DemoclesAttributeHelper() {
-		varToAttr = new HashMap<>();
-		varToVar = new HashMap<>();
+		constants = new HashMap<>();
+		attr_vars = new HashMap<>();
+		attrs = new HashMap<>();
+		ops = new HashSet<>();
+	}
+	
+	public void createAttributeConstraints(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+		createInplaceAttributeConditions(ibexPattern, body, nodeToVar, parameters);
+		createConstraintsForAttributeConstraints(ibexPattern, body, nodeToVar, parameters);
+		
+		// Transfer to body
+		body.getConstraints().addAll(attrs.values());
+		body.getConstraints().addAll(ops);
+		body.getConstants().addAll(constants.values());
+		body.getLocalVariables().addAll(attr_vars.values());
 	}
 
-	protected void extractAttributeVariables(TGGRuleNode node, EMFVariable nodeVar) {
-		for (TGGInplaceAttributeExpression attrExpr : node.getAttrExpr()) {
-			// extract the expression and create a new variable for it
-			EMFVariable valueVar = EMFTypeFactory.eINSTANCE.createEMFVariable();
-			TGGExpression expr = attrExpr.getValueExpr();
-			if (expr instanceof TGGAttributeExpression) {
-				TGGAttributeExpression aExpr = (TGGAttributeExpression) expr;
-				valueVar.setName(node.getName() + ATTR_STRING + aExpr.getAttribute().getName());
-				valueVar.setEClassifier(aExpr.getAttribute().getEAttributeType());
+	private void createConstraintsForAttributeConstraints(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+		if(ibexPattern.getRule() == null || ibexPattern.getRule().getAttributeConditionLibrary() == null)
+			return;
+		
+		Collection<TGGAttributeConstraint> attributeConstraints = ibexPattern.getRule().getAttributeConditionLibrary().getTggAttributeConstraints();
+		for (TGGAttributeConstraint constraint : attributeConstraints)
+			createAttributeConstraint(constraint, nodeToVar);
+	}
 
-				// create an emf variable for the attribute field
-				EMFVariable var = EMFTypeFactory.eINSTANCE.createEMFVariable();
-				var.setEClassifier(expr.getParameterDefinition().getType());
-				String varName = node.getName() + ATTR_STRING + var.getEClassifier().getName();
-				var.setName(varName);
-
-				Optional<EMFVariable> entry = varToVar.keySet().stream().filter(v -> v.getName().equals(varName)).findFirst();
-
-				if (entry.isPresent()) {
-					var = entry.get();
-				}
-
-				varToAttr.putIfAbsent(var, extractAttribute(nodeVar, var, attrExpr.getAttribute()));
-				List<Pair<ConstraintVariable, RelationalConstraint>> list = varToVar.getOrDefault(var, new ArrayList<Pair<ConstraintVariable, RelationalConstraint>>());
-				list.add(Pair.of(valueVar, extractRelationalConstraint(valueVar, var, attrExpr.getOperator())));
-				varToVar.put(var, list);
+	private void createAttributeConstraint(TGGAttributeConstraint constraint, Map<TGGRuleNode, EMFVariable> nodeToVar) {
+		List<ConstraintVariable> param_vars = new ArrayList<>();
+		for(TGGParamValue param : constraint.getParameters()) {
+			if(param instanceof TGGAttributeExpression) {
+				TGGAttributeExpression expr = (TGGAttributeExpression) param;
+				TGGRuleNode node = expr.getObjectVar();
+				// FIXME [Anjorin]:  This can be null, we need to create a new variable here!
+				EMFVariable node_var = nodeToVar.get(node);
+				param_vars.add(createOrRetrieveAttributeVariable(node, node_var, expr.getAttribute()));
+			}
+			else if(param instanceof TGGLiteralExpression || param instanceof TGGEnumExpression) {
+				EDataType attrType = param.getParameterDefinition().getType();
+				TGGExpression expr = (TGGExpression) param;
+				param_vars.add(createOrRetrieveConstant(expr, attrType));
 			}
 		}
-	}
-
-	protected void extractConstants(TGGRuleNode node, EMFVariable nodeVar) {
-		for (TGGInplaceAttributeExpression attrExpr : node.getAttrExpr()) {
-			// create a new variable for the constant
-			Constant constant = SpecificationFactory.eINSTANCE.createConstant();
-			TGGExpression expr = attrExpr.getValueExpr();
-			if (expr instanceof TGGLiteralExpression) {
-				TGGLiteralExpression tle = (TGGLiteralExpression) attrExpr.getValueExpr();
-				constant.setValue(convertLiteral(tle.getValue(), attrExpr.getAttribute().getEAttributeType()));
-			} else if (expr instanceof TGGEnumExpression) {
-				constant.setValue(((TGGEnumExpression) attrExpr.getValueExpr()).getLiteral());
-			} else
-				continue;
-
-			// create an emf variable for the attribute field
-			EMFVariable var = EMFTypeFactory.eINSTANCE.createEMFVariable();
-			var.setEClassifier(attrExpr.getAttribute().getEAttributeType());
-			String varName = node.getName() + ATTR_STRING + var.getEClassifier().getName();
-			var.setName(varName);
-
-			Optional<EMFVariable> entry = varToVar.keySet().stream().filter(v -> v.getName().equals(varName)).findFirst();
-			if (entry.isPresent()) {
-				var = entry.get();
-			}
-
-			varToAttr.putIfAbsent(var, extractAttribute(nodeVar, var, attrExpr.getAttribute()));
-			List<Pair<ConstraintVariable, RelationalConstraint>> list = varToVar.getOrDefault(var, new ArrayList<Pair<ConstraintVariable, RelationalConstraint>>());
-			list.add(Pair.of(constant, extractRelationalConstraint(var, constant, attrExpr.getOperator())));
-			varToVar.put(var, list);
+		
+		//FIXME [Anjorin] Support other constraints
+		if(constraint.getDefinition().getName().equals("eq_string")){
+			assert(param_vars.size() == 2);
+			AttributeConstraint c = TGGAttributeConstraintFactory.eINSTANCE.createEqStr();
+			ConstraintParameter parameter = SpecificationFactory.eINSTANCE.createConstraintParameter();
+			c.getParameters().add(parameter);
+			parameter.setReference(param_vars.get(0));
+			ConstraintParameter parameter2 = SpecificationFactory.eINSTANCE.createConstraintParameter();
+			c.getParameters().add(parameter2);
+			parameter2.setReference(param_vars.get(1));
+			
+			ops.add(c);
 		}
+ 	}
+
+	private void createInplaceAttributeConditions(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+		// For every node, create variables for attributes and constants used inplace for the node
+		for (TGGRuleNode node : nodeToVar.keySet())
+			createInplaceAttributeConstraints(node, nodeToVar.get(node));
 	}
 
-	protected Attribute extractAttribute(EMFVariable from, EMFVariable to, EAttribute attribute) {
+	void createInplaceAttributeConstraints(TGGRuleNode node, EMFVariable nodeVar) {
+		// Every attribute expression is of the form:  LHS OP RHS ==> <node>.variable OP Constant (e.g., p.id > 5)
+		for (TGGInplaceAttributeExpression attrExpr : node.getAttrExpr())
+			createVariableConstantAndConstraint(node, nodeVar, attrExpr);
+	}
+
+	private void createVariableConstantAndConstraint(TGGRuleNode node, EMFVariable nodeVar, TGGInplaceAttributeExpression attrExpr) {
+		EMFVariable attr_var = createOrRetrieveAttributeVariable(node, nodeVar, attrExpr.getAttribute());
+		Constant rhs = createOrRetrieveConstant(attrExpr);
+		RelationalConstraint op = extractRelationalConstraint(attr_var, rhs, attrExpr.getOperator());
+		ops.add(op);
+	}
+
+	private EMFVariable createOrRetrieveAttributeVariable(TGGRuleNode node, EMFVariable nodeVar, EAttribute eAttr) {
+		String key = getVarName(node, eAttr);
+		
+		if(attr_vars.containsKey(key))
+			return attr_vars.get(key);
+		
+		EMFVariable var = EMFTypeFactory.eINSTANCE.createEMFVariable();
+		var.setEClassifier(eAttr.getEAttributeType());
+		var.setName(key);
+		attr_vars.put(key, var);
+
+		// Check if this variable is a local variable in the constraint or corresponds to the attribute value of the TGG node
+		if(nodeVar != null) {
+			Attribute attr = extractAttribute(nodeVar, var, eAttr);
+			attrs.put(key, attr);
+		}
+		
+		return var;
+	}
+	
+	private Constant createOrRetrieveConstant(TGGInplaceAttributeExpression attrExpr) {
+		TGGExpression expr = attrExpr.getValueExpr();
+		EDataType attrType = attrExpr.getAttribute().getEAttributeType();
+		return createOrRetrieveConstant(expr, attrType);
+	}
+
+	private Constant createOrRetrieveConstant(TGGExpression expr, EDataType attrType) {
+		Optional<Object> value = Optional.empty();
+		if (expr instanceof TGGLiteralExpression) {
+			TGGLiteralExpression tle = (TGGLiteralExpression) expr;
+			value = Optional.of(convertLiteral(tle.getValue(), attrType));
+		} else if (expr instanceof TGGEnumExpression) {
+			value = Optional.of(((TGGEnumExpression) expr).getLiteral());
+		} else
+			throw new IllegalStateException("The RHS of an attribute expression can only be an enum or constant: " + expr);
+		
+		Optional<Constant> constant =  value.map(v -> {
+			if(constants.containsKey(v))
+				return constants.get(v);
+			else {				
+				Constant c = SpecificationFactory.eINSTANCE.createConstant();
+				c.setValue(v);
+				constants.put(v, c);
+				return c;
+			}
+		});
+		
+		return constant.orElseThrow(() -> new IllegalStateException("Unable to extract constant from: " + expr));
+	}
+
+	private String getVarName(TGGRuleNode node, EAttribute attr) {
+		return node.getName() + ATTR_STRING + attr.getName();
+	}
+
+	private Attribute extractAttribute(EMFVariable from, EMFVariable to, EAttribute attribute) {
 		Attribute attr = EMFTypeFactory.eINSTANCE.createAttribute();
 		ConstraintParameter parameter = SpecificationFactory.eINSTANCE.createConstraintParameter();
 		attr.getParameters().add(parameter);
@@ -117,7 +194,7 @@ public class DemoclesAttributeHelper {
 		return attr;
 	}
 
-	protected RelationalConstraint extractRelationalConstraint(ConstraintVariable from, ConstraintVariable to, TGGAttributeConstraintOperators operator) {
+	private RelationalConstraint extractRelationalConstraint(ConstraintVariable from, ConstraintVariable to, TGGAttributeConstraintOperators operator) {
 		RelationalConstraint constraint;
 		switch (operator) {
 		case EQUAL:
@@ -149,60 +226,8 @@ public class DemoclesAttributeHelper {
 		parameter2.setReference(to);
 		return constraint;
 	}
-
-	protected void resolveAttributeVariables(Collection<EMFVariable> nodeVars) {
-		for (EMFVariable key : varToVar.keySet()) {
-			for (Pair<ConstraintVariable, RelationalConstraint> value : varToVar.get(key)) {
-				if (value.getLeft() instanceof EMFVariable) {
-					EMFVariable var = (EMFVariable) value.getLeft();
-
-					Stream<EMFVariable> varStream = varToAttr.keySet().stream().filter(k -> k.getName().equals(var.getName()));
-					Optional<EMFVariable> valueAttrVarOptional = varStream.findFirst();
-					if (!valueAttrVarOptional.isPresent()) {
-						Optional<EMFVariable> valueAttrNode = nodeVars.stream().filter(v -> v.getName().equals(var.getName().split(ATTR_STRING)[0])).findFirst();
-						if (!valueAttrNode.isPresent()) {
-							// makes this exception more specific
-							throw new RuntimeException("Detected a AttributeValueExpression that referenced a non-existing ObjectVariable!");
-						}
-//						varToAttr.put(var, extractAttribute(valueAttrNode.get(), var, (EDataType) var.getEClassifier()));
-					} else {
-						EMFVariable valueAttrVar = valueAttrVarOptional.get();
-						Collection<Pair<ConstraintVariable, RelationalConstraint>> varCollection = varToVar.get(var);
-
-						// correct the entities in this collection and replace
-						// the duplicate variable with valueAttrVar
-						List<Pair<ConstraintVariable, RelationalConstraint>> correctedList = new ArrayList<>();
-						for (Pair<ConstraintVariable, RelationalConstraint> p : varCollection) {
-							ConstraintParameter constraintParameter = p.getRight().getParameters().stream().filter(para -> para.getReference() instanceof EMFVariable).filter(para -> ((EMFVariable) para.getReference()).getName().equals(valueAttrVar.getName())).findFirst()
-									.get();
-							
-							constraintParameter.setReference(valueAttrVar);
-							correctedList.add(Pair.of(valueAttrVar, p.getRight()));
-						}
-						varToVar.put(var, correctedList);
-					}
-				}
-			}
-		}
-	}
 	
-	protected Collection<Attribute> getAttributes() {
-		return varToAttr.values();
-	}
-	
-	protected Collection<RelationalConstraint> getRelationalConstraints() {
-		return varToVar.values().stream().flatMap(Collection::stream).map(p -> p.getRight()).collect(Collectors.toList());
-	}
-	
-	protected Collection<EMFVariable> getEMFVariables() {
-		return varToAttr.keySet();
-	}
-	
-	protected Collection<Constant> getConstants() {
-		return varToVar.values().stream().flatMap(Collection::stream).map(p -> p.getLeft()).filter(e -> e instanceof Constant).map(e -> (Constant) e).collect(Collectors.toList());
-	}
-	
-	protected Object convertLiteral(String literal, EDataType type) {
+	private Object convertLiteral(String literal, EDataType type) {
 		if(type.equals(EcorePackage.Literals.ESTRING) ) {
 			if(!(literal.startsWith("\"") && literal.endsWith("\""))) 
 				throw new RuntimeException("Trimming of the string did not work. Your string should start and end with \"");

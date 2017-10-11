@@ -28,6 +28,11 @@ import org.emoflon.ibex.tgg.operational.OperationalStrategy;
 import org.emoflon.ibex.tgg.operational.PatternMatchingEngine;
 import org.emoflon.ibex.tgg.operational.util.IMatch;
 import org.emoflon.ibex.tgg.operational.util.IbexOptions;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAdornedNativeOperationBuilder;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintOperationBuilder;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.PatternMatcherPlugin;
@@ -60,7 +65,6 @@ import org.gervarro.democles.plan.incremental.leaf.ReteSearchPlanAlgorithm;
 import org.gervarro.democles.runtime.AdornedNativeOperationBuilder;
 import org.gervarro.democles.runtime.InterpretableAdornedOperation;
 import org.gervarro.democles.runtime.JavaIdentifierProvider;
-import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.Constraint;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.EMFDemoclesPatternMetamodelPlugin;
@@ -104,7 +108,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private Collection<RetePattern> patternMatchers;
 	protected OperationalStrategy app;
 	private HashMap<IbexPattern, Pattern> patternMap;
-	private DemoclesAttributeHelper dAttrHelper;
 	private IbexOptions options;
 	private NotificationProcessor observer;
 
@@ -246,15 +249,22 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		return pattern;
 	}
 
-	private EList<Constraint> ibexToDemocles(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
-		dAttrHelper = new DemoclesAttributeHelper();
+	private EList<Constraint> ibexToDemocles(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {		
+		createVariablesForNodes(ibexPattern, body, nodeToVar, parameters);
 		
-		// Constraints
-		EList<Constraint> constraints = body.getConstraints();
+		if(TGGCompiler.isRootPattern(ibexPattern)) {
+			DemoclesAttributeHelper dAttrHelper = new DemoclesAttributeHelper();
+			dAttrHelper.createAttributeConstraints(ibexPattern, body, nodeToVar, parameters);
+		}
+		
+		createConstraintsForEdges(ibexPattern, nodeToVar, body.getConstraints());
+		createConstraintsForCorrs(ibexPattern, nodeToVar, body.getConstraints());
+		createUnequalConstraintsForInjectivity(ibexPattern, body, nodeToVar);
 
-		// Constants
-		EList<Constant> constants = body.getConstants();
+		return body.getConstraints();
+	}
 
+	private void createVariablesForNodes(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		// Signature elements
 		for (TGGRuleElement element : ibexPattern.getSignatureElements()) {
 			if (!nodeToVar.containsKey(element)) {
@@ -264,14 +274,11 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 					var.setName(node.getName());
 					var.setEClassifier(node.getType());
 					nodeToVar.put(node, var);
-
-					dAttrHelper.extractConstants(node, var);
-					dAttrHelper.extractAttributeVariables(node, var);
 				}
 			}
 			parameters.add(nodeToVar.get(element));
 		}
-
+	
 		// All other nodes
 		EList<Variable> locals = body.getLocalVariables();
 		for (TGGRuleNode node : ibexPattern.getBodyNodes()) {
@@ -281,49 +288,17 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 				var.setEClassifier(node.getType());
 				nodeToVar.put(node, var);
 				locals.add(nodeToVar.get(node));
-
-				dAttrHelper.extractConstants(node, var);
-				dAttrHelper.extractAttributeVariables(node, var);
 			}
 		}
+	}
 
-		dAttrHelper.resolveAttributeVariables(nodeToVar.values());
+	private void createUnequalConstraintsForInjectivity(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
+		// Force injective matches through unequals-constraints
+		if (ibexPattern instanceof RulePartPattern)
+			forceInjectiveMatchesForPattern((RulePartPattern) ibexPattern, body, nodeToVar);
+	}
 
-		// Attributes as constraints
-		constraints.addAll(dAttrHelper.getAttributes());
-
-		// Inplace Attribute constraints as constraints
-		constraints.addAll(dAttrHelper.getRelationalConstraints());
-
-		constants.addAll(dAttrHelper.getConstants());
-
-		// add new variables as nodes
-		locals.addAll(dAttrHelper.getEMFVariables());
-
-		// Edges as constraints
-		if (!(ibexPattern instanceof CheckTranslationStatePattern && ((CheckTranslationStatePattern) ibexPattern).isLocal()))
-			ibexPattern.getBodyEdges()
-				.stream()
-				.forEach(edge -> {
-					assert(edge.getSrcNode() != null);
-					assert(edge.getTrgNode() != null);
-					assert(edge.getType() != null);
-					
-					Reference ref = emfTypeFactory.createReference();
-					ref.setEModelElement(edge.getType());
-
-					ConstraintParameter from = factory.createConstraintParameter();
-					from.setReference(nodeToVar.get(edge.getSrcNode()));
-					ref.getParameters().add(from);
-
-					ConstraintParameter to = factory.createConstraintParameter();
-					to.setReference(nodeToVar.get(edge.getTrgNode()));
-					ref.getParameters().add(to);
-
-					constraints.add(ref);
-			});
-
-		// Handle Corrs
+	private void createConstraintsForCorrs(IbexPattern ibexPattern, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Constraint> constraints) {
 		for (TGGRuleCorr corr : ibexPattern.getBodyCorrNodes()) {
 			Reference srcRef = emfTypeFactory.createReference();
 			srcRef.setEModelElement((EReference) corr.getType().getEStructuralFeature("source"));
@@ -351,12 +326,30 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 			constraints.add(trgRef);
 		}
+	}
 
-		// Force injective matches through unequals-constraints
-		if (ibexPattern instanceof RulePartPattern)
-			forceInjectiveMatchesForPattern((RulePartPattern) ibexPattern, body, nodeToVar);
+	private void createConstraintsForEdges(IbexPattern ibexPattern, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Constraint> constraints) {
+		if (!(ibexPattern instanceof CheckTranslationStatePattern && ((CheckTranslationStatePattern) ibexPattern).isLocal()))
+			ibexPattern.getBodyEdges()
+				.stream()
+				.forEach(edge -> {
+					assert(edge.getSrcNode() != null);
+					assert(edge.getTrgNode() != null);
+					assert(edge.getType() != null);
+					
+					Reference ref = emfTypeFactory.createReference();
+					ref.setEModelElement(edge.getType());
 
-		return constraints;
+					ConstraintParameter from = factory.createConstraintParameter();
+					from.setReference(nodeToVar.get(edge.getSrcNode()));
+					ref.getParameters().add(from);
+
+					ConstraintParameter to = factory.createConstraintParameter();
+					to.setReference(nodeToVar.get(edge.getTrgNode()));
+					ref.getParameters().add(to);
+
+					constraints.add(ref);
+			});
 	}
 
 	private void forceInjectiveMatchesForPattern(RulePartPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
@@ -412,6 +405,9 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		final EMFConstraintModule emfTypeModule = new EMFConstraintModule(registry);
 		final EMFTypeModule internalEMFTypeModule = new EMFTypeModule(emfTypeModule);
 		final RelationalTypeModule internalRelationalTypeModule = new RelationalTypeModule(CoreConstraintModule.INSTANCE);
+		
+		// TGG Attribute Constraints
+		final TGGAttributeConstraintTypeModule tggAttributeConstraintTypeModule = new TGGAttributeConstraintTypeModule(TGGAttributeConstraintModule.INSTANCE);
 
 		patternBuilder = new EMFPatternBuilder<DefaultPattern, DefaultPatternBody>(new DefaultPatternFactory());
 		final PatternInvocationConstraintModule<DefaultPattern, DefaultPatternBody> patternInvocationTypeModule = new PatternInvocationConstraintModule<DefaultPattern, DefaultPatternBody>(patternBuilder);
@@ -419,6 +415,10 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		patternBuilder.addConstraintTypeSwitch(internalPatternInvocationTypeModule.getConstraintTypeSwitch());
 		patternBuilder.addConstraintTypeSwitch(internalRelationalTypeModule.getConstraintTypeSwitch());
 		patternBuilder.addConstraintTypeSwitch(internalEMFTypeModule.getConstraintTypeSwitch());
+		
+		// TGG Attribute Constraints
+		patternBuilder.addConstraintTypeSwitch(tggAttributeConstraintTypeModule.getConstraintTypeSwitch());
+		
 		patternBuilder.addVariableTypeSwitch(internalEMFTypeModule.getVariableTypeSwitch());
 
 		retePatternMatcherModule = new RetePatternMatcherModule();
@@ -433,6 +433,9 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// Relational
 		final ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime> relationalOperationModule = new ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime>(
 				new RelationalOperationBuilder<VariableRuntime>());
+		
+		// TGG Attribute Constraints
+		final TGGAttributeConstraintOperationBuilder<VariableRuntime> tggAttrConstrOpModule = new TGGAttributeConstraintOperationBuilder<VariableRuntime>();
 
 		final ReteSearchPlanAlgorithm algorithm = new ReteSearchPlanAlgorithm();
 		// EMF incremental
@@ -441,11 +444,20 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		algorithm.addComponentBuilder(new AdornedNativeOperationDrivenComponentBuilder<VariableRuntime>(emfIncrementalOperationModule));
 		// Relational component
 		algorithm.addComponentBuilder(new FilterComponentBuilder<VariableRuntime>(relationalOperationModule));
-
+		
+		// TGG Attribute Constraints
+		final TGGAdornedNativeOperationBuilder<VariableRuntime> tggAttributeConstraintOperationModule = new TGGAdornedNativeOperationBuilder<VariableRuntime>(tggAttrConstrOpModule,  TGGAttributeConstraintAdornmentStrategy.INSTANCE);
+		algorithm.addComponentBuilder(new AdornedNativeOperationDrivenComponentBuilder<VariableRuntime>(tggAttrConstrOpModule));
+		
 		retePatternMatcherModule.setSearchPlanAlgorithm(algorithm);
 		retePatternMatcherModule.addOperationBuilder(emfBatchOperationModule);
 		retePatternMatcherModule.addOperationBuilder(relationalOperationModule);
+		
+		// TGG Attribute Constraints
+		retePatternMatcherModule.addOperationBuilder(tggAttributeConstraintOperationModule);
+		
 		retePatternMatcherModule.addIdentifierProviderBuilder(emfIdentifierProviderModule);
+		
 		return emfNativeOperationModule;
 	}
 
