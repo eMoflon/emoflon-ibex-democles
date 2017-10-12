@@ -3,7 +3,6 @@ package org.emoflon.ibex.tgg.runtime.engine;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import org.eclipse.emf.ecore.EObject;
 import org.emoflon.ibex.tgg.operational.util.IMatch;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.specification.emf.Pattern;
@@ -24,9 +23,9 @@ public class DemoclesMatch implements IMatch {
 				.collect(Collectors.toList());
 	}
 
-	public EObject get(String name) {
+	public Object get(String name) {
 		int index = varNameToIndex(name);
-		return index == -1 ? null : (EObject) frame.getValue(index);
+		return index == -1 ? null : frame.getValue(index);
 	}
 
 	public String patternName() {

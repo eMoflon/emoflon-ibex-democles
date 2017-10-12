@@ -2,6 +2,7 @@
  */
 package TGGAttributeConstraint;
 
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 
@@ -65,7 +66,7 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 	 * @see TGGAttributeConstraint.TGGAttributeConstraintPackage#getAttributeConstraint()
 	 * @generated
 	 */
-	public static final int ATTRIBUTE_CONSTRAINT = 1;
+	public static final int ATTRIBUTE_CONSTRAINT = 0;
 
 	/**
 	 * The feature id for the '<em><b>Parameters</b></em>' containment reference list.
@@ -77,48 +78,22 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 	public static final int ATTRIBUTE_CONSTRAINT__PARAMETERS = SpecificationPackage.CONSTRAINT__PARAMETERS;
 
 	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	public static final int ATTRIBUTE_CONSTRAINT__NAME = SpecificationPackage.CONSTRAINT_FEATURE_COUNT + 0;
+
+	/**
 	 * The number of structural features of the '<em>Attribute Constraint</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	public static final int ATTRIBUTE_CONSTRAINT_FEATURE_COUNT = SpecificationPackage.CONSTRAINT_FEATURE_COUNT + 0;
-
-	/**
-	 * The meta object id for the '{@link TGGAttributeConstraint.EqStr <em>Eq Str</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see TGGAttributeConstraint.EqStr
-	 * @see TGGAttributeConstraint.TGGAttributeConstraintPackage#getEqStr()
-	 * @generated
-	 */
-	public static final int EQ_STR = 0;
-
-	/**
-	 * The feature id for the '<em><b>Parameters</b></em>' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	public static final int EQ_STR__PARAMETERS = ATTRIBUTE_CONSTRAINT__PARAMETERS;
-
-	/**
-	 * The number of structural features of the '<em>Eq Str</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	public static final int EQ_STR_FEATURE_COUNT = ATTRIBUTE_CONSTRAINT_FEATURE_COUNT + 0;
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	private EClass eqStrEClass = null;
+	public static final int ATTRIBUTE_CONSTRAINT_FEATURE_COUNT = SpecificationPackage.CONSTRAINT_FEATURE_COUNT + 1;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -193,18 +168,6 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 
 
 	/**
-	 * Returns the meta object for class '{@link TGGAttributeConstraint.EqStr <em>Eq Str</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Eq Str</em>'.
-	 * @see TGGAttributeConstraint.EqStr
-	 * @generated
-	 */
-	public EClass getEqStr() {
-		return eqStrEClass;
-	}
-
-	/**
 	 * Returns the meta object for class '{@link TGGAttributeConstraint.AttributeConstraint <em>Attribute Constraint</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -214,6 +177,19 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 	 */
 	public EClass getAttributeConstraint() {
 		return attributeConstraintEClass;
+	}
+
+	/**
+	 * Returns the meta object for the attribute '{@link TGGAttributeConstraint.AttributeConstraint#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see TGGAttributeConstraint.AttributeConstraint#getName()
+	 * @see #getAttributeConstraint()
+	 * @generated
+	 */
+	public EAttribute getAttributeConstraint_Name() {
+		return (EAttribute)attributeConstraintEClass.getEStructuralFeatures().get(0);
 	}
 
 	/**
@@ -246,9 +222,8 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 		isCreated = true;
 
 		// Create classes and their features
-		eqStrEClass = createEClass(EQ_STR);
-
 		attributeConstraintEClass = createEClass(ATTRIBUTE_CONSTRAINT);
+		createEAttribute(attributeConstraintEClass, ATTRIBUTE_CONSTRAINT__NAME);
 	}
 
 	/**
@@ -282,13 +257,11 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 		// Set bounds for type parameters
 
 		// Add supertypes to classes
-		eqStrEClass.getESuperTypes().add(this.getAttributeConstraint());
 		attributeConstraintEClass.getESuperTypes().add(theSpecificationPackage.getConstraint());
 
 		// Initialize classes and features; add operations and parameters
-		initEClass(eqStrEClass, EqStr.class, "EqStr", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-
-		initEClass(attributeConstraintEClass, AttributeConstraint.class, "AttributeConstraint", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEClass(attributeConstraintEClass, AttributeConstraint.class, "AttributeConstraint", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getAttributeConstraint_Name(), ecorePackage.getEString(), "name", null, 0, 1, AttributeConstraint.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);
@@ -308,16 +281,6 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 	 */
 	public interface Literals {
 		/**
-		 * The meta object literal for the '{@link TGGAttributeConstraint.EqStr <em>Eq Str</em>}' class.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @see TGGAttributeConstraint.EqStr
-		 * @see TGGAttributeConstraint.TGGAttributeConstraintPackage#getEqStr()
-		 * @generated
-		 */
-		public static final EClass EQ_STR = eINSTANCE.getEqStr();
-
-		/**
 		 * The meta object literal for the '{@link TGGAttributeConstraint.AttributeConstraint <em>Attribute Constraint</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -326,6 +289,14 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 		 * @generated
 		 */
 		public static final EClass ATTRIBUTE_CONSTRAINT = eINSTANCE.getAttributeConstraint();
+
+		/**
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		public static final EAttribute ATTRIBUTE_CONSTRAINT__NAME = eINSTANCE.getAttributeConstraint_Name();
 
 	}
 

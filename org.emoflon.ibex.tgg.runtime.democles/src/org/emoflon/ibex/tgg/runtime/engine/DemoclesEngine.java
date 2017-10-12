@@ -33,7 +33,6 @@ import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintM
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintOperationBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGNativeOperationBuilder;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations.EqStrNativeOperation;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations.TGGAttributeNativeOperation;
 import org.gervarro.democles.common.Adornment;
 import org.gervarro.democles.common.DataFrame;
@@ -455,23 +454,28 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void handleTGGAttributeConstraints(ReteSearchPlanAlgorithm algorithm) {
-		// 1.  Extend TGGAttributeConstraintTypeModule/TGGAttributeConstraintModule to handle new constraint for the EMF to Java transformation
-		//     Or add a new constraint type module to this list of all constraint type modules
-		List<TypeModule<?>> typeModules = Arrays.asList(new TGGAttributeConstraintTypeModule(TGGAttributeConstraintModule.INSTANCE));
+		TGGAttributeConstraintAdornmentStrategy.INSTANCE.setIsModelGen(options.isModelGen());
 		
-		// 2.  Add new native operation for constraint to this list of native operations
-		List<TGGAttributeNativeOperation> nativeOps = Arrays.asList(new EqStrNativeOperation());
+		// Handle constraints for the EMF to Java transformation
+		TGGAttributeConstraintModule.INSTANCE.registerConstraintTypes(options.constraintProvider());
+		TypeModule<?> tggAttributeConstraintTypeModule = new TGGAttributeConstraintTypeModule(TGGAttributeConstraintModule.INSTANCE);
+		patternBuilder.addConstraintTypeSwitch(tggAttributeConstraintTypeModule.getConstraintTypeSwitch());		
 		
-		// All the rest is generic and does not have to be changed for a new [constraint + native operation]
-		for (TypeModule<?> tggAttributeConstraintTypeModule : typeModules)
-			patternBuilder.addConstraintTypeSwitch(tggAttributeConstraintTypeModule.getConstraintTypeSwitch());		
+		// Add a new native operation for every constraint
+		List<TGGAttributeNativeOperation> nativeOps = options.constraintProvider().getAllConstraintNames().stream()
+				.map(id -> {
+					// FIXME [Lars]:  How do we know the rule name here?  And how do know which constraint?  Might be better to access the def directly independently of the particular rule
+					TGGAttributeNativeOperation c = new TGGAttributeNativeOperation(id, options.constraintProvider(), options.ruleInfos().getRuleCSPConstraintLibrary("ruleName").getTggAttributeConstraints().get(42));
+					return c;
+				})
+				.collect(Collectors.toList());
 
 		for (TGGAttributeNativeOperation nativeOperation : nativeOps) {			
 			TGGAttributeConstraintOperationBuilder<VariableRuntime> tggAttrConstrOpModule = new TGGAttributeConstraintOperationBuilder<VariableRuntime>(nativeOperation);
 			TGGNativeOperationBuilder<VariableRuntime> tggAttributeConstraintOperationModule = new TGGNativeOperationBuilder<VariableRuntime>(tggAttrConstrOpModule, TGGAttributeConstraintAdornmentStrategy.INSTANCE);
 			retePatternMatcherModule.addOperationBuilder(tggAttributeConstraintOperationModule);
 			
-			for (Adornment adornment : nativeOperation.getAllowedAdornments())
+			for (Adornment adornment : nativeOperation.getAllowedAdornments(options.isModelGen()))
 				addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, adornment);				
 		}		
 	}

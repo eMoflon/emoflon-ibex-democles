@@ -5,7 +5,7 @@ import org.gervarro.democles.specification.ConstraintType;
 import org.gervarro.democles.specification.VariableType;
 import org.gervarro.democles.specification.emf.TypeModule;
 
-import TGGAttributeConstraint.EqStr;
+import TGGAttributeConstraint.AttributeConstraint;
 import TGGAttributeConstraint.util.TGGAttributeConstraintSwitch;
 
 public class TGGAttributeConstraintTypeModule extends TypeModule<TGGAttributeConstraintModule> {
@@ -27,10 +27,9 @@ public class TGGAttributeConstraintTypeModule extends TypeModule<TGGAttributeCon
 	private class TGGAttributeConstraintTypeSwitch extends TGGAttributeConstraintSwitch<ConstraintType> {
 		
 		@Override
-		public ConstraintType caseEqStr(EqStr object) {
-			return ((TGGAttributeConstraintModule) typeModule).getConstraintType(TGGAttributeConstraintModule.EQ_STRING_LABEL);
+		public ConstraintType caseAttributeConstraint(AttributeConstraint object) {
+			String id = object.getName();
+			return ((TGGAttributeConstraintModule) typeModule).getConstraintType(id);
 		}
-		
-		// Add case for new constraint here
 	}
 }

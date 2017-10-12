@@ -64,7 +64,7 @@ public class TGGAttributeConstraintFactory extends EFactoryImpl {
 	@Override
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
-			case TGGAttributeConstraintPackage.EQ_STR: return createEqStr();
+			case TGGAttributeConstraintPackage.ATTRIBUTE_CONSTRAINT: return createAttributeConstraint();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -75,9 +75,9 @@ public class TGGAttributeConstraintFactory extends EFactoryImpl {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EqStr createEqStr() {
-		EqStr eqStr = new EqStr();
-		return eqStr;
+	public AttributeConstraint createAttributeConstraint() {
+		AttributeConstraint attributeConstraint = new AttributeConstraint();
+		return attributeConstraint;
 	}
 
 	/**

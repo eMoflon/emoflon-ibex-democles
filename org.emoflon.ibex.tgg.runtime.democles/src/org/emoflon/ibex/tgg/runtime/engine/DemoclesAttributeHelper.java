@@ -1,14 +1,11 @@
 package org.emoflon.ibex.tgg.runtime.engine;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
@@ -41,18 +38,18 @@ import language.inplaceAttributes.TGGAttributeConstraintOperators;
 import language.inplaceAttributes.TGGInplaceAttributeExpression;
 
 public class DemoclesAttributeHelper {
-	private final static String ATTR_STRING = "_attr_";
-	
 	// Maps for attribute constraints
 	private Map<Object, Constant> constants;
-	private Map<String, EMFVariable> attr_vars; 
+	private Map<String, EMFVariable> body_attr_vars; 
+	private Map<String, EMFVariable> signature_attr_vars; 
 	private Map<String, Attribute> attrs;
 	private Set<Constraint> ops;
 		
 	
 	public DemoclesAttributeHelper() {
 		constants = new HashMap<>();
-		attr_vars = new HashMap<>();
+		body_attr_vars = new HashMap<>();
+		signature_attr_vars = new HashMap<>();
 		attrs = new HashMap<>();
 		ops = new HashSet<>();
 	}
@@ -65,7 +62,8 @@ public class DemoclesAttributeHelper {
 		body.getConstraints().addAll(attrs.values());
 		body.getConstraints().addAll(ops);
 		body.getConstants().addAll(constants.values());
-		body.getLocalVariables().addAll(attr_vars.values());
+		body.getLocalVariables().addAll(body_attr_vars.values());
+		parameters.addAll(signature_attr_vars.values());
 	}
 
 	private void createConstraintsForAttributeConstraints(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
@@ -78,35 +76,30 @@ public class DemoclesAttributeHelper {
 	}
 
 	private void createAttributeConstraint(TGGAttributeConstraint constraint, Map<TGGRuleNode, EMFVariable> nodeToVar) {
-		List<ConstraintVariable> param_vars = new ArrayList<>();
+		String id = constraint.getDefinition().getName();
+		AttributeConstraint c = TGGAttributeConstraintFactory.eINSTANCE.createAttributeConstraint();
+		c.setName(id);
+		
 		for(TGGParamValue param : constraint.getParameters()) {
+			ConstraintParameter parameter = SpecificationFactory.eINSTANCE.createConstraintParameter();
+			
 			if(param instanceof TGGAttributeExpression) {
 				TGGAttributeExpression expr = (TGGAttributeExpression) param;
 				TGGRuleNode node = expr.getObjectVar();
-				// FIXME [Anjorin]:  This can be null, we need to create a new variable here!
 				EMFVariable node_var = nodeToVar.get(node);
-				param_vars.add(createOrRetrieveAttributeVariable(node, node_var, expr.getAttribute()));
+				
+				parameter.setReference(createOrRetrieveAttributeVariable(node, node_var, expr.getAttribute()));
 			}
 			else if(param instanceof TGGLiteralExpression || param instanceof TGGEnumExpression) {
 				EDataType attrType = param.getParameterDefinition().getType();
 				TGGExpression expr = (TGGExpression) param;
-				param_vars.add(createOrRetrieveConstant(expr, attrType));
+				parameter.setReference(createOrRetrieveConstant(expr, attrType));
 			}
+			
+			c.getParameters().add(parameter);
 		}
 		
-		//FIXME [Anjorin] Support other constraints
-		if(constraint.getDefinition().getName().equals("eq_string")){
-			assert(param_vars.size() == 2);
-			AttributeConstraint c = TGGAttributeConstraintFactory.eINSTANCE.createEqStr();
-			ConstraintParameter parameter = SpecificationFactory.eINSTANCE.createConstraintParameter();
-			c.getParameters().add(parameter);
-			parameter.setReference(param_vars.get(0));
-			ConstraintParameter parameter2 = SpecificationFactory.eINSTANCE.createConstraintParameter();
-			c.getParameters().add(parameter2);
-			parameter2.setReference(param_vars.get(1));
-			
-			ops.add(c);
-		}
+		ops.add(c);
  	}
 
 	private void createInplaceAttributeConditions(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
@@ -129,20 +122,26 @@ public class DemoclesAttributeHelper {
 	}
 
 	private EMFVariable createOrRetrieveAttributeVariable(TGGRuleNode node, EMFVariable nodeVar, EAttribute eAttr) {
-		String key = getVarName(node, eAttr);
+		boolean isAttributeFree = nodeVar == null;
+		String key = IbexPattern.getVarName(node, eAttr);
 		
-		if(attr_vars.containsKey(key))
-			return attr_vars.get(key);
+		if(signature_attr_vars.containsKey(key))
+			return signature_attr_vars.get(key);
+		if(body_attr_vars.containsKey(key))
+			return body_attr_vars.get(key);
 		
 		EMFVariable var = EMFTypeFactory.eINSTANCE.createEMFVariable();
 		var.setEClassifier(eAttr.getEAttributeType());
 		var.setName(key);
-		attr_vars.put(key, var);
 
 		// Check if this variable is a local variable in the constraint or corresponds to the attribute value of the TGG node
-		if(nodeVar != null) {
+		if(isAttributeFree) {
+			signature_attr_vars.put(key, var);
+		}
+		else {
 			Attribute attr = extractAttribute(nodeVar, var, eAttr);
 			attrs.put(key, attr);
+			body_attr_vars.put(key, var);
 		}
 		
 		return var;
@@ -176,10 +175,6 @@ public class DemoclesAttributeHelper {
 		});
 		
 		return constant.orElseThrow(() -> new IllegalStateException("Unable to extract constant from: " + expr));
-	}
-
-	private String getVarName(TGGRuleNode node, EAttribute attr) {
-		return node.getName() + ATTR_STRING + attr.getName();
 	}
 
 	private Attribute extractAttribute(EMFVariable from, EMFVariable to, EAttribute attribute) {

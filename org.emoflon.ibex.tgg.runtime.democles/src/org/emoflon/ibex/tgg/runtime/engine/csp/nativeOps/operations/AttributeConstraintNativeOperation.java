@@ -10,7 +10,10 @@ import org.gervarro.democles.runtime.InternalDataFrameProvider;
 import org.gervarro.democles.runtime.RemappedDataFrame;
 import org.gervarro.democles.specification.ConstraintType;
 
-public class EqStrNativeOperation extends TGGAttributeNativeOperation {
+public class AttributeConstraintNativeOperation extends TGGAttributeNativeOperation {
+
+	private static final String EQ_STRING = "eq_string";
+
 
 	@Override
 	public InternalDataFrameProvider getDataFrame(RemappedDataFrame frame, Adornment adornment) {
@@ -53,12 +56,12 @@ public class EqStrNativeOperation extends TGGAttributeNativeOperation {
 	
 	@Override
 	public String toString() {
-		return "eq_string";
+		return EQ_STRING;
 	}
 
 	@Override
 	public ConstraintType getConstraintType() {
-		return TGGAttributeConstraintModule.EQ_STRING;
+		return TGGAttributeConstraintModule.INSTANCE.getConstraintType(EQ_STRING);
 	}
 
 

@@ -70,10 +70,6 @@ public class TGGAttributeConstraintAdapterFactory extends AdapterFactoryImpl {
 	protected TGGAttributeConstraintSwitch<Adapter> modelSwitch =
 		new TGGAttributeConstraintSwitch<Adapter>() {
 			@Override
-			public Adapter caseEqStr(EqStr object) {
-				return createEqStrAdapter();
-			}
-			@Override
 			public Adapter caseAttributeConstraint(AttributeConstraint object) {
 				return createAttributeConstraintAdapter();
 			}
@@ -100,20 +96,6 @@ public class TGGAttributeConstraintAdapterFactory extends AdapterFactoryImpl {
 		return modelSwitch.doSwitch((EObject)target);
 	}
 
-
-	/**
-	 * Creates a new adapter for an object of class '{@link TGGAttributeConstraint.EqStr <em>Eq Str</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see TGGAttributeConstraint.EqStr
-	 * @generated
-	 */
-	public Adapter createEqStrAdapter() {
-		return null;
-	}
 
 	/**
 	 * Creates a new adapter for an object of class '{@link TGGAttributeConstraint.AttributeConstraint <em>Attribute Constraint</em>}'.

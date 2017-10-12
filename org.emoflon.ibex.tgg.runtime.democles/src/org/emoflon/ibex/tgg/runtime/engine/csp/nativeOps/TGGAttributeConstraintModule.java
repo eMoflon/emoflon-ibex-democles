@@ -1,27 +1,33 @@
 package org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.emoflon.ibex.tgg.operational.csp.constraints.factories.RuntimeTGGAttrConstraintProvider;
 import org.gervarro.democles.specification.ConstraintType;
 
 final public class TGGAttributeConstraintModule {
 	public static final TGGAttributeConstraintModule INSTANCE = new TGGAttributeConstraintModule();
-	private TGGAttributeConstraintModule() {}
-	
-	public static final String EQ_STRING_LABEL = "eq_string";
-
-	public static final TGGConstraintType EQ_STRING =
-			new TGGConstraintType(EQ_STRING_LABEL);
-	
 	private static final String NAME = "tgg_attr_constraints";
+	private Map<String, TGGConstraintType> modules;
+
+	private TGGAttributeConstraintModule() {
+		modules = new HashMap<>();
+	}
 
 	public final String getName() {
 		return NAME;
 	}
 
 	public final ConstraintType getConstraintType(final String identifier) {
-		if (EQ_STRING_LABEL.equals(identifier)) {
-			return EQ_STRING;
-		} 
-		return null;
+		return modules.get(identifier);
+	}
+	
+	public void registerConstraintTypes(RuntimeTGGAttrConstraintProvider constraintProvider) {
+		constraintProvider.getAllConstraintNames()
+			.stream().forEach(constr -> {
+				modules.put(constr, new TGGConstraintType(constr));
+			});
 	}
 
 	public final String getConstraintTypeIdentifier(
