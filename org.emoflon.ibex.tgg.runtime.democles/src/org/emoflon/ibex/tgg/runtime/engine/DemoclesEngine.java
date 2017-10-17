@@ -462,10 +462,10 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		patternBuilder.addConstraintTypeSwitch(tggAttributeConstraintTypeModule.getConstraintTypeSwitch());		
 		
 		// Add a new native operation for every constraint
-		List<TGGAttributeNativeOperation> nativeOps = options.constraintProvider().getAllConstraintNames().stream()
+		List<TGGAttributeNativeOperation> nativeOps = options.constraintProvider().getAllUsedConstraintNames().stream()
 				.map(id -> {
 					// FIXME [Lars]:  How do we know the rule name here?  And how do know which constraint?  Might be better to access the def directly independently of the particular rule
-					TGGAttributeNativeOperation c = new TGGAttributeNativeOperation(id, options.constraintProvider(), options.ruleInfos().getRuleCSPConstraintLibrary("ruleName").getTggAttributeConstraints().get(42));
+					TGGAttributeNativeOperation c = new TGGAttributeNativeOperation(id, options.constraintProvider());
 					return c;
 				})
 				.collect(Collectors.toList());

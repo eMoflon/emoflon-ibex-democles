@@ -18,12 +18,10 @@ import language.csp.definition.TGGAttributeConstraintAdornment;
 public class TGGAttributeNativeOperation extends NativeOperation {	
 	private String id;
 	private RuntimeTGGAttrConstraintProvider attrConstrProvider;
-	private TGGAttributeConstraint constraint;
 	
-	public TGGAttributeNativeOperation(String id, RuntimeTGGAttrConstraintProvider attrConstrProvider, TGGAttributeConstraint constraint) {
+	public TGGAttributeNativeOperation(String id, RuntimeTGGAttrConstraintProvider attrConstrProvider) {
 		this.id = id;
 		this.attrConstrProvider = attrConstrProvider;
-		this.constraint = constraint;
 	}
 	
 	public ConstraintType getConstraintType() {
@@ -31,13 +29,20 @@ public class TGGAttributeNativeOperation extends NativeOperation {
 	}
 	
 	private RuntimeTGGAttributeConstraint getNewConstraint() {
-		return attrConstrProvider.createRuntimeTGGAttributeConstraint(id, constraint);
+		return attrConstrProvider.createRuntimeTGGAttributeConstraint(id);
 	}
 	
 	public List<Adornment> getAllowedAdornments(boolean isModelGen){
-		return getNewConstraint().getAllowedAdornments(isModelGen).stream()
-				.map(this::createAdornment)
-				.collect(Collectors.toList());
+		if(isModelGen) {
+			return attrConstrProvider.getTGGAttributeConstraintDefinition(id).getGenAdornments().stream()
+					.map(this::createAdornment)
+					.collect(Collectors.toList());
+		}
+		else {
+			return attrConstrProvider.getTGGAttributeConstraintDefinition(id).getSyncAdornments().stream()
+					.map(this::createAdornment)
+					.collect(Collectors.toList());
+		}
 	}
 	
 	private Adornment createAdornment(TGGAttributeConstraintAdornment adornment) {

@@ -24,7 +24,7 @@ final public class TGGAttributeConstraintModule {
 	}
 	
 	public void registerConstraintTypes(RuntimeTGGAttrConstraintProvider constraintProvider) {
-		constraintProvider.getAllConstraintNames()
+		constraintProvider.getAllUsedConstraintNames()
 			.stream().forEach(constr -> {
 				modules.put(constr, new TGGConstraintType(constr));
 			});
