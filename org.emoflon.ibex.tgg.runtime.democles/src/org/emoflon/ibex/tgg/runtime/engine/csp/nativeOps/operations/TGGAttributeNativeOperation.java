@@ -12,7 +12,6 @@ import org.gervarro.democles.runtime.NativeOperation;
 import org.gervarro.democles.runtime.RemappedDataFrame;
 import org.gervarro.democles.specification.ConstraintType;
 
-import language.csp.TGGAttributeConstraint;
 import language.csp.definition.TGGAttributeConstraintAdornment;
 
 public class TGGAttributeNativeOperation extends NativeOperation {	
