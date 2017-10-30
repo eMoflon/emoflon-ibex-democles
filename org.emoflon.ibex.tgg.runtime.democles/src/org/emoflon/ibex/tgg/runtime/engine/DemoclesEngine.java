@@ -32,13 +32,13 @@ import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintA
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintOperationBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGConstraintFilterComponentBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGNativeOperationBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations.TGGAttributeNativeOperation;
 import org.gervarro.democles.common.Adornment;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.PatternMatcherPlugin;
-import org.gervarro.democles.common.runtime.AdornmentAssignmentStrategy;
 import org.gervarro.democles.common.runtime.CategoryBasedQueueFactory;
 import org.gervarro.democles.common.runtime.ListOperationBuilder;
 import org.gervarro.democles.common.runtime.Task;
@@ -68,7 +68,6 @@ import org.gervarro.democles.plan.incremental.leaf.ReteSearchPlanAlgorithm;
 import org.gervarro.democles.runtime.AdornedNativeOperationBuilder;
 import org.gervarro.democles.runtime.InterpretableAdornedOperation;
 import org.gervarro.democles.runtime.JavaIdentifierProvider;
-import org.gervarro.democles.runtime.NativeOperation;
 import org.gervarro.democles.specification.emf.Constraint;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.EMFDemoclesPatternMetamodelPlugin;
@@ -464,7 +463,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// Add a new native operation for every constraint
 		List<TGGAttributeNativeOperation> nativeOps = options.constraintProvider().getAllUsedConstraintNames().stream()
 				.map(id -> {
-					// FIXME [Lars]:  How do we know the rule name here?  And how do know which constraint?  Might be better to access the def directly independently of the particular rule
 					TGGAttributeNativeOperation c = new TGGAttributeNativeOperation(id, options.constraintProvider());
 					return c;
 				})
@@ -476,27 +474,12 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 			retePatternMatcherModule.addOperationBuilder(tggAttributeConstraintOperationModule);
 			
 			for (Adornment adornment : nativeOperation.getAllowedAdornments(options.isModelGen()))
-				addComponentForTGGAttributeConstraints(tggAttrConstrOpModule, algorithm, adornment);				
+				addComponentForTGGAttributeConstraints(tggAttributeConstraintOperationModule, algorithm, adornment);				
 		}		
 	}
 
-	private void addComponentForTGGAttributeConstraints(final TGGAttributeConstraintOperationBuilder<VariableRuntime> tggAttrConstrOpModule, final ReteSearchPlanAlgorithm algorithm, Adornment adornment) {
-		algorithm.addComponentBuilder(new AdornedNativeOperationDrivenComponentBuilder<VariableRuntime>(
-				new AdornedNativeOperationBuilder<VariableRuntime>(tggAttrConstrOpModule, getStrategyForAdornment(adornment))));
-	}
-
-	private AdornmentAssignmentStrategy<Adornment, NativeOperation> getStrategyForAdornment(Adornment adornment) {
-		return new AdornmentAssignmentStrategy<Adornment, NativeOperation>() {
-			@Override
-			public Adornment getAdornmentForNativeVariableOperation(NativeOperation nativeOperation) {
-				return adornment;
-			}
-
-			@Override
-			public Adornment getAdornmentForNativeConstraintOperation(NativeOperation nativeOperation) {
-				return adornment;
-			}
-		};
+	private void addComponentForTGGAttributeConstraints(final TGGNativeOperationBuilder<VariableRuntime> tggAttributeConstraintOperationModule, final ReteSearchPlanAlgorithm algorithm, Adornment adornment) {
+		algorithm.addComponentBuilder(new TGGConstraintFilterComponentBuilder<VariableRuntime>(tggAttributeConstraintOperationModule, adornment));
 	}
 
 	public void updateMatches() {
