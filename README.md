@@ -8,8 +8,9 @@ Democles-specific component for emoflon-ibex
 1. Install Gurobi 7.0.2 (make sure it is exactly this version!) http://www.gurobi.com/downloads/gurobi-optimizer
 2. Get the latest version of the Eclipse Modeling Tools:  http://www.eclipse.org/downloads/packages/
 3. Install Ibex from this update site: https://emoflon.github.io/emoflon-ibex-democles/org.emoflon.ibex.tgg.ide.democles.updatesite/  
-Make sure you enable "contact all update sites" in the update manager so all dependencies are automatically installed.
-
+  - Important: Make sure you enable "contact all update sites" in the update manager so all dependencies are automatically installed.
+  - Important: After adding the Ibex update site some extra update sites will be added automatically for all dependencies.  Unfortunately, you have to first click on `Manage` and *enable* all these update sites first before clicking `Install`.
+    
 ### Developers
 4. Check encoding for Xtend Files
   - In Eclipse: Go to ```Window->Preferences->General->Workspace```
