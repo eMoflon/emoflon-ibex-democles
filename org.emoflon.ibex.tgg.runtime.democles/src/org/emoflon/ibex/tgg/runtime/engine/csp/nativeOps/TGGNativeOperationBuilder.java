@@ -1,50 +1,53 @@
 package org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.gervarro.democles.common.Adornment;
-import org.gervarro.democles.common.runtime.AdornedElementBuilder;
-import org.gervarro.democles.common.runtime.AdornmentAssignmentStrategy;
+import org.emoflon.ibex.tgg.operational.csp.RuntimeTGGAttributeConstraint;
+import org.emoflon.ibex.tgg.operational.csp.constraints.factories.RuntimeTGGAttrConstraintProvider;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations.TGGAttributeNativeOperation;
 import org.gervarro.democles.common.runtime.OperationBuilder;
 import org.gervarro.democles.common.runtime.VariableRuntime;
-import org.gervarro.democles.runtime.DelegatingAdornedOperation;
-import org.gervarro.democles.runtime.InterpretableAdornedOperation;
 import org.gervarro.democles.runtime.NativeOperation;
+import org.gervarro.democles.specification.ConstraintType;
+import org.gervarro.democles.specification.VariableType;
 
-public class TGGNativeOperationBuilder<VR extends VariableRuntime> extends
-		AdornedElementBuilder<VR, List<Adornment>, NativeOperation, InterpretableAdornedOperation, List<InterpretableAdornedOperation>>
-		implements OperationBuilder<InterpretableAdornedOperation, List<InterpretableAdornedOperation>, VR> {
+public class TGGNativeOperationBuilder<VR extends VariableRuntime>
+		implements OperationBuilder<NativeOperation,NativeOperation,VR> {
+	private final RuntimeTGGAttrConstraintProvider attrConstrProvider;
 
 	// Caching maps
-	private final Map<NativeOperation, List<InterpretableAdornedOperation>> nativeConstraintOperationToAdornedOperation = new HashMap<NativeOperation, List<InterpretableAdornedOperation>>();
+	private final Map<String,TGGAttributeNativeOperation> constraintTypeMapping =
+			new HashMap<String,TGGAttributeNativeOperation>();
 
 	public TGGNativeOperationBuilder(
-			final OperationBuilder<NativeOperation, NativeOperation, VR> nativeOperationBuilder,
-			final AdornmentAssignmentStrategy<List<Adornment>, NativeOperation> adornmentAssignmentStrategy) {
-		super(nativeOperationBuilder, adornmentAssignmentStrategy);
+			final RuntimeTGGAttrConstraintProvider tggAttributeConstraintProvider) {
+		this.attrConstrProvider = tggAttributeConstraintProvider;
 	}
-
-	@Override
-	protected InterpretableAdornedOperation createOperationForVariable(final NativeOperation nativeOperation) {
-		throw new IllegalArgumentException("Unknown variable for native operation");
+	
+	public TGGAttributeNativeOperation getVariableOperation(final VariableType variableType,
+			final VR variableRuntime) {
+		return null;
 	}
-
-	@Override
-	protected List<InterpretableAdornedOperation> createOperationForConstraint(final NativeOperation nativeOperation) {
-		List<InterpretableAdornedOperation> adornedOperations = nativeConstraintOperationToAdornedOperation.get(nativeOperation);
-		if (adornedOperations == null) {
-			adornedOperations = new LinkedList<InterpretableAdornedOperation>();
-			for (final Adornment adornment : getAdornmentAssignmentStrategy().getAdornmentForNativeConstraintOperation(nativeOperation)) {
-				final DelegatingAdornedOperation delegatingOperation = new DelegatingAdornedOperation(nativeOperation, adornment);
-				adornedOperations.add(delegatingOperation);
-				nativeOperation.addEventListener(delegatingOperation);
+	
+	public TGGAttributeNativeOperation getConstraintOperation(final ConstraintType constraintType,
+			final List<? extends VR> parameters) {
+		if (constraintType instanceof TGGConstraintType) {
+			final TGGConstraintType tggConstraintType =
+					(TGGConstraintType) constraintType;
+			final String id = tggConstraintType.getID();
+			TGGAttributeNativeOperation nativeOperation =
+					constraintTypeMapping.get(id);
+			if (nativeOperation == null) {
+				final RuntimeTGGAttributeConstraint runtimeConstraint =
+						attrConstrProvider.createRuntimeTGGAttributeConstraint(id);
+				nativeOperation =
+						new TGGAttributeNativeOperation(runtimeConstraint, id, attrConstrProvider);
+				constraintTypeMapping.put(id, nativeOperation);
 			}
-			
-			nativeConstraintOperationToAdornedOperation.put(nativeOperation, adornedOperations);
+			return nativeOperation;
 		}
-		return adornedOperations;
+		return null;
 	}
 }

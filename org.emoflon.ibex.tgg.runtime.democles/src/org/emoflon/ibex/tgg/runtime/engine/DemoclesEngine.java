@@ -30,11 +30,9 @@ import org.emoflon.ibex.tgg.operational.util.IMatch;
 import org.emoflon.ibex.tgg.operational.util.IbexOptions;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintOperationBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGConstraintFilterComponentBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGNativeOperationBuilder;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations.TGGAttributeNativeOperation;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.PatternMatcherPlugin;
@@ -423,17 +421,23 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		retePatternMatcherModule.setTaskQueueFactory(new CategoryBasedQueueFactory<Task>(org.gervarro.democles.runtime.IncrementalTaskCategorizer.INSTANCE));
 		
 		// EMF native
-		final EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule = new EMFInterpretableIncrementalOperationBuilder<VariableRuntime>(retePatternMatcherModule, emfTypeModule);
+		// NativeOperation
+		final EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule =
+				new EMFInterpretableIncrementalOperationBuilder<VariableRuntime>(retePatternMatcherModule, emfTypeModule);
 		// EMF batch
-		final EMFBatchOperationBuilder<VariableRuntime> emfBatchOperationModule = new EMFBatchOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFBatchAdornmentStrategy.INSTANCE);
-		final EMFIdentifierProviderBuilder<VariableRuntime> emfIdentifierProviderModule = new EMFIdentifierProviderBuilder<VariableRuntime>(JavaIdentifierProvider.INSTANCE);
+		final EMFBatchOperationBuilder<VariableRuntime> emfBatchOperationModule =
+				new EMFBatchOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFBatchAdornmentStrategy.INSTANCE);
+		final EMFIdentifierProviderBuilder<VariableRuntime> emfIdentifierProviderModule =
+				new EMFIdentifierProviderBuilder<VariableRuntime>(JavaIdentifierProvider.INSTANCE);
 		// Relational
-		final ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime> relationalOperationModule = new ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime>(
-				new RelationalOperationBuilder<VariableRuntime>());
+		final ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime> relationalOperationModule =
+				new ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime>(
+						new RelationalOperationBuilder<VariableRuntime>());
 		
 		final ReteSearchPlanAlgorithm algorithm = new ReteSearchPlanAlgorithm();
 		// EMF incremental
-		final AdornedNativeOperationBuilder<VariableRuntime> emfIncrementalOperationModule = new AdornedNativeOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFIncrementalAdornmentStrategy.INSTANCE);
+		final AdornedNativeOperationBuilder<VariableRuntime> emfIncrementalOperationModule =
+				new AdornedNativeOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFIncrementalAdornmentStrategy.INSTANCE);
 		// EMF component
 		algorithm.addComponentBuilder(new AdornedNativeOperationDrivenComponentBuilder<VariableRuntime>(emfIncrementalOperationModule));
 		// Relational component
@@ -452,7 +456,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void handleTGGAttributeConstraints(ReteSearchPlanAlgorithm algorithm) {
-		TGGAttributeConstraintAdornmentStrategy.INSTANCE.setIsModelGen(options.isModelGen());
+		TGGAttributeConstraintAdornmentStrategy.INSTANCE.setIsModelGen(
+				options.isModelGen());
 		
 		// Handle constraints for the EMF to Java transformation
 		TGGAttributeConstraintModule.INSTANCE.registerConstraintTypes(options.constraintProvider());
@@ -460,20 +465,17 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 				new TGGAttributeConstraintTypeModule(TGGAttributeConstraintModule.INSTANCE);
 		patternBuilder.addConstraintTypeSwitch(tggAttributeConstraintTypeModule.getConstraintTypeSwitch());		
 		
-		// Add a new native operation for every constraint
-		List<TGGAttributeNativeOperation> nativeOps = options.constraintProvider().getAllUsedConstraintNames().stream()
-				.map(id -> {
-					TGGAttributeNativeOperation c = new TGGAttributeNativeOperation(id, options.constraintProvider());
-					return c;
-				})
-				.collect(Collectors.toList());
-
-		for (TGGAttributeNativeOperation nativeOperation : nativeOps) {			
-			TGGAttributeConstraintOperationBuilder<VariableRuntime> tggAttrConstrOpModule = new TGGAttributeConstraintOperationBuilder<VariableRuntime>(nativeOperation);
-			TGGNativeOperationBuilder<VariableRuntime> tggAttributeConstraintOperationModule = new TGGNativeOperationBuilder<VariableRuntime>(tggAttrConstrOpModule, TGGAttributeConstraintAdornmentStrategy.INSTANCE);
-			retePatternMatcherModule.addOperationBuilder(tggAttributeConstraintOperationModule);
-			algorithm.addComponentBuilder(new TGGConstraintFilterComponentBuilder<VariableRuntime>(tggAttributeConstraintOperationModule));
-		}		
+		// Native operation
+		final TGGNativeOperationBuilder<VariableRuntime> tggNativeOperationModule =
+				new TGGNativeOperationBuilder<VariableRuntime>(options.constraintProvider());
+		// Batch operations
+		final EMFBatchOperationBuilder<VariableRuntime> tggBatchOperationModule =
+				new EMFBatchOperationBuilder<VariableRuntime>(tggNativeOperationModule,
+						TGGAttributeConstraintAdornmentStrategy.INSTANCE);
+		retePatternMatcherModule.addOperationBuilder(tggBatchOperationModule);
+		// Incremental operation
+		algorithm.addComponentBuilder(
+				new TGGConstraintFilterComponentBuilder<VariableRuntime>(tggNativeOperationModule));
 	}
 
 	public void updateMatches() {
