@@ -87,7 +87,6 @@ import org.gervarro.democles.specification.impl.DefaultPatternFactory;
 import org.gervarro.democles.specification.impl.PatternInvocationConstraintModule;
 import org.gervarro.notification.model.ModelDelta;
 
-import language.TGGRule;
 import language.TGGRuleCorr;
 import language.TGGRuleElement;
 import language.TGGRuleNode;
@@ -174,8 +173,12 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void saveDemoclesPatterns(ResourceSet rs) {
-		Resource r = rs.createResource(URI.createPlatformResourceURI(options.projectPath() + "/debug/patterns.xmi", true));
-		r.getContents().addAll(patterns);
+		Resource r = rs.createResource(URI.createPlatformResourceURI(options.projectPath() + "/debug/patterns.xmi", true));	
+		r.getContents().addAll(
+				patterns.stream()
+				  .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
+				  .collect(Collectors.toList())
+				);
 		try {
 			r.save(null);
 			rs.getResources().remove(r);
@@ -188,7 +191,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		TGGCompiler compiler = new TGGCompiler(options);
 		compiler.preparePatterns();
 
-		for (TGGRule r : compiler.getRuleToPatternMap().keySet()) {
+		for (String r : compiler.getRuleToPatternMap().keySet()) {
 			for (IbexPattern pattern : compiler.getRuleToPatternMap().get(r)) {
 				if (patternIsNotEmpty(pattern) && app.isPatternRelevant(pattern.getName()))
 					ibexToDemocles(pattern);
