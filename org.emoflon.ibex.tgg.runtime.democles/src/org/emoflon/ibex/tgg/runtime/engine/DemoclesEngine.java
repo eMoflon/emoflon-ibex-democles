@@ -31,7 +31,7 @@ import org.emoflon.ibex.tgg.operational.util.IbexOptions;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGConstraintFilterComponentBuilder;
+import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGConstraintComponentBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGNativeOperationBuilder;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
@@ -475,7 +475,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		retePatternMatcherModule.addOperationBuilder(tggBatchOperationModule);
 		// Incremental operation
 		algorithm.addComponentBuilder(
-				new TGGConstraintFilterComponentBuilder<VariableRuntime>(tggNativeOperationModule));
+				new TGGConstraintComponentBuilder<VariableRuntime>(tggNativeOperationModule));
 	}
 
 	public void updateMatches() {
