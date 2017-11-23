@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<site
-      associateSitesURL="https://emoflon.github.io/emoflon-ibex-democles/org.emoflon.ibex.tgg.ide.democles.updatesite/associateSites.xml">
+<site>
    <feature url="features/org.emoflon.ibex.tgg.ide.democles.feature_1.0.0.qualifier.jar" id="org.emoflon.ibex.tgg.ide.democles.feature" version="1.0.0.qualifier">
       <category name="eMoflon-Ibex-Democles"/>
    </feature>
