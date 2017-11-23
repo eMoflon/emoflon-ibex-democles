@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +21,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.tgg.compiler.TGGCompiler;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.PatternInvocation;
 import org.emoflon.ibex.tgg.compiler.patterns.common.RulePartPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.translation_app_conds.CheckTranslationStatePattern;
 import org.emoflon.ibex.tgg.operational.OperationalStrategy;
@@ -229,17 +229,19 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		EList<Constraint> constraints = ibexToDemocles(ibexPattern, body, nodeToVar, parameters);
 
 		// Pattern invocations
-		for (IbexPattern inv : ibexPattern.getPositiveInvocations()) {
-			if (patternIsNotEmpty(inv)) {
-				Collection<PatternInvocationConstraint> invCons = createInvocationConstraint(ibexPattern, inv, true, nodeToVar);
-				invCons.stream().filter(invCon -> !invCon.getParameters().isEmpty()).forEach(invCon -> constraints.add(invCon));
+		for (PatternInvocation inv : ibexPattern.getPositiveInvocations()) {
+			if (patternIsNotEmpty(inv.getInvokedPattern())) {
+				PatternInvocationConstraint invCon = createInvocationConstraint(inv, true, nodeToVar);
+				if(!invCon.getParameters().isEmpty())
+					constraints.add(invCon);
 			}
 		}
 
-		for (IbexPattern inv : ibexPattern.getNegativeInvocations()) {
-			if (patternIsNotEmpty(inv)) {
-				Collection<PatternInvocationConstraint> invCons = createInvocationConstraint(ibexPattern, inv, false, nodeToVar);
-				invCons.stream().filter(invCon -> !invCon.getParameters().isEmpty()).forEach(invCon -> constraints.add(invCon));
+		for (PatternInvocation inv : ibexPattern.getNegativeInvocations()) {
+			if (patternIsNotEmpty(inv.getInvokedPattern())) {
+				PatternInvocationConstraint invCon = createInvocationConstraint(inv, false, nodeToVar);
+				if(!invCon.getParameters().isEmpty())
+					constraints.add(invCon);
 			}
 		}
 
@@ -378,25 +380,20 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		});
 	}
 
-	private Collection<PatternInvocationConstraint> createInvocationConstraint(IbexPattern root, IbexPattern inv, boolean isTrue, Map<TGGRuleNode, EMFVariable> nodeToVar) {
-		List<PatternInvocationConstraint> invCons = new LinkedList<>();
-		for (int i = 0; i < root.getMappedRuleElement(inv, inv.getSignatureElements().stream().findFirst().get()).size(); i++) {
+	private PatternInvocationConstraint createInvocationConstraint(PatternInvocation inv, boolean isTrue, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 			PatternInvocationConstraint invCon = factory.createPatternInvocationConstraint();
 			invCon.setPositive(isTrue);
-			invCon.setInvokedPattern(ibexToDemocles(inv));
-			invCons.add(invCon);
+			invCon.setInvokedPattern(ibexToDemocles(inv.getInvokedPattern()));
+
+		for (TGGRuleElement element : inv.getInvokedPattern().getSignatureElements()) {
+			TGGRuleElement invElem = inv.getPreImage(element);
+			ConstraintParameter parameter = factory.createConstraintParameter();
+			invCon.getParameters().add(parameter);
+			parameter.setReference(nodeToVar.get(invElem));
+			assert(parameter.getReference() != null);
 		}
 
-		for (TGGRuleElement element : inv.getSignatureElements()) {
-			for (int i = 0; i < root.getMappedRuleElement(inv, inv.getSignatureElements().stream().findFirst().get()).size(); i++) {
-				TGGRuleElement invElem = root.getMappedRuleElement(inv, element).get(i);
-				ConstraintParameter parameter = factory.createConstraintParameter();
-				invCons.get(i).getParameters().add(parameter);
-				parameter.setReference(nodeToVar.get(invElem));
-				assert(parameter.getReference() != null);
-			}
-		}
-		return invCons;
+		return invCon;
 	}
 
 	private void retrievePatternMatchers() {
