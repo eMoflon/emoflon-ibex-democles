@@ -208,7 +208,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private boolean patternIsNotEmpty(IbexPattern pattern) {
-		return !pattern.getSignatureElements().isEmpty();
+		return !pattern.getSignatureNodes().isEmpty();
 	}
 
 	private Pattern ibexToDemocles(IbexPattern ibexPattern) {
@@ -261,35 +261,37 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		EList<Constant> constants = body.getConstants();
 
 		// Signature elements
-		for (TGGRuleElement element : ibexPattern.getSignatureElements()) {
+		for (TGGRuleNode element : ibexPattern.getSignatureNodes()) {
 			if (!nodeToVar.containsKey(element)) {
-				if (element instanceof TGGRuleNode) {
-					TGGRuleNode node = (TGGRuleNode) element;
-					EMFVariable var = emfTypeFactory.createEMFVariable();
-					var.setName(node.getName());
-					var.setEClassifier(node.getType());
-					nodeToVar.put(node, var);
+				TGGRuleNode node = (TGGRuleNode) element;
+				EMFVariable var = emfTypeFactory.createEMFVariable();
+				var.setName(node.getName());
+				var.setEClassifier(node.getType());
+				nodeToVar.put(node, var);
 
-					dAttrHelper.extractConstants(node, var);
-					dAttrHelper.extractAttributeVariables(node, var);
-				}
+				dAttrHelper.extractConstants(node, var);
+				dAttrHelper.extractAttributeVariables(node, var);
 			}
+			
 			parameters.add(nodeToVar.get(element));
 		}
 
 		// All other nodes
 		EList<Variable> locals = body.getLocalVariables();
-		for (TGGRuleNode node : ibexPattern.getBodyNodes()) {
+		Collection<TGGRuleNode> allOtherNodes = new ArrayList<>(ibexPattern.getBodyNodes());
+		allOtherNodes.removeAll(ibexPattern.getSignatureNodes());
+		for (TGGRuleNode node : allOtherNodes) {
 			if (!nodeToVar.containsKey(node)) {
 				EMFVariable var = emfTypeFactory.createEMFVariable();
 				var.setName(node.getName());
 				var.setEClassifier(node.getType());
 				nodeToVar.put(node, var);
-				locals.add(nodeToVar.get(node));
 
 				dAttrHelper.extractConstants(node, var);
 				dAttrHelper.extractAttributeVariables(node, var);
 			}
+			
+			locals.add(nodeToVar.get(node));
 		}
 
 		dAttrHelper.resolveAttributeVariables(nodeToVar.values());
@@ -313,6 +315,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 					assert(edge.getSrcNode() != null);
 					assert(edge.getTrgNode() != null);
 					assert(edge.getType() != null);
+					assert(nodeToVar.containsKey(edge.getSrcNode()));
+					assert(nodeToVar.containsKey(edge.getTrgNode()));
 					
 					Reference ref = emfTypeFactory.createReference();
 					ref.setEModelElement(edge.getType());
@@ -329,15 +333,18 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 			});
 
 		// Handle Corrs
-		for (TGGRuleCorr corr : ibexPattern.getBodyCorrNodes()) {
+		for (TGGRuleCorr corr : ibexPattern.getBodyCorrNodes()) {			
 			Reference srcRef = emfTypeFactory.createReference();
 			srcRef.setEModelElement((EReference) corr.getType().getEStructuralFeature("source"));
 
 			ConstraintParameter from = factory.createConstraintParameter();
+			assert(nodeToVar.containsKey(corr));
 			from.setReference(nodeToVar.get(corr));
 			srcRef.getParameters().add(from);
 
 			ConstraintParameter to = factory.createConstraintParameter();
+			assert(corr.getSource() != null);
+			assert(nodeToVar.containsKey(corr.getSource()));
 			to.setReference(nodeToVar.get(corr.getSource()));
 			srcRef.getParameters().add(to);
 
@@ -346,13 +353,15 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 			Reference trgRef = emfTypeFactory.createReference();
 			trgRef.setEModelElement((EReference) corr.getType().getEStructuralFeature("target"));
 
-			to = factory.createConstraintParameter();
-			to.setReference(nodeToVar.get(corr));
-			trgRef.getParameters().add(to);
-
 			from = factory.createConstraintParameter();
-			from.setReference(nodeToVar.get(corr.getTarget()));
+			from.setReference(nodeToVar.get(corr));
 			trgRef.getParameters().add(from);
+
+			to = factory.createConstraintParameter();
+			assert(corr.getTarget() != null);
+			assert(nodeToVar.containsKey(corr.getTarget()));
+			to.setReference(nodeToVar.get(corr.getTarget()));
+			trgRef.getParameters().add(to);
 
 			constraints.add(trgRef);
 		}
@@ -385,7 +394,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 			invCon.setPositive(isTrue);
 			invCon.setInvokedPattern(ibexToDemocles(inv.getInvokedPattern()));
 
-		for (TGGRuleElement element : inv.getInvokedPattern().getSignatureElements()) {
+		for (TGGRuleElement element : inv.getInvokedPattern().getSignatureNodes()) {
 			TGGRuleElement invElem = inv.getPreImage(element);
 			ConstraintParameter parameter = factory.createConstraintParameter();
 			invCon.getParameters().add(parameter);
