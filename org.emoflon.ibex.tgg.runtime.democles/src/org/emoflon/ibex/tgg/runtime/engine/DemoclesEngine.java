@@ -21,8 +21,8 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.tgg.compiler.TGGCompiler;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.IbexPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.PatternInvocation;
-import org.emoflon.ibex.tgg.compiler.patterns.common.RulePartPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.translation_app_conds.CheckTranslationStatePattern;
 import org.emoflon.ibex.tgg.operational.OperationalStrategy;
 import org.emoflon.ibex.tgg.operational.PatternMatchingEngine;
@@ -366,13 +366,13 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		}
 
 		// Force injective matches through unequals-constraints
-		if (ibexPattern instanceof RulePartPattern)
-			forceInjectiveMatchesForPattern((RulePartPattern) ibexPattern, body, nodeToVar);
+		if (ibexPattern instanceof IbexPattern)
+			forceInjectiveMatchesForPattern((IbexPattern) ibexPattern, body, nodeToVar);
 
 		return constraints;
 	}
 
-	private void forceInjectiveMatchesForPattern(RulePartPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
+	private void forceInjectiveMatchesForPattern(IbexPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 		pattern.getInjectivityChecks().stream()
 									  .forEach(pair -> {
 			RelationalConstraint unequal = rcFactory.createUnequal();
