@@ -372,7 +372,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		return constraints;
 	}
 
-	private void forceInjectiveMatchesForPattern(IbexPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
+	private void forceInjectiveMatchesForPattern(IPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 		pattern.getInjectivityChecks().stream()
 									  .forEach(pair -> {
 			RelationalConstraint unequal = rcFactory.createUnequal();
