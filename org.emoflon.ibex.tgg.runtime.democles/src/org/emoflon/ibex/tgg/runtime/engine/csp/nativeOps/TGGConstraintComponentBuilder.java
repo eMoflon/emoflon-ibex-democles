@@ -7,7 +7,7 @@ import org.gervarro.democles.common.Adornment;
 import org.gervarro.democles.common.runtime.OperationBuilder;
 import org.gervarro.democles.common.runtime.VariableRuntime;
 import org.gervarro.democles.plan.incremental.leaf.Component;
-import org.gervarro.democles.plan.incremental.leaf.ConstraintComponent;
+import org.gervarro.democles.plan.incremental.leaf.FilterComponent;
 import org.gervarro.democles.specification.ConstraintType;
 import org.gervarro.democles.specification.VariableType;
 
@@ -24,7 +24,7 @@ public class TGGConstraintComponentBuilder<VR extends VariableRuntime> implement
 			final TGGAttributeNativeOperation nativeOperation =
 					operationBuilder.getConstraintOperation(constraint, parameters);
 			final int size = nativeOperation.getAttributeConstraintDefinition().getParameterDefinitions().size();
-			return new ConstraintComponent(nativeOperation,
+			return new FilterComponent(nativeOperation,
 					new Adornment(size), constraint, parameters);
 		}
 		return null;
