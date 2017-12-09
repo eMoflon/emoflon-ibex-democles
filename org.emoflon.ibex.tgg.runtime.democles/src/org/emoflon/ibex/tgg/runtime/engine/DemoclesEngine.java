@@ -15,15 +15,12 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage.Registry;
-import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.tgg.compiler.TGGCompiler;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
-import org.emoflon.ibex.tgg.compiler.patterns.common.IbexPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.IPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.PatternInvocation;
-import org.emoflon.ibex.tgg.compiler.patterns.common.RulePartPattern;
-import org.emoflon.ibex.tgg.compiler.patterns.translation_app_conds.CheckTranslationStatePattern;
 import org.emoflon.ibex.tgg.operational.OperationalStrategy;
 import org.emoflon.ibex.tgg.operational.PatternMatchingEngine;
 import org.emoflon.ibex.tgg.operational.util.IMatch;
@@ -92,8 +89,6 @@ import org.gervarro.democles.specification.impl.DefaultPatternFactory;
 import org.gervarro.democles.specification.impl.PatternInvocationConstraintModule;
 import org.gervarro.notification.model.ModelDelta;
 
-import language.TGGRuleCorr;
-import language.TGGRuleElement;
 import language.TGGRuleNode;
 
 public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine {
@@ -196,7 +191,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		compiler.preparePatterns();
 
 		for (String r : compiler.getRuleToPatternMap().keySet()) {
-			for (IbexPattern pattern : compiler.getRuleToPatternMap().get(r)) {
+			for (IPattern pattern : compiler.getRuleToPatternMap().get(r)) {
 				if (patternIsNotEmpty(pattern) && app.isPatternRelevant(pattern.getName()))
 					ibexToDemocles(pattern);
 			}
@@ -211,11 +206,11 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		}
 	}
 
-	private boolean patternIsNotEmpty(IbexPattern pattern) {
-		return !pattern.getSignatureElements().isEmpty();
+	private boolean patternIsNotEmpty(IPattern pattern) {
+		return !pattern.getSignatureNodes().isEmpty();
 	}
 
-	private Pattern ibexToDemocles(IbexPattern ibexPattern) {
+	private Pattern ibexToDemocles(IPattern ibexPattern) {
 		if (patternMap.containsKey(ibexPattern))
 			return patternMap.get(ibexPattern);
 
@@ -255,7 +250,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		return pattern;
 	}
 
-	private EList<Constraint> ibexToDemocles(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {		
+	private EList<Constraint> ibexToDemocles(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {		
 		createVariablesForNodes(ibexPattern, body, nodeToVar, parameters);
 		
 		if(TGGCompiler.isRootPattern(ibexPattern)) {
@@ -264,15 +259,14 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		}
 		
 		createConstraintsForEdges(ibexPattern, nodeToVar, body.getConstraints());
-		createConstraintsForCorrs(ibexPattern, nodeToVar, body.getConstraints());
 		createUnequalConstraintsForInjectivity(ibexPattern, body, nodeToVar);
 
 		return body.getConstraints();
 	}
 
-	private void createVariablesForNodes(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+	private void createVariablesForNodes(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		// Signature elements
-		for (TGGRuleElement element : ibexPattern.getSignatureElements()) {
+		for (TGGRuleNode element : ibexPattern.getSignatureNodes()) {
 			if (!nodeToVar.containsKey(element)) {
 				if (element instanceof TGGRuleNode) {
 					TGGRuleNode node = (TGGRuleNode) element;
@@ -287,78 +281,49 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	
 		// All other nodes
 		EList<Variable> locals = body.getLocalVariables();
-		for (TGGRuleNode node : ibexPattern.getBodyNodes()) {
+		Collection<TGGRuleNode> allOtherNodes = new ArrayList<>(ibexPattern.getLocalNodes());
+		for (TGGRuleNode node : allOtherNodes) {
 			if (!nodeToVar.containsKey(node)) {
 				EMFVariable var = emfTypeFactory.createEMFVariable();
 				var.setName(node.getName());
 				var.setEClassifier(node.getType());
 				nodeToVar.put(node, var);
-				locals.add(nodeToVar.get(node));
 			}
+			
+			locals.add(nodeToVar.get(node));
 		}
 	}
 
-	private void createUnequalConstraintsForInjectivity(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
+	private void createUnequalConstraintsForInjectivity(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 		// Force injective matches through unequals-constraints
-		if (ibexPattern instanceof RulePartPattern)
-			forceInjectiveMatchesForPattern((RulePartPattern) ibexPattern, body, nodeToVar);
+		forceInjectiveMatchesForPattern((RulePartPattern) ibexPattern, body, nodeToVar);
 	}
 
-	private void createConstraintsForCorrs(IbexPattern ibexPattern, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Constraint> constraints) {
-		for (TGGRuleCorr corr : ibexPattern.getBodyCorrNodes()) {
-			Reference srcRef = emfTypeFactory.createReference();
-			srcRef.setEModelElement((EReference) corr.getType().getEStructuralFeature("source"));
+	private void createConstraintsForEdges(IPattern ibexPattern, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Constraint> constraints) {
+		ibexPattern.getLocalEdges()
+			.stream()
+			.forEach(edge -> {
+				assert(edge.getSrcNode() != null);
+				assert(edge.getTrgNode() != null);
+				assert(edge.getType() != null);
+				assert(nodeToVar.containsKey(edge.getSrcNode()));
+				assert(nodeToVar.containsKey(edge.getTrgNode()));
+				
+				Reference ref = emfTypeFactory.createReference();
+				ref.setEModelElement(edge.getType());
 
-			ConstraintParameter from = factory.createConstraintParameter();
-			from.setReference(nodeToVar.get(corr));
-			srcRef.getParameters().add(from);
+				ConstraintParameter from = factory.createConstraintParameter();
+				from.setReference(nodeToVar.get(edge.getSrcNode()));
+				ref.getParameters().add(from);
 
-			ConstraintParameter to = factory.createConstraintParameter();
-			to.setReference(nodeToVar.get(corr.getSource()));
-			srcRef.getParameters().add(to);
+				ConstraintParameter to = factory.createConstraintParameter();
+				to.setReference(nodeToVar.get(edge.getTrgNode()));
+				ref.getParameters().add(to);
 
-			constraints.add(srcRef);
-
-			Reference trgRef = emfTypeFactory.createReference();
-			trgRef.setEModelElement((EReference) corr.getType().getEStructuralFeature("target"));
-
-			to = factory.createConstraintParameter();
-			to.setReference(nodeToVar.get(corr));
-			trgRef.getParameters().add(to);
-
-			from = factory.createConstraintParameter();
-			from.setReference(nodeToVar.get(corr.getTarget()));
-			trgRef.getParameters().add(from);
-
-			constraints.add(trgRef);
-		}
+				constraints.add(ref);
 	}
 
-	private void createConstraintsForEdges(IbexPattern ibexPattern, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Constraint> constraints) {
-		if (!(ibexPattern instanceof CheckTranslationStatePattern && ((CheckTranslationStatePattern) ibexPattern).isLocal()))
-			ibexPattern.getBodyEdges()
-				.stream()
-				.forEach(edge -> {
-					assert(edge.getSrcNode() != null);
-					assert(edge.getTrgNode() != null);
-					assert(edge.getType() != null);
-					
-					Reference ref = emfTypeFactory.createReference();
-					ref.setEModelElement(edge.getType());
-
-					ConstraintParameter from = factory.createConstraintParameter();
-					from.setReference(nodeToVar.get(edge.getSrcNode()));
-					ref.getParameters().add(from);
-
-					ConstraintParameter to = factory.createConstraintParameter();
-					to.setReference(nodeToVar.get(edge.getTrgNode()));
-					ref.getParameters().add(to);
-
-					constraints.add(ref);
-			});
-	}
-
-	private void forceInjectiveMatchesForPattern(RulePartPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
+	private void forceInjectiveMatchesForPattern(IPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 		pattern.getInjectivityChecks().stream()
 									  .forEach(pair -> {
 			RelationalConstraint unequal = rcFactory.createUnequal();
@@ -379,8 +344,8 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 			invCon.setPositive(isTrue);
 			invCon.setInvokedPattern(ibexToDemocles(inv.getInvokedPattern()));
 
-		for (TGGRuleElement element : inv.getInvokedPattern().getSignatureElements()) {
-			TGGRuleElement invElem = inv.getPreImage(element);
+		for (TGGRuleNode element : inv.getInvokedPattern().getSignatureNodes()) {
+			TGGRuleNode invElem = inv.getPreImage(element);
 			ConstraintParameter parameter = factory.createConstraintParameter();
 			invCon.getParameters().add(parameter);
 			parameter.setReference(nodeToVar.get(invElem));
@@ -507,7 +472,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 				} else {
 					matches.put(frame, new ArrayList<IMatch>(Arrays.asList(match)));
 				}
-				// TODO [Anjorin] Better way of accessing rule name.
+
 				app.addOperationalRuleMatch(PatternSuffixes.removeSuffix(pattern.getName()), match);
 			}
 
