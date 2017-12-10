@@ -11,7 +11,8 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EcorePackage;
-import org.emoflon.ibex.tgg.compiler.patterns.common.IbexPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.IPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
 import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.Constraint;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
@@ -27,6 +28,7 @@ import org.gervarro.democles.specification.emf.constraint.relational.RelationalC
 
 import TGGAttributeConstraint.AttributeConstraint;
 import TGGAttributeConstraint.TGGAttributeConstraintFactory;
+import language.TGGRule;
 import language.TGGRuleNode;
 import language.basic.expressions.TGGAttributeExpression;
 import language.basic.expressions.TGGEnumExpression;
@@ -54,7 +56,7 @@ public class DemoclesAttributeHelper {
 		ops = new HashSet<>();
 	}
 	
-	public void createAttributeConstraints(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+	public void createAttributeConstraints(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		createInplaceAttributeConditions(ibexPattern, body, nodeToVar, parameters);
 		createConstraintsForAttributeConstraints(ibexPattern, body, nodeToVar, parameters);
 		
@@ -66,11 +68,15 @@ public class DemoclesAttributeHelper {
 		parameters.addAll(signature_attr_vars.values());
 	}
 
-	private void createConstraintsForAttributeConstraints(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
-		if(ibexPattern.getRule() == null || ibexPattern.getRule().getAttributeConditionLibrary() == null)
+	private void createConstraintsForAttributeConstraints(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+		if(ibexPattern.getPatternFactory() == null)
 			return;
 		
-		Collection<TGGAttributeConstraint> attributeConstraints = ibexPattern.getRule().getAttributeConditionLibrary().getTggAttributeConstraints();
+		TGGRule rule = ibexPattern.getPatternFactory().getFlattenedVersionOfRule();
+		if(rule == null || rule.getAttributeConditionLibrary() == null)
+			return;
+		
+		Collection<TGGAttributeConstraint> attributeConstraints = rule.getAttributeConditionLibrary().getTggAttributeConstraints();
 		for (TGGAttributeConstraint constraint : attributeConstraints)
 			createAttributeConstraint(constraint, nodeToVar);
 	}
@@ -102,7 +108,7 @@ public class DemoclesAttributeHelper {
 		ops.add(c);
  	}
 
-	private void createInplaceAttributeConditions(IbexPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+	private void createInplaceAttributeConditions(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		// For every node, create variables for attributes and constants used inplace for the node
 		for (TGGRuleNode node : nodeToVar.keySet())
 			createInplaceAttributeConstraints(node, nodeToVar.get(node));
@@ -123,7 +129,8 @@ public class DemoclesAttributeHelper {
 
 	private EMFVariable createOrRetrieveAttributeVariable(TGGRuleNode node, EMFVariable nodeVar, EAttribute eAttr) {
 		boolean isAttributeFree = nodeVar == null;
-		String key = IbexPattern.getVarName(node, eAttr);
+		
+		String key = IbexBasePattern.getVarName(node, eAttr);
 		
 		if(signature_attr_vars.containsKey(key))
 			return signature_attr_vars.get(key);

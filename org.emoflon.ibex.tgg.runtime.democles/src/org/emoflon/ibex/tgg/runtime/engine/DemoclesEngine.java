@@ -20,6 +20,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.tgg.compiler.TGGCompiler;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.PatternInvocation;
 import org.emoflon.ibex.tgg.operational.OperationalStrategy;
 import org.emoflon.ibex.tgg.operational.PatternMatchingEngine;
@@ -102,7 +103,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private EMFPatternBuilder<DefaultPattern, DefaultPatternBody> patternBuilder;
 	private Collection<RetePattern> patternMatchers;
 	protected OperationalStrategy app;
-	private HashMap<IbexPattern, Pattern> patternMap;
+	private HashMap<IPattern, Pattern> patternMap;
 	private IbexOptions options;
 	private NotificationProcessor observer;
 
@@ -296,7 +297,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 	private void createUnequalConstraintsForInjectivity(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 		// Force injective matches through unequals-constraints
-		forceInjectiveMatchesForPattern((RulePartPattern) ibexPattern, body, nodeToVar);
+		forceInjectiveMatchesForPattern((IbexBasePattern) ibexPattern, body, nodeToVar);
 	}
 
 	private void createConstraintsForEdges(IPattern ibexPattern, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Constraint> constraints) {
@@ -321,6 +322,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 				ref.getParameters().add(to);
 
 				constraints.add(ref);
+			});
 	}
 
 	private void forceInjectiveMatchesForPattern(IPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
