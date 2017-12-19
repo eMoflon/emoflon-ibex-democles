@@ -34,16 +34,11 @@ public class TGGNativeOperationBuilder<VR extends VariableRuntime>
 	public TGGAttributeNativeOperation getConstraintOperation(final ConstraintType constraintType,
 			final List<? extends VR> parameters) {
 		if (constraintType instanceof TGGConstraintType) {
-			final TGGConstraintType tggConstraintType =
-					(TGGConstraintType) constraintType;
+			final TGGConstraintType tggConstraintType =	(TGGConstraintType) constraintType;
 			final String id = tggConstraintType.getID();
-			TGGAttributeNativeOperation nativeOperation =
-					constraintTypeMapping.get(id);
+			TGGAttributeNativeOperation nativeOperation = constraintTypeMapping.get(id);
 			if (nativeOperation == null) {
-				final RuntimeTGGAttributeConstraint runtimeConstraint =
-						attrConstrProvider.createRuntimeTGGAttributeConstraint(id);
-				nativeOperation =
-						new TGGAttributeNativeOperation(runtimeConstraint, id, attrConstrProvider);
+				nativeOperation = new TGGAttributeNativeOperation(id, attrConstrProvider);
 				constraintTypeMapping.put(id, nativeOperation);
 			}
 			return nativeOperation;

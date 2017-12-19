@@ -10,15 +10,12 @@ import org.gervarro.democles.runtime.RemappedDataFrame;
 import language.csp.definition.TGGAttributeConstraintDefinition;
 
 public class TGGAttributeNativeOperation extends NativeOperation {	
-	private final RuntimeTGGAttributeConstraint attrConstr;
 	private String id;
 	private RuntimeTGGAttrConstraintProvider attrConstrProvider;
 	
 	public TGGAttributeNativeOperation(
-			final RuntimeTGGAttributeConstraint attrConstr,
 			final String id,
 			final RuntimeTGGAttrConstraintProvider attrConstrProvider) {
-		this.attrConstr = attrConstr;
 		this.id = id;
 		this.attrConstrProvider = attrConstrProvider;
 	}
@@ -29,6 +26,8 @@ public class TGGAttributeNativeOperation extends NativeOperation {
 	
 	@Override
 	public InternalDataFrameProvider getDataFrame(RemappedDataFrame frame, Adornment adornment) {
+		RuntimeTGGAttributeConstraint attrConstr = attrConstrProvider.createRuntimeTGGAttributeConstraint(id);
+
 		for(int i = 0; i < adornment.size(); i++) {
 			if(adornment.get(i) == Adornment.BOUND) {
 				attrConstr.getVariables().get(i).bindToValue(frame.getValue(i));
