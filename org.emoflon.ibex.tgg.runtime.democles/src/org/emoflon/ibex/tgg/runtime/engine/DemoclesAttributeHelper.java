@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
+import org.emoflon.ibex.tgg.operational.util.IbexOptions;
 import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.Constraint;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
@@ -56,8 +57,31 @@ public class DemoclesAttributeHelper {
 		ops = new HashSet<>();
 	}
 	
-	public void createAttributeConstraints(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+	private void clearState() {
+		constants = new HashMap<>();
+		body_attr_vars = new HashMap<>();
+		signature_attr_vars = new HashMap<>();
+		attrs = new HashMap<>();
+		ops = new HashSet<>();
+	}
+
+	public void createAttributeInplaceAttributeConditions(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters, IbexOptions options) {
 		createInplaceAttributeConditions(ibexPattern, body, nodeToVar, parameters);
+		
+		// Transfer to body
+		body.getConstraints().addAll(attrs.values());
+		body.getConstraints().addAll(ops);
+		body.getConstants().addAll(constants.values());
+		body.getLocalVariables().addAll(body_attr_vars.values());
+		parameters.addAll(signature_attr_vars.values());
+		
+		clearState();
+	}
+	
+	public void createAttributeConstraints(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters, IbexOptions options) {
+		if(!options.useAttributeConstraints())
+			return;
+		
 		createConstraintsForAttributeConstraints(ibexPattern, body, nodeToVar, parameters);
 		
 		// Transfer to body
@@ -66,6 +90,8 @@ public class DemoclesAttributeHelper {
 		body.getConstants().addAll(constants.values());
 		body.getLocalVariables().addAll(body_attr_vars.values());
 		parameters.addAll(signature_attr_vars.values());
+		
+		clearState();
 	}
 
 	private void createConstraintsForAttributeConstraints(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {

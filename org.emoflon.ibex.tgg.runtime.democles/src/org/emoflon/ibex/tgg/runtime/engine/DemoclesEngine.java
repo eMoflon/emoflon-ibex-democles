@@ -256,7 +256,9 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		
 		if(TGGCompiler.isRootPattern(ibexPattern)) {
 			DemoclesAttributeHelper dAttrHelper = new DemoclesAttributeHelper();
-			dAttrHelper.createAttributeConstraints(ibexPattern, body, nodeToVar, parameters);
+			dAttrHelper.createAttributeInplaceAttributeConditions(ibexPattern, body, nodeToVar, parameters, options);
+			if(supportsAttributeConstraints())
+				dAttrHelper.createAttributeConstraints(ibexPattern, body, nodeToVar, parameters, options);
 		}
 		
 		createConstraintsForEdges(ibexPattern, nodeToVar, body.getConstraints());
@@ -380,7 +382,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		patternBuilder.addConstraintTypeSwitch(internalPatternInvocationTypeModule.getConstraintTypeSwitch());
 		patternBuilder.addConstraintTypeSwitch(internalRelationalTypeModule.getConstraintTypeSwitch());
 		patternBuilder.addConstraintTypeSwitch(internalEMFTypeModule.getConstraintTypeSwitch());
-		
 		patternBuilder.addVariableTypeSwitch(internalEMFTypeModule.getVariableTypeSwitch());
 
 		retePatternMatcherModule = new RetePatternMatcherModule();
@@ -389,22 +390,17 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		
 		// EMF native
 		// NativeOperation
-		final EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule =
-				new EMFInterpretableIncrementalOperationBuilder<VariableRuntime>(retePatternMatcherModule, emfTypeModule);
+		final EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule = new EMFInterpretableIncrementalOperationBuilder<VariableRuntime>(retePatternMatcherModule, emfTypeModule);
 		// EMF batch
-		final EMFBatchOperationBuilder<VariableRuntime> emfBatchOperationModule =
-				new EMFBatchOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFBatchAdornmentStrategy.INSTANCE);
-		final EMFIdentifierProviderBuilder<VariableRuntime> emfIdentifierProviderModule =
-				new EMFIdentifierProviderBuilder<VariableRuntime>(JavaIdentifierProvider.INSTANCE);
+		final EMFBatchOperationBuilder<VariableRuntime> emfBatchOperationModule = new EMFBatchOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFBatchAdornmentStrategy.INSTANCE);
+		final EMFIdentifierProviderBuilder<VariableRuntime> emfIdentifierProviderModule = new EMFIdentifierProviderBuilder<VariableRuntime>(JavaIdentifierProvider.INSTANCE);
 		// Relational
-		final ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime> relationalOperationModule =
-				new ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime>(
+		final ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime> relationalOperationModule = new ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime>(
 						new RelationalOperationBuilder<VariableRuntime>());
 		
 		final ReteSearchPlanAlgorithm algorithm = new ReteSearchPlanAlgorithm();
 		// EMF incremental
-		final AdornedNativeOperationBuilder<VariableRuntime> emfIncrementalOperationModule =
-				new AdornedNativeOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFIncrementalAdornmentStrategy.INSTANCE);
+		final AdornedNativeOperationBuilder<VariableRuntime> emfIncrementalOperationModule = new AdornedNativeOperationBuilder<VariableRuntime>(emfNativeOperationModule, DefaultEMFIncrementalAdornmentStrategy.INSTANCE);
 		// EMF component
 		algorithm.addComponentBuilder(new AdornedNativeOperationDrivenComponentBuilder<VariableRuntime>(emfIncrementalOperationModule));
 		// Relational component
@@ -423,6 +419,9 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void handleTGGAttributeConstraints(ReteSearchPlanAlgorithm algorithm) {
+		if(!supportsAttributeConstraints() || !options.useAttributeConstraints())
+			return;
+		
 		TGGAttributeConstraintAdornmentStrategy.INSTANCE.setIsModelGen(
 				options.isModelGen());
 		
@@ -515,5 +514,10 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 			e.printStackTrace();
 		}
 		return rs;
+	}
+
+	@Override
+	public boolean supportsAttributeConstraints() {
+		return true;
 	}
 }
