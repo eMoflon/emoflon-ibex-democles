@@ -254,12 +254,10 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private EList<Constraint> ibexToDemocles(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {		
 		createVariablesForNodes(ibexPattern, body, nodeToVar, parameters);
 		
-		if(TGGCompiler.isRootPattern(ibexPattern)) {
-			DemoclesAttributeHelper dAttrHelper = new DemoclesAttributeHelper();
-			dAttrHelper.createAttributeInplaceAttributeConditions(ibexPattern, body, nodeToVar, parameters, options);
-			if(supportsAttributeConstraints())
-				dAttrHelper.createAttributeConstraints(ibexPattern, body, nodeToVar, parameters, options);
-		}
+		DemoclesAttributeHelper dAttrHelper = new DemoclesAttributeHelper();
+		dAttrHelper.createAttributeInplaceAttributeConditions(ibexPattern, body, nodeToVar, parameters, options);
+		if (handleAttributeConstraintsInEngine())
+			dAttrHelper.createAttributeConstraints(ibexPattern, body, nodeToVar, parameters, options);
 		
 		createConstraintsForEdges(ibexPattern, nodeToVar, body.getConstraints());
 		createUnequalConstraintsForInjectivity(ibexPattern, body, nodeToVar);
@@ -419,11 +417,9 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void handleTGGAttributeConstraints(ReteSearchPlanAlgorithm algorithm) {
-		if(!supportsAttributeConstraints() || !options.useAttributeConstraints())
-			return;
+		if(!handleAttributeConstraintsInEngine()) return;
 		
-		TGGAttributeConstraintAdornmentStrategy.INSTANCE.setIsModelGen(
-				options.isModelGen());
+		TGGAttributeConstraintAdornmentStrategy.INSTANCE.setIsModelGen(options.isModelGen());
 		
 		// Handle constraints for the EMF to Java transformation
 		TGGAttributeConstraintModule.INSTANCE.registerConstraintTypes(options.constraintProvider());
@@ -439,9 +435,13 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 				new EMFBatchOperationBuilder<VariableRuntime>(tggNativeOperationModule,
 						TGGAttributeConstraintAdornmentStrategy.INSTANCE);
 		retePatternMatcherModule.addOperationBuilder(tggBatchOperationModule);
+		
 		// Incremental operation
-		algorithm.addComponentBuilder(
-				new TGGConstraintComponentBuilder<VariableRuntime>(tggNativeOperationModule));
+		algorithm.addComponentBuilder(new TGGConstraintComponentBuilder<VariableRuntime>(tggNativeOperationModule));
+	}
+
+	private boolean handleAttributeConstraintsInEngine() {
+		return supportsAttributeConstraints() && options.useAttributeConstraints();
 	}
 
 	public void updateMatches() {
