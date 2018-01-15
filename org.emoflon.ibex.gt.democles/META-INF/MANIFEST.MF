@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Unidirectional Graph Transformations based on Democles pattern matcher
+Bundle-SymbolicName: org.emoflon.ibex.gt.democles;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: eMoflon::IBeX Developers
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.emoflon.ibex.common,
+ org.gervarro.democles.common;bundle-version="3.0.0",
+ org.gervarro.democles.specification.emf;bundle-version="3.0.0"
