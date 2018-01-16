@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage.Registry;
@@ -93,9 +92,6 @@ import org.gervarro.notification.model.ModelDelta;
 import language.TGGRuleNode;
 
 public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
-
-	private static final Logger logger = Logger.getLogger(DemoclesEngine.class);
-
 	private Registry registry;
 	private Collection<Pattern> patterns;
 	private HashMap<IDataFrame, Collection<IMatch>> matches;
@@ -196,14 +192,6 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 				if (patternIsNotEmpty(pattern) && app.isPatternRelevantForCompiler(pattern.getName()))
 					ibexToDemocles(pattern);
 			}
-		}
-		
-		if(options.debug()){
-			logger.debug(patterns.stream()
-					 .map(p -> p.getBodies().get(0).getConstraints().size())
-					 .sorted()
-					 .map(i -> " " + i)
-					 .collect(Collectors.joining()));
 		}
 	}
 
