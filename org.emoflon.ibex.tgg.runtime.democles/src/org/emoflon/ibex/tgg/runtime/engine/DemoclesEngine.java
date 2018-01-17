@@ -11,21 +11,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.emoflon.ibex.tgg.compiler.TGGCompiler;
+import org.emoflon.ibex.tgg.compiler.BlackPatternCompiler;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
-import org.emoflon.ibex.tgg.compiler.patterns.common.IPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.PatternInvocation;
-import org.emoflon.ibex.tgg.operational.OperationalStrategy;
-import org.emoflon.ibex.tgg.operational.PatternMatchingEngine;
-import org.emoflon.ibex.tgg.operational.util.IMatch;
-import org.emoflon.ibex.tgg.operational.util.IbexOptions;
+import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
+import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
+import org.emoflon.ibex.tgg.operational.matches.IMatch;
+import org.emoflon.ibex.tgg.operational.strategies.OperationalStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
@@ -92,10 +91,7 @@ import org.gervarro.notification.model.ModelDelta;
 
 import language.TGGRuleNode;
 
-public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine {
-
-	private static final Logger logger = Logger.getLogger(DemoclesEngine.class);
-
+public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 	private Registry registry;
 	private Collection<Pattern> patterns;
 	private HashMap<IDataFrame, Collection<IMatch>> matches;
@@ -103,7 +99,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	private EMFPatternBuilder<DefaultPattern, DefaultPatternBody> patternBuilder;
 	private Collection<RetePattern> patternMatchers;
 	protected OperationalStrategy app;
-	private HashMap<IPattern, Pattern> patternMap;
+	private HashMap<IBlackPattern, Pattern> patternMap;
 	private IbexOptions options;
 	private NotificationProcessor observer;
 
@@ -188,30 +184,22 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private void createDemoclesPatterns() {
-		TGGCompiler compiler = new TGGCompiler(options);
+		BlackPatternCompiler compiler = new BlackPatternCompiler(options);
 		compiler.preparePatterns();
 
 		for (String r : compiler.getRuleToPatternMap().keySet()) {
-			for (IPattern pattern : compiler.getRuleToPatternMap().get(r)) {
-				if (patternIsNotEmpty(pattern) && app.isPatternRelevant(pattern.getName()))
+			for (IBlackPattern pattern : compiler.getRuleToPatternMap().get(r)) {
+				if (patternIsNotEmpty(pattern) && app.isPatternRelevantForCompiler(pattern.getName()))
 					ibexToDemocles(pattern);
 			}
 		}
-		
-		if(options.debug()){
-			logger.debug(patterns.stream()
-					 .map(p -> p.getBodies().get(0).getConstraints().size())
-					 .sorted()
-					 .map(i -> " " + i)
-					 .collect(Collectors.joining()));
-		}
 	}
 
-	private boolean patternIsNotEmpty(IPattern pattern) {
+	private boolean patternIsNotEmpty(IBlackPattern pattern) {
 		return !pattern.getSignatureNodes().isEmpty();
 	}
 
-	private Pattern ibexToDemocles(IPattern ibexPattern) {
+	private Pattern ibexToDemocles(IBlackPattern ibexPattern) {
 		if (patternMap.containsKey(ibexPattern))
 			return patternMap.get(ibexPattern);
 
@@ -251,7 +239,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		return pattern;
 	}
 
-	private EList<Constraint> ibexToDemocles(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {		
+	private EList<Constraint> ibexToDemocles(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {		
 		createVariablesForNodes(ibexPattern, body, nodeToVar, parameters);
 		
 		DemoclesAttributeHelper dAttrHelper = new DemoclesAttributeHelper();
@@ -265,7 +253,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		return body.getConstraints();
 	}
 
-	private void createVariablesForNodes(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+	private void createVariablesForNodes(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		// Signature elements
 		for (TGGRuleNode element : ibexPattern.getSignatureNodes()) {
 			if (!nodeToVar.containsKey(element)) {
@@ -295,12 +283,12 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		}
 	}
 
-	private void createUnequalConstraintsForInjectivity(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
+	private void createUnequalConstraintsForInjectivity(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 		// Force injective matches through unequals-constraints
 		forceInjectiveMatchesForPattern((IbexBasePattern) ibexPattern, body, nodeToVar);
 	}
 
-	private void createConstraintsForEdges(IPattern ibexPattern, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Constraint> constraints) {
+	private void createConstraintsForEdges(IBlackPattern ibexPattern, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Constraint> constraints) {
 		ibexPattern.getLocalEdges()
 			.stream()
 			.forEach(edge -> {
@@ -325,7 +313,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 			});
 	}
 
-	private void forceInjectiveMatchesForPattern(IPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
+	private void forceInjectiveMatchesForPattern(IBlackPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar) {
 		pattern.getInjectivityChecks().stream()
 									  .forEach(pair -> {
 			RelationalConstraint unequal = rcFactory.createUnequal();
@@ -359,7 +347,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 
 	private void retrievePatternMatchers() {
 		for (Pattern pattern : patterns) {
-			if (app.isPatternRelevant(pattern.getName())) {
+			if (app.isPatternRelevantForCompiler(pattern.getName())) {
 				patternMatchers.add(retePatternMatcherModule.getPatternMatcher(getPatternID(pattern)));
 			}
 		}
@@ -441,7 +429,7 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 	}
 
 	private boolean handleAttributeConstraintsInEngine() {
-		return supportsAttributeConstraints() && options.useAttributeConstraints();
+		return options.blackInterpSupportsAttrConstrs();
 	}
 
 	public void updateMatches() {
@@ -458,9 +446,6 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 		// React to events
 		final String type = event.getEventType();
 		final DataFrame frame = event.getMatching();
-
-		if (options.debug())
-			logger.debug("Received match:  " + event);
 
 		Optional<Pattern> p = patterns.stream().filter(pattern -> getPatternID(pattern).equals(event.getSource().toString())).findAny();
 
@@ -514,10 +499,5 @@ public class DemoclesEngine implements MatchEventListener, PatternMatchingEngine
 			e.printStackTrace();
 		}
 		return rs;
-	}
-
-	@Override
-	public boolean supportsAttributeConstraints() {
-		return true;
 	}
 }

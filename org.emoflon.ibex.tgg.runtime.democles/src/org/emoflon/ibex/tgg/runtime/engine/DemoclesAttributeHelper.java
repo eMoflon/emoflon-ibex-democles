@@ -11,9 +11,9 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EcorePackage;
-import org.emoflon.ibex.tgg.compiler.patterns.common.IPattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
-import org.emoflon.ibex.tgg.operational.util.IbexOptions;
+import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.Constraint;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
@@ -65,7 +65,7 @@ public class DemoclesAttributeHelper {
 		ops = new HashSet<>();
 	}
 
-	public void createAttributeInplaceAttributeConditions(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters, IbexOptions options) {
+	public void createAttributeInplaceAttributeConditions(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters, IbexOptions options) {
 		createInplaceAttributeConditions(ibexPattern, body, nodeToVar, parameters);
 		
 		// Transfer to body
@@ -78,8 +78,8 @@ public class DemoclesAttributeHelper {
 		clearState();
 	}
 	
-	public void createAttributeConstraints(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters, IbexOptions options) {
-		if(!options.useAttributeConstraints())
+	public void createAttributeConstraints(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters, IbexOptions options) {
+		if(!options.blackInterpSupportsAttrConstrs())
 			return;
 		
 		createConstraintsForAttributeConstraints(ibexPattern, body, nodeToVar, parameters);
@@ -94,7 +94,7 @@ public class DemoclesAttributeHelper {
 		clearState();
 	}
 
-	private void createConstraintsForAttributeConstraints(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+	private void createConstraintsForAttributeConstraints(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		if(ibexPattern.getPatternFactory() == null)
 			return;
 		
@@ -134,7 +134,7 @@ public class DemoclesAttributeHelper {
 		ops.add(c);
  	}
 
-	private void createInplaceAttributeConditions(IPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+	private void createInplaceAttributeConditions(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		// For every node, create variables for attributes and constants used inplace for the node
 		for (TGGRuleNode node : nodeToVar.keySet())
 			createInplaceAttributeConstraints(node, nodeToVar.get(node));

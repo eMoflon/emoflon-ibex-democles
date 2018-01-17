@@ -3,7 +3,8 @@ package org.emoflon.ibex.tgg.runtime.engine;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import org.emoflon.ibex.tgg.operational.util.IMatch;
+import org.emoflon.ibex.tgg.operational.matches.IMatch;
+import org.emoflon.ibex.tgg.operational.matches.SimpleMatch;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.specification.emf.Pattern;
 
@@ -42,5 +43,12 @@ public class DemoclesMatch implements IMatch {
 	
 	public String toString() {
 		return patternName();
+	}
+
+	@Override
+	public IMatch copy() {
+		SimpleMatch copy = new SimpleMatch(pattern.getName());
+		parameterNames().forEach(n -> copy.put(n, get(n)));
+		return copy;
 	}
 }
