@@ -71,10 +71,7 @@ public class DemoclesAttributeHelper {
 		body.getConstraints().addAll(ops);
 		body.getConstants().addAll(constants.values());
 		body.getLocalVariables().addAll(body_attr_vars.values());
-		body.getLocalVariables().addAll(signature_attr_vars.values());
-		
-		//FIXME[Anjorin] Keep all attribute values local as optimisation?
-		parameters.addAll(signature_attr_vars.values());
+		body.getLocalVariables().addAll(signature_attr_vars.values());		
 	}
 	
 	public void createAttributeConstraints(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters, IbexOptions options) {
@@ -86,9 +83,6 @@ public class DemoclesAttributeHelper {
 		body.getConstants().addAll(constants.values());
 		body.getLocalVariables().addAll(body_attr_vars.values());
 		body.getLocalVariables().addAll(signature_attr_vars.values());
-
-		//FIXME[Anjorin] Keep all attribute values local as optimisation?
-		parameters.addAll(signature_attr_vars.values());
 	}
 
 	private void createConstraintsForAttributeConstraints(IBlackPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
