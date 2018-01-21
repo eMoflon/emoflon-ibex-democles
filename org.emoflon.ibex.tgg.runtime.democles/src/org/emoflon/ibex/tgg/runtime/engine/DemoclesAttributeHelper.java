@@ -98,10 +98,13 @@ public class DemoclesAttributeHelper {
 		assert(rule != null && rule.getAttributeConditionLibrary() != null);
 		
 		Collection<TGGAttributeConstraint> attributeConstraints = rule.getAttributeConditionLibrary().getTggAttributeConstraints();
-		attributeConstraints.stream()
+		Collection<TGGAttributeConstraint> extractedConstraints = attributeConstraints.stream()
 			.filter(c -> isBlackAttributeConstraint(pattern, c))
-			.forEach(constraint -> createAttributeConstraint(constraint, nodeToVar));
+			.collect(Collectors.toList());
 		
+		extractedConstraints.forEach(constraint -> createAttributeConstraint(constraint, nodeToVar));
+		
+		if(!extractedConstraints.isEmpty()) {
 		logger.debug("\n-----------------------------------------\n"
 				+ "Compiling attribute constraints for pattern \n" + 
 				pattern.getName() + " with constraints:\n" + 
@@ -109,11 +112,11 @@ public class DemoclesAttributeHelper {
 									.map(this::print) 
 									.collect(Collectors.joining("\n")) +
 				"\n ==> \n" + 					
-				attributeConstraints.stream()
-									.filter(c -> isBlackAttributeConstraint(pattern, c))
+				extractedConstraints.stream()
 									.map(this::print) 
 									.collect(Collectors.joining("\n"))
 				+ "\n-----------------------------------------\n");
+		}
 	}
 	
 	private String print(TGGAttributeConstraint c) {
