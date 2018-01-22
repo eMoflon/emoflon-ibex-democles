@@ -6,6 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: eMoflon::IBeX Developers
 Bundle-ActivationPolicy: lazy
+Export-Package: org.emoflon.ibex.gt.democles.runtime
 Require-Bundle: org.emoflon.ibex.common,
+ org.emoflon.ibex.gt,
  org.gervarro.democles.common;bundle-version="3.0.0",
  org.gervarro.democles.specification.emf;bundle-version="3.0.0"

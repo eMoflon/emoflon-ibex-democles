@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.emoflon.ibex.gt.engine.GTEngine;
 import org.gervarro.democles.event.MatchEvent;
 import org.gervarro.democles.event.MatchEventListener;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
@@ -29,7 +30,7 @@ import IBeXLanguage.IBeXPatternInvocation;
  * @author Patrick Robrecht
  * @version 0.1
  */
-public class GTDemoclesEngine implements MatchEventListener {
+public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 	// Factories from Democles.
 	private static final SpecificationFactory democlesSpecificationFactory = SpecificationFactory.eINSTANCE;
 	private static final EMFTypeFactory democlesEmfTypeFactory = EMFTypeFactory.eINSTANCE;
@@ -44,9 +45,9 @@ public class GTDemoclesEngine implements MatchEventListener {
 	 */
 	private HashMap<IBeXPattern, Pattern> patternMap = new HashMap<>();
 
-	public void createDemoclesPatterns() {
-		List<IBeXPattern> ibexPatterns = new ArrayList<>(); // TODO add all IBeXPatterns to the list.
-		ibexPatterns.forEach(ibexPattern -> this.getPattern(ibexPattern));
+	@Override
+	public void createPattern(final IBeXPattern ibexPattern) {
+		this.getPattern(ibexPattern);
 	}
 
 	/**
