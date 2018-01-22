@@ -6,13 +6,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
+import org.emoflon.ibex.tgg.operational.csp.sorting.SearchPlanAction;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.Constraint;
@@ -37,6 +40,7 @@ import language.basic.expressions.TGGExpression;
 import language.basic.expressions.TGGLiteralExpression;
 import language.basic.expressions.TGGParamValue;
 import language.csp.TGGAttributeConstraint;
+import language.csp.TGGAttributeVariable;
 import language.inplaceAttributes.TGGAttributeConstraintOperators;
 import language.inplaceAttributes.TGGInplaceAttributeExpression;
 
@@ -47,17 +51,11 @@ public class DemoclesAttributeHelper {
 	private Map<String, EMFVariable> signature_attr_vars; 
 	private Map<String, Attribute> attrs;
 	private Set<Constraint> ops;
+	
+	private Logger logger = Logger.getLogger(DemoclesAttributeHelper.class);
 		
 	
 	public DemoclesAttributeHelper() {
-		constants = new HashMap<>();
-		body_attr_vars = new HashMap<>();
-		signature_attr_vars = new HashMap<>();
-		attrs = new HashMap<>();
-		ops = new HashSet<>();
-	}
-	
-	private void clearState() {
 		constants = new HashMap<>();
 		body_attr_vars = new HashMap<>();
 		signature_attr_vars = new HashMap<>();
@@ -73,15 +71,10 @@ public class DemoclesAttributeHelper {
 		body.getConstraints().addAll(ops);
 		body.getConstants().addAll(constants.values());
 		body.getLocalVariables().addAll(body_attr_vars.values());
-		parameters.addAll(signature_attr_vars.values());
-		
-		clearState();
+		body.getLocalVariables().addAll(signature_attr_vars.values());		
 	}
 	
 	public void createAttributeConstraints(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters, IbexOptions options) {
-		if(!options.blackInterpSupportsAttrConstrs())
-			return;
-		
 		createConstraintsForAttributeConstraints(ibexPattern, body, nodeToVar, parameters);
 		
 		// Transfer to body
@@ -89,22 +82,65 @@ public class DemoclesAttributeHelper {
 		body.getConstraints().addAll(ops);
 		body.getConstants().addAll(constants.values());
 		body.getLocalVariables().addAll(body_attr_vars.values());
-		parameters.addAll(signature_attr_vars.values());
-		
-		clearState();
+		body.getLocalVariables().addAll(signature_attr_vars.values());
 	}
 
-	private void createConstraintsForAttributeConstraints(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
-		if(ibexPattern.getPatternFactory() == null)
-			return;
+	private void createConstraintsForAttributeConstraints(IBlackPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+		assert(pattern.getPatternFactory() != null);
 		
-		TGGRule rule = ibexPattern.getPatternFactory().getFlattenedVersionOfRule();
-		if(rule == null || rule.getAttributeConditionLibrary() == null)
-			return;
+		TGGRule rule = pattern.getPatternFactory().getFlattenedVersionOfRule();
+		assert(rule != null && rule.getAttributeConditionLibrary() != null);
 		
 		Collection<TGGAttributeConstraint> attributeConstraints = rule.getAttributeConditionLibrary().getTggAttributeConstraints();
-		for (TGGAttributeConstraint constraint : attributeConstraints)
-			createAttributeConstraint(constraint, nodeToVar);
+		Collection<TGGAttributeConstraint> extractedConstraints = attributeConstraints.stream()
+			.filter(c -> isBlackAttributeConstraint(pattern, c))
+			.collect(Collectors.toList());
+		
+		extractedConstraints.forEach(constraint -> createAttributeConstraint(constraint, nodeToVar));
+		
+		if(!extractedConstraints.isEmpty()) {
+		logger.debug("\n-----------------------------------------\n"
+				+ "Compiling attribute constraints for pattern \n" + 
+				pattern.getName() + " with constraints:\n" + 
+				attributeConstraints.stream()
+									.map(this::print) 
+									.collect(Collectors.joining("\n")) +
+				"\n ==> \n" + 					
+				extractedConstraints.stream()
+									.map(this::print) 
+									.collect(Collectors.joining("\n"))
+				+ "\n-----------------------------------------\n");
+		}
+	}
+	
+	private String print(TGGAttributeConstraint c) {
+		return c.getDefinition().getName() + "(" + 
+				c.getParameters().stream()
+					.map(this::print)
+					.collect(Collectors.joining(", "))
+			+ ")";
+	}
+	
+	private String print(TGGParamValue p) {
+		if(p instanceof TGGAttributeExpression) {
+			return ((TGGAttributeExpression) p).getObjectVar().getName() + "." + ((TGGAttributeExpression) p).getAttribute().getName();
+		} else if(p instanceof TGGAttributeVariable) {
+			return ((TGGAttributeVariable) p).getName();
+		} else if(p instanceof TGGLiteralExpression) {
+			return ((TGGLiteralExpression) p).getValue();
+		} else {
+			return ((TGGEnumExpression) p).getEenum().getName() + "." + ((TGGEnumExpression) p).getLiteral().getName();
+		}
+	}
+	
+	private boolean isBlackAttributeConstraint(IBlackPattern pattern, TGGAttributeConstraint constraint) {
+		// Replace with 'SearchPlanAction.isConnectedToPattern' and 'anyMatch' to solve BF*
+		// This version only accepts BB*
+		return constraint.getParameters().stream().allMatch(p -> 
+			SearchPlanAction.isBoundInPattern(
+				p, 
+				n -> pattern.getAllNodes().stream()
+										   .anyMatch(node -> node.getName().contentEquals(n))));
 	}
 
 	private void createAttributeConstraint(TGGAttributeConstraint constraint, Map<TGGRuleNode, EMFVariable> nodeToVar) {
@@ -246,6 +282,7 @@ public class DemoclesAttributeHelper {
 		default:
 			return null;
 		}
+		
 		ConstraintParameter parameter = SpecificationFactory.eINSTANCE.createConstraintParameter();
 		constraint.getParameters().add(parameter);
 		parameter.setReference(from);
