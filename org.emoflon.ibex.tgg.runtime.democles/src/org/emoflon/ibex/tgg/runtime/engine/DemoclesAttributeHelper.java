@@ -135,9 +135,8 @@ public class DemoclesAttributeHelper {
 	}
 	
 	private boolean isBlackAttributeConstraint(IBlackPattern pattern, TGGAttributeConstraint constraint) {
-		//FIXME[Anjorin] Replace with 'anyMatch' to also solve BF*
 		return constraint.getParameters().stream().allMatch(p -> 
-			SearchPlanAction.isBoundInPattern(
+			SearchPlanAction.isConnectedToPattern(
 					p, 
 					n -> pattern.getAllNodes().stream()
 							    .anyMatch(node -> node.getName().contentEquals(n))));
