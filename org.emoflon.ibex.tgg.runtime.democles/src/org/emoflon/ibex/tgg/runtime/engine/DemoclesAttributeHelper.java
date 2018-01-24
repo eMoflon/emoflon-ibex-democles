@@ -53,17 +53,18 @@ public class DemoclesAttributeHelper {
 	private Set<Constraint> ops;
 	
 	private Logger logger = Logger.getLogger(DemoclesAttributeHelper.class);
-		
+	private IbexOptions options;	
 	
-	public DemoclesAttributeHelper() {
+	public DemoclesAttributeHelper(IbexOptions options) {
 		constants = new HashMap<>();
 		body_attr_vars = new HashMap<>();
 		signature_attr_vars = new HashMap<>();
 		attrs = new HashMap<>();
 		ops = new HashSet<>();
+		this.options = options;
 	}
 
-	public void createAttributeInplaceAttributeConditions(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters, IbexOptions options) {
+	public void createAttributeInplaceAttributeConditions(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		createInplaceAttributeConditions(ibexPattern, body, nodeToVar, parameters);
 		
 		// Transfer to body
@@ -74,7 +75,7 @@ public class DemoclesAttributeHelper {
 		body.getLocalVariables().addAll(signature_attr_vars.values());		
 	}
 	
-	public void createAttributeConstraints(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters, IbexOptions options) {
+	public void createAttributeConstraints(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		createConstraintsForAttributeConstraints(ibexPattern, body, nodeToVar, parameters);
 		
 		// Transfer to body
@@ -85,7 +86,7 @@ public class DemoclesAttributeHelper {
 		body.getLocalVariables().addAll(signature_attr_vars.values());
 	}
 
-	private void createConstraintsForAttributeConstraints(IBlackPattern pattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+	private void createConstraintsForAttributeConstraints(IBlackPattern pattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		assert(pattern.getPatternFactory() != null);
 		
 		TGGRule rule = pattern.getPatternFactory().getFlattenedVersionOfRule();
@@ -98,8 +99,8 @@ public class DemoclesAttributeHelper {
 		
 		extractedConstraints.forEach(constraint -> createAttributeConstraint(constraint, nodeToVar));
 		
-		if(!extractedConstraints.isEmpty()) {
-		logger.debug("\n-----------------------------------------\n"
+		if(!extractedConstraints.isEmpty() && options.debug()) {
+			logger.debug("\n-----------------------------------------\n"
 				+ "Compiling attribute constraints for pattern \n" + 
 				pattern.getName() + " with constraints:\n" + 
 				attributeConstraints.stream()
@@ -134,16 +135,15 @@ public class DemoclesAttributeHelper {
 	}
 	
 	private boolean isBlackAttributeConstraint(IBlackPattern pattern, TGGAttributeConstraint constraint) {
-		// Replace with 'SearchPlanAction.isConnectedToPattern' and 'anyMatch' to solve BF*
-		// This version only accepts BB*
+		//FIXME[Anjorin] Replace with 'anyMatch' to also solve BF*
 		return constraint.getParameters().stream().allMatch(p -> 
 			SearchPlanAction.isBoundInPattern(
-				p, 
-				n -> pattern.getAllNodes().stream()
-										   .anyMatch(node -> node.getName().contentEquals(n))));
+					p, 
+					n -> pattern.getAllNodes().stream()
+							    .anyMatch(node -> node.getName().contentEquals(n))));
 	}
 
-	private void createAttributeConstraint(TGGAttributeConstraint constraint, Map<TGGRuleNode, EMFVariable> nodeToVar) {
+	private void createAttributeConstraint(TGGAttributeConstraint constraint, Map<String, EMFVariable> nodeToVar) {
 		String id = constraint.getDefinition().getName();
 		AttributeConstraint c = TGGAttributeConstraintFactory.eINSTANCE.createAttributeConstraint();
 		c.setName(id);
@@ -154,7 +154,7 @@ public class DemoclesAttributeHelper {
 			if(param instanceof TGGAttributeExpression) {
 				TGGAttributeExpression expr = (TGGAttributeExpression) param;
 				TGGRuleNode node = expr.getObjectVar();
-				EMFVariable node_var = nodeToVar.get(node);
+				EMFVariable node_var = nodeToVar.get(node.getName());
 				
 				parameter.setReference(createOrRetrieveAttributeVariable(node, node_var, expr.getAttribute()));
 			}
@@ -170,10 +170,10 @@ public class DemoclesAttributeHelper {
 		ops.add(c);
  	}
 
-	private void createInplaceAttributeConditions(IBlackPattern ibexPattern, PatternBody body, Map<TGGRuleNode, EMFVariable> nodeToVar, EList<Variable> parameters) {
+	private void createInplaceAttributeConditions(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		// For every node, create variables for attributes and constants used inplace for the node
-		for (TGGRuleNode node : nodeToVar.keySet())
-			createInplaceAttributeConstraints(node, nodeToVar.get(node));
+		for (String nodeName : nodeToVar.keySet())
+			createInplaceAttributeConstraints(ibexPattern.getNode(nodeName), nodeToVar.get(nodeName));
 	}
 
 	void createInplaceAttributeConstraints(TGGRuleNode node, EMFVariable nodeVar) {
@@ -212,7 +212,7 @@ public class DemoclesAttributeHelper {
 			attrs.put(key, attr);
 			body_attr_vars.put(key, var);
 		}
-		
+
 		return var;
 	}
 	
