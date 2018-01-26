@@ -6,16 +6,17 @@ import org.eclipse.emf.ecore.presentation.EcoreEditor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.ui.IEditorPart;
-import org.emoflon.ibex.tgg.ide.visualisation.IbexVisualiser;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.PatternBody;
+import org.moflon.core.ui.visualisation.EMoflonPlantUMLGenerator;
+import org.moflon.core.ui.visualisation.EMoflonVisualiser;
 
-public class IbexDemoclesPatternVisualiser extends IbexVisualiser {
+public class IbexDemoclesPatternVisualiser extends EMoflonVisualiser {
 
 	@Override
 	protected String getDiagramBody(IEditorPart editor, ISelection selection) {
 		return maybeVisualisePattern(editor, selection).orElse(
-			   IbexDemoclesPlantUMLGenerator.emptyDiagram());
+			   EMoflonPlantUMLGenerator.emptyDiagram());
 	}
 	
 	private Optional<Object> selectionInEcoreEditor(IEditorPart editor){
