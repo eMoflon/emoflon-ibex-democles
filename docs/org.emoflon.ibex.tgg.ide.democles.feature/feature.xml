@@ -41,7 +41,7 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
       <import feature="net.sourceforge.plantuml.lib.feature" version="1.1.18.8059" match="greaterOrEqual"/>
       <import feature="org.eclipse.xtext.sdk" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
       <import feature="org.eclipse.xtend.sdk" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
-      <import plugin="org.moflon.core.ui"/>
+      <import feature="org.moflon.core.feature" version="2.32.0.201801261705"/>
    </requires>
 
    <plugin
