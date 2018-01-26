@@ -2,25 +2,35 @@
 <feature
       id="org.emoflon.ibex.tgg.ide.democles.feature"
       label="eMoflon::Ibex (Democles)"
-      version="1.0.0.qualifier">
+      version="1.0.0.qualifier"
+      provider-name="eMoflon Developers">
 
-   <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
+   <description url="http://www.emoflon.org/">
+      This plugin provides support for unidirectional and bidirectional model transformation via graph transformation based on Democles as an incremental graph pattern matching engine.
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+   <copyright>
+      Most of our icons are from The Noun Project (http://thenounproject.com/):
+Emmanuel Mangatia - Les Lunettes Bleues, from The Noun Project
+Wrench CC-by Josh Dean, from The Noun Project
+Hammer by Wes Breazell from the Noun Project
    </copyright>
 
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
+   <license url="http://www.gnu.org/licenses/gpl-3.0.html;http://www.eclipse.org/org/documents/epl-v10.php">
+      eMoflon is dual-licensed under the GNU General Public License (GPL), version 3 or later, and the Eclipse Public License (EPL).
+As a recipient of eMoflon, you may choose which license to receive the code under.
+
+See here for more details on GPLv3: http://www.gnu.org/licenses/gpl-3.0.html
+See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.php
    </license>
 
    <url>
+      <update label="eMoflon::Ibex Update Site" url="https://emoflon.github.io/emoflon-ibex-democles/org.emoflon.ibex.tgg.ide.democles.updatesite/"/>
       <discovery label="Democles" url="http://gervarro.org/democles/integration-0.5.0/"/>
       <discovery label="Democles Advanced" url="http://gervarro.org/democles/advanced/integration-0.5.0/"/>
       <discovery label="PlantUML" url="http://files.idi.ntnu.no/publish/plantuml/repository/"/>
       <discovery label="Xtext" url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
+      <discovery label="eMoflon Core" url="http://emoflon.org/emoflon-core/org.moflon.core.releng.updatesite/"/>
    </url>
 
    <requires>
@@ -31,6 +41,7 @@
       <import feature="net.sourceforge.plantuml.lib.feature" version="1.1.18.8059" match="greaterOrEqual"/>
       <import feature="org.eclipse.xtext.sdk" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
       <import feature="org.eclipse.xtend.sdk" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
+      <import feature="org.moflon.core.feature" version="2.32.0.201801261705"/>
    </requires>
 
    <plugin
