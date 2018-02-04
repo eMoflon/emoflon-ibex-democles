@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import org.emoflon.ibex.common.utils.ModelPersistenceUtils;
 import org.emoflon.ibex.gt.engine.GTEngine;
 import org.gervarro.democles.event.MatchEvent;
 import org.gervarro.democles.event.MatchEventListener;
@@ -38,7 +40,7 @@ public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 	/**
 	 * The Democles patterns.
 	 */
-	private List<Pattern> patterns = new ArrayList<>();
+	private List<Pattern> patterns = new ArrayList<Pattern>();
 
 	/**
 	 * A mapping between IBeXPatterns and Democles Patterns.
@@ -48,6 +50,12 @@ public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 	@Override
 	public void createPattern(final IBeXPattern ibexPattern) {
 		this.getPattern(ibexPattern);
+		this.debugPath.ifPresent(path -> {
+			List<Pattern> sortedPatterns = this.patterns.stream()
+					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName())) // alphabetically by name
+					.collect(Collectors.toList());
+			ModelPersistenceUtils.saveModel(sortedPatterns, path + "/democles-patterns");
+		});
 	}
 
 	/**
@@ -181,7 +189,7 @@ public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 		PatternInvocationConstraint invocationConstraint = democlesSpecificationFactory
 				.createPatternInvocationConstraint();
 		invocationConstraint.setPositive(ibexInvocation.isPositive());
-		invocationConstraint.setInvokedPattern(this.getPattern(ibexInvocation.getInvokedBy()));
+		invocationConstraint.setInvokedPattern(this.getPattern(ibexInvocation.getInvokedPattern()));
 
 		ibexInvocation.getInvokedPattern().getSignatureNodes().forEach(signatureNode -> {
 			// Find the node mapped to the signature node.
