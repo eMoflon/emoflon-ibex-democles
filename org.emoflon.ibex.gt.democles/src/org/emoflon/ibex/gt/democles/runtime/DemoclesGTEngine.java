@@ -43,20 +43,9 @@ public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 	private List<Pattern> patterns = new ArrayList<Pattern>();
 
 	/**
-	 * A mapping between IBeXPatterns and Democles Patterns.
+	 * A mapping between pattern names and Democles Patterns.
 	 */
-	private HashMap<IBeXPattern, Pattern> patternMap = new HashMap<>();
-
-	@Override
-	public void createPattern(final IBeXPattern ibexPattern) {
-		this.getPattern(ibexPattern);
-		this.debugPath.ifPresent(path -> {
-			List<Pattern> sortedPatterns = this.patterns.stream()
-					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName())) // alphabetically by name
-					.collect(Collectors.toList());
-			ModelPersistenceUtils.saveModel(sortedPatterns, path + "/democles-patterns");
-		});
-	}
+	private HashMap<String, Pattern> patternMap = new HashMap<>();
 
 	/**
 	 * Returns the Democles Pattern for the given {@link IBeXPattern}. If the
@@ -68,15 +57,8 @@ public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 	 * @return the Democles pattern
 	 */
 	private Pattern getPattern(final IBeXPattern ibexPattern) {
-		if (patternMap.containsKey(ibexPattern)) {
-			// Democles pattern already exists, so just return it.
-			return patternMap.get(ibexPattern);
-		}
-
-		Pattern pattern = this.transformPattern(ibexPattern);
-		patternMap.put(ibexPattern, pattern);
-		patterns.add(pattern);
-		return pattern;
+		this.transformPattern(ibexPattern);
+		return patternMap.get(ibexPattern.getName());
 	}
 
 	/**
@@ -86,7 +68,12 @@ public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 	 *            the IBeXPattern to transform
 	 * @return the Democles pattern
 	 */
-	private Pattern transformPattern(final IBeXPattern ibexPattern) {
+	@Override
+	protected void transformPattern(final IBeXPattern ibexPattern) {
+		if (patternMap.containsKey(ibexPattern.getName())) {
+			return;
+		}
+
 		Pattern pattern = democlesSpecificationFactory.createPattern();
 		pattern.setName(ibexPattern.getName());
 
@@ -122,7 +109,19 @@ public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 			body.getConstraints().add(this.transformInvocation(invocation, nodeToVariable));
 		});
 
-		return pattern;
+		// Add to patterns.
+		patternMap.put(ibexPattern.getName(), pattern);
+		patterns.add(pattern);
+	}
+	
+	@Override
+	protected void savePatternsForDebugging() {
+		this.debugPath.ifPresent(path -> {
+			List<Pattern> sortedPatterns = this.patterns.stream()
+					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName())) // alphabetically by name
+					.collect(Collectors.toList());
+			ModelPersistenceUtils.saveModel(sortedPatterns, path + "/democles-patterns");
+		});
 	}
 
 	/**
