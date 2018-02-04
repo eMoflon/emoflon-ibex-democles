@@ -15,7 +15,6 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
-import org.emoflon.ibex.tgg.operational.csp.sorting.SearchPlanAction;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.Constraint;
@@ -32,7 +31,6 @@ import org.gervarro.democles.specification.emf.constraint.relational.RelationalC
 
 import TGGAttributeConstraint.AttributeConstraint;
 import TGGAttributeConstraint.TGGAttributeConstraintFactory;
-import language.TGGRule;
 import language.TGGRuleNode;
 import language.basic.expressions.TGGAttributeExpression;
 import language.basic.expressions.TGGEnumExpression;
@@ -87,26 +85,13 @@ public class DemoclesAttributeHelper {
 	}
 
 	private void createConstraintsForAttributeConstraints(IBlackPattern pattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
-		assert(pattern.getPatternFactory() != null);
-		
-		TGGRule rule = pattern.getPatternFactory().getFlattenedVersionOfRule();
-		assert(rule != null && rule.getAttributeConditionLibrary() != null);
-		
-		Collection<TGGAttributeConstraint> attributeConstraints = rule.getAttributeConditionLibrary().getTggAttributeConstraints();
-		Collection<TGGAttributeConstraint> extractedConstraints = attributeConstraints.stream()
-			.filter(c -> isBlackAttributeConstraint(pattern, c))
-			.collect(Collectors.toList());
-		
+		Collection<TGGAttributeConstraint> extractedConstraints = pattern.getAttributeConstraints();
 		extractedConstraints.forEach(constraint -> createAttributeConstraint(constraint, nodeToVar));
 		
 		if(!extractedConstraints.isEmpty() && options.debug()) {
 			logger.debug("\n-----------------------------------------\n"
 				+ "Compiling attribute constraints for pattern \n" + 
 				pattern.getName() + " with constraints:\n" + 
-				attributeConstraints.stream()
-									.map(this::print) 
-									.collect(Collectors.joining("\n")) +
-				"\n ==> \n" + 					
 				extractedConstraints.stream()
 									.map(this::print) 
 									.collect(Collectors.joining("\n"))
@@ -132,14 +117,6 @@ public class DemoclesAttributeHelper {
 		} else {
 			return ((TGGEnumExpression) p).getEenum().getName() + "." + ((TGGEnumExpression) p).getLiteral().getName();
 		}
-	}
-	
-	private boolean isBlackAttributeConstraint(IBlackPattern pattern, TGGAttributeConstraint constraint) {
-		return constraint.getParameters().stream().allMatch(p -> 
-			SearchPlanAction.isConnectedToPattern(
-					p, 
-					n -> pattern.getAllNodes().stream()
-							    .anyMatch(node -> node.getName().contentEquals(n))));
 	}
 
 	private void createAttributeConstraint(TGGAttributeConstraint constraint, Map<String, EMFVariable> nodeToVar) {
