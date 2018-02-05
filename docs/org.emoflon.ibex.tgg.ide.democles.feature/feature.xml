@@ -33,14 +33,6 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
       <discovery label="eMoflon Core" url="http://emoflon.org/emoflon-core/org.moflon.core.releng.updatesite/"/>
    </url>
 
-   <includes
-         id="net.sourceforge.plantuml.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="net.sourceforge.plantuml.lib.feature"
-         version="0.0.0"/>
-
    <requires>
       <import feature="org.gervarro.democles.feature.advanced" version="0.5.0.v20170708-0016" match="greaterOrEqual"/>
       <import feature="org.gervarro.democles.feature.interpreter" version="0.5.0.v20170709-2342" match="greaterOrEqual"/>
@@ -48,6 +40,8 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
       <import feature="org.eclipse.xtext.sdk" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
       <import feature="org.eclipse.xtend.sdk" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
       <import feature="org.moflon.core.feature" version="2.32.0.201801261705"/>
+      <import feature="net.sourceforge.plantuml.feature" version="1.1.19"/>
+      <import feature="net.sourceforge.plantuml.lib.feature" version="1.2017.15"/>
    </requires>
 
    <plugin
@@ -94,41 +88,6 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
 
    <plugin
          id="org.emoflon.ibex.tgg.runtime.democles"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.sourceforge.plantuml.eclipse"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.sourceforge.plantuml.eclipse.imagecontrol"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.sourceforge.plantuml.jdt"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.sourceforge.plantuml.lib"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.sourceforge.plantuml.text"
          download-size="0"
          install-size="0"
          version="0.0.0"
