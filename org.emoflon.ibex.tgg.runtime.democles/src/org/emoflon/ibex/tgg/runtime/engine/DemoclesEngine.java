@@ -16,6 +16,8 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.emoflon.ibex.tgg.compiler.BlackPatternCompiler;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
@@ -492,12 +494,20 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 
 	@Override
 	public ResourceSet createAndPrepareResourceSet(String workspacePath) {
-		ResourceSet rs = EMFDemoclesPatternMetamodelPlugin.createDefaultResourceSet();
+		ResourceSet rs = createDefaultResourceSet();
 		try {
 			EMFDemoclesPatternMetamodelPlugin.setWorkspaceRootDirectory(rs, new File(workspacePath).getCanonicalPath());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return rs;
+	}
+
+	private ResourceSet createDefaultResourceSet() {
+		final ResourceSet resourceSet = new ResourceSetImpl();
+		// In contrast to EMFDemoclesPatternMetamodelPlugin.createDefaultResourceSet, we do not delegate directly to the global registry!
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(
+				Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
+		return resourceSet;
 	}
 }
