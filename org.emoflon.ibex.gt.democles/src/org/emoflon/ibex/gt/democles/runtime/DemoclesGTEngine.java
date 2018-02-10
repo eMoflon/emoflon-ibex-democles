@@ -24,10 +24,10 @@ import IBeXLanguage.IBeXEdge;
 import IBeXLanguage.IBeXNode;
 import IBeXLanguage.IBeXPattern;
 import IBeXLanguage.IBeXPatternInvocation;
+import IBeXLanguage.IBeXPatternSet;
 
 /**
- * Engine for Unidirectional Graph Transformations with Democles pattern
- * matcher.
+ * Engine for unidirectional graph transformations with Democles.
  * 
  * @author Patrick Robrecht
  * @version 0.1
@@ -46,6 +46,12 @@ public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 	 * A mapping between pattern names and Democles Patterns.
 	 */
 	private HashMap<String, Pattern> patternMap = new HashMap<>();
+
+	@Override
+	protected void transformPatterns(final IBeXPatternSet ibexPatternSet) {
+		ibexPatternSet.getPatterns().forEach(p -> this.getPattern(p));
+		this.savePatternsForDebugging();
+	}
 
 	/**
 	 * Returns the Democles Pattern for the given {@link IBeXPattern}. If the
@@ -68,7 +74,6 @@ public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 	 *            the IBeXPattern to transform
 	 * @return the Democles pattern
 	 */
-	@Override
 	protected void transformPattern(final IBeXPattern ibexPattern) {
 		if (patternMap.containsKey(ibexPattern.getName())) {
 			return;
@@ -113,9 +118,8 @@ public class DemoclesGTEngine extends GTEngine implements MatchEventListener {
 		patternMap.put(ibexPattern.getName(), pattern);
 		patterns.add(pattern);
 	}
-	
-	@Override
-	protected void savePatternsForDebugging() {
+
+	private void savePatternsForDebugging() {
 		this.debugPath.ifPresent(path -> {
 			List<Pattern> sortedPatterns = this.patterns.stream()
 					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName())) // alphabetically by name
