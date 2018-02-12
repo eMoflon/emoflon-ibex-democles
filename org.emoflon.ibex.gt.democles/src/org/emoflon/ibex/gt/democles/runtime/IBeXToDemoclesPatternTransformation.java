@@ -15,9 +15,12 @@ import org.gervarro.democles.specification.emf.SpecificationFactory;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFTypeFactory;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.Reference;
+import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraint;
+import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintFactory;
 
 import IBeXLanguage.IBeXEdge;
 import IBeXLanguage.IBeXNode;
+import IBeXLanguage.IBeXNodePair;
 import IBeXLanguage.IBeXPattern;
 import IBeXLanguage.IBeXPatternInvocation;
 import IBeXLanguage.IBeXPatternSet;
@@ -32,6 +35,7 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 	// Factories from Democles.
 	private static final SpecificationFactory democlesSpecificationFactory = SpecificationFactory.eINSTANCE;
 	private static final EMFTypeFactory democlesEmfTypeFactory = EMFTypeFactory.eINSTANCE;
+	private static final RelationalConstraintFactory democlesRelationalConstraintFactory = RelationalConstraintFactory.eINSTANCE;
 
 	/**
 	 * Democles patterns.
@@ -56,7 +60,7 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 	 *            the IBeXPattern to transform
 	 * @return the Democles pattern
 	 */
-	protected Pattern transformPattern(final IBeXPattern ibexPattern) {
+	private Pattern transformPattern(final IBeXPattern ibexPattern) {
 		if (patternMap.containsKey(ibexPattern.getName())) {
 			return patternMap.get(ibexPattern.getName());
 		}
@@ -76,7 +80,7 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 			pattern.getSymbolicParameters().add(nodeToVariable.get(ibexSignatureNode));
 		});
 
-		// Local node -> local variables in the body of the Democles pattern.
+		// Local node -> local variables in the Democles PatternBody.
 		ibexPattern.getLocalNodes().forEach(ibexLocalNode -> {
 			if (!nodeToVariable.containsKey(ibexLocalNode)) {
 				nodeToVariable.put(ibexLocalNode, transformSignatureNodeToVariable(ibexLocalNode));
@@ -84,14 +88,17 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 			body.getLocalVariables().add(nodeToVariable.get(ibexLocalNode));
 		});
 
-		// Local edges -> Constraint of type Reference in the body of the Democles
-		// pattern.
+		ibexPattern.getInjectivityConstraints().forEach(injectivityConstraint -> {
+			body.getConstraints()
+					.add(transformInjectivityConstraintToRelationalConstraint(injectivityConstraint, nodeToVariable));
+		});
+
+		// Local edges -> Constraint of type Reference in the Democles PatternBody.
 		ibexPattern.getLocalEdges().forEach(ibexLocalEdge -> {
 			body.getConstraints().add(transformLocalEdgeToReference(ibexLocalEdge, nodeToVariable));
 		});
 
-		// Invocations -> Constraint of type PatternInvocationConstraint in the body of
-		// the Democles pattern.
+		// Invocations -> PatternInvocationConstraint in the Democles PatternBody.
 		ibexPattern.getInvocations().forEach(invocation -> {
 			body.getConstraints().add(this.transformInvocation(invocation, nodeToVariable));
 		});
@@ -117,10 +124,31 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 	}
 
 	/**
+	 * Transforms an {@link IBeXNodePair} for injectivity to an equivalent
+	 * RelationalConstraint.
+	 * 
+	 * @param injectivityConstraint
+	 *            the pair of nodes which must be different
+	 * @param nodeToVariable
+	 *            the mapping between IBeXNodes and variables
+	 * @return the constraint
+	 */
+	private static RelationalConstraint transformInjectivityConstraintToRelationalConstraint(
+			final IBeXNodePair injectivityConstraint, final Map<IBeXNode, EMFVariable> nodeToVariable) {
+		RelationalConstraint unequalConstraint = democlesRelationalConstraintFactory.createUnequal();
+		injectivityConstraint.getValues().forEach(node -> {
+			ConstraintParameter p = democlesSpecificationFactory.createConstraintParameter();
+			p.setReference(nodeToVariable.get(node));
+			unequalConstraint.getParameters().add(p);
+		});
+		return unequalConstraint;
+	}
+
+	/**
 	 * Transforms an {@link IBeXEdge} to an equivalent {@link Reference}.
 	 * 
 	 * @param ibexEdge
-	 *            the IBeXEdge to transfrom
+	 *            the IBeXEdge to transform
 	 * @param nodeToVariable
 	 *            the mapping between IBeXNodes and variables
 	 * @return the Reference
