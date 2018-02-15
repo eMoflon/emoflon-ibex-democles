@@ -17,7 +17,7 @@ public class DemoclesMatch implements IMatch {
 		this.pattern = pattern;
 	}
 	
-	public Collection<String> parameterNames() {
+	public Collection<String> getParameterNames() {
 		return pattern.getSymbolicParameters()
 				.stream()
 				.map(p -> p.getName())
@@ -29,7 +29,7 @@ public class DemoclesMatch implements IMatch {
 		return index == -1 ? null : frame.getValue(index);
 	}
 
-	public String patternName() {
+	public String getPatternName() {
 		return pattern.getName();
 	}
 	
@@ -42,13 +42,13 @@ public class DemoclesMatch implements IMatch {
 	}
 	
 	public String toString() {
-		return patternName();
+		return getPatternName();
 	}
 
 	@Override
 	public IMatch copy() {
 		SimpleMatch copy = new SimpleMatch(pattern.getName());
-		parameterNames().forEach(n -> copy.put(n, get(n)));
+		getParameterNames().forEach(n -> copy.put(n, get(n)));
 		return copy;
 	}
 }

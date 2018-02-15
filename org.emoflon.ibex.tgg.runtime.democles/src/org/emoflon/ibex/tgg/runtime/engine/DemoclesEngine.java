@@ -7,26 +7,21 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.emoflon.ibex.common.operational.IMatchObserver;
 import org.emoflon.ibex.tgg.compiler.BlackPatternCompiler;
-import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
-import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
-import org.emoflon.ibex.tgg.compiler.patterns.common.PatternInvocation;
 import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.emoflon.ibex.tgg.operational.matches.IMatch;
-import org.emoflon.ibex.tgg.operational.strategies.OperationalStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
@@ -64,34 +59,21 @@ import org.gervarro.democles.plan.incremental.leaf.ReteSearchPlanAlgorithm;
 import org.gervarro.democles.runtime.AdornedNativeOperationBuilder;
 import org.gervarro.democles.runtime.InterpretableAdornedOperation;
 import org.gervarro.democles.runtime.JavaIdentifierProvider;
-import org.gervarro.democles.specification.emf.Constraint;
-import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.EMFDemoclesPatternMetamodelPlugin;
 import org.gervarro.democles.specification.emf.EMFPatternBuilder;
 import org.gervarro.democles.specification.emf.Pattern;
-import org.gervarro.democles.specification.emf.PatternBody;
-import org.gervarro.democles.specification.emf.PatternInvocationConstraint;
-import org.gervarro.democles.specification.emf.SpecificationFactory;
 import org.gervarro.democles.specification.emf.SpecificationPackage;
 import org.gervarro.democles.specification.emf.TypeModule;
-import org.gervarro.democles.specification.emf.Variable;
 import org.gervarro.democles.specification.emf.constraint.EMFTypeModule;
 import org.gervarro.democles.specification.emf.constraint.PatternInvocationTypeModule;
 import org.gervarro.democles.specification.emf.constraint.RelationalTypeModule;
-import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFTypeFactory;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFTypePackage;
-import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable;
-import org.gervarro.democles.specification.emf.constraint.emf.emf.Reference;
-import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraint;
-import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintFactory;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintPackage;
 import org.gervarro.democles.specification.impl.DefaultPattern;
 import org.gervarro.democles.specification.impl.DefaultPatternBody;
 import org.gervarro.democles.specification.impl.DefaultPatternFactory;
 import org.gervarro.democles.specification.impl.PatternInvocationConstraintModule;
 import org.gervarro.notification.model.ModelDelta;
-
-import language.TGGRuleNode;
 
 public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 	private Registry registry;
@@ -100,26 +82,20 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 	private RetePatternMatcherModule retePatternMatcherModule;
 	private EMFPatternBuilder<DefaultPattern, DefaultPatternBody> patternBuilder;
 	private Collection<RetePattern> patternMatchers;
-	protected OperationalStrategy app;
-	private HashMap<IBlackPattern, Pattern> patternMap;
+	protected IMatchObserver app;
+	
 	private IbexOptions options;
 	private NotificationProcessor observer;
 
-	// Factories
-	private final SpecificationFactory factory = SpecificationFactory.eINSTANCE;
-	private final EMFTypeFactory emfTypeFactory = EMFTypeFactory.eINSTANCE;
-	private final RelationalConstraintFactory rcFactory = RelationalConstraintFactory.eINSTANCE;
-
 	@Override
-	public void initialise(Registry registry, OperationalStrategy app, IbexOptions options) {
+	public void initialise(Registry registry, IMatchObserver app, IbexOptions options) {
 		this.registry = registry;
 		this.options = options;
 		patterns = new ArrayList<>();
 		matches = new HashMap<>();
 		patternMatchers = new ArrayList<>();
 		this.app = app;
-		patternMap = new HashMap<>();
-
+		
 		createAndRegisterPatterns();
 	}
 	
@@ -189,162 +165,15 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 		BlackPatternCompiler compiler = new BlackPatternCompiler(options);
 		compiler.preparePatterns();
 
+		IBlackToDemoclesPatternTransformation transformation = new IBlackToDemoclesPatternTransformation(this.options);	
 		for (String r : compiler.getRuleToPatternMap().keySet()) {
 			for (IBlackPattern pattern : compiler.getRuleToPatternMap().get(r)) {
-				if (patternIsNotEmpty(pattern) && app.isPatternRelevantForCompiler(pattern.getName()))
-					ibexToDemocles(pattern);
-			}
-		}
-	}
-
-	private boolean patternIsNotEmpty(IBlackPattern pattern) {
-		return !pattern.getSignatureNodes().isEmpty();
-	}
-
-	private Pattern ibexToDemocles(IBlackPattern ibexPattern) {
-		if (patternMap.containsKey(ibexPattern))
-			return patternMap.get(ibexPattern);
-
-		// Root pattern
-		Pattern pattern = factory.createPattern();
-		pattern.setName(ibexPattern.getName());
-		PatternBody body = factory.createPatternBody();
-		pattern.getBodies().add(body);
-
-		// Parameters
-		Map<String, EMFVariable> nodeToVar = new HashMap<>();
-		EList<Variable> parameters = pattern.getSymbolicParameters();
-
-		// Extract constraints and fill nodeToVar and parameters
-		EList<Constraint> constraints = ibexToDemocles(ibexPattern, body, nodeToVar, parameters);
-
-		// Pattern invocations
-		for (PatternInvocation inv : ibexPattern.getPositiveInvocations()) {
-			if (patternIsNotEmpty(inv.getInvokedPattern())) {
-				PatternInvocationConstraint invCon = createInvocationConstraint(inv, true, nodeToVar);
-				if(!invCon.getParameters().isEmpty())
-					constraints.add(invCon);
-			}
-		}
-
-		for (PatternInvocation inv : ibexPattern.getNegativeInvocations()) {
-			if (patternIsNotEmpty(inv.getInvokedPattern())) {
-				PatternInvocationConstraint invCon = createInvocationConstraint(inv, false, nodeToVar);
-				if(!invCon.getParameters().isEmpty())
-					constraints.add(invCon);
-			}
-		}
-
-		patternMap.put(ibexPattern, pattern);
-		patterns.add(pattern);
-
-		return pattern;
-	}
-
-	private EList<Constraint> ibexToDemocles(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {		
-		createVariablesForNodes(ibexPattern, body, nodeToVar, parameters);
-		
-		DemoclesAttributeHelper dAttrHelper = new DemoclesAttributeHelper(options);
-		dAttrHelper.createAttributeInplaceAttributeConditions(ibexPattern, body, nodeToVar, parameters);
-		if (handleAttributeConstraintsInEngine())
-			dAttrHelper.createAttributeConstraints(ibexPattern, body, nodeToVar, parameters);
-		
-		createConstraintsForEdges(ibexPattern, nodeToVar, body.getConstraints());
-		createUnequalConstraintsForInjectivity(ibexPattern, body, nodeToVar);
-
-		return body.getConstraints();
-	}
-
-	private void createVariablesForNodes(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
-		// Signature elements
-		for (TGGRuleNode element : ibexPattern.getSignatureNodes()) {
-			if (!nodeToVar.containsKey(element.getName())) {
-				if (element instanceof TGGRuleNode) {
-					TGGRuleNode node = (TGGRuleNode) element;
-					EMFVariable var = emfTypeFactory.createEMFVariable();
-					var.setName(node.getName());
-					var.setEClassifier(node.getType());
-					nodeToVar.put(node.getName(), var);
+				if (IBlackToDemoclesPatternTransformation.patternIsNotEmpty(pattern) && app.isPatternRelevantForCompiler(pattern.getName())) {
+					transformation.ibexToDemocles(pattern);
 				}
 			}
-			parameters.add(nodeToVar.get(element.getName()));
 		}
-	
-		// All other nodes
-		EList<Variable> locals = body.getLocalVariables();
-		Collection<TGGRuleNode> allOtherNodes = new ArrayList<>(ibexPattern.getLocalNodes());
-		for (TGGRuleNode node : allOtherNodes) {
-			if (!nodeToVar.containsKey(node.getName())) {
-				EMFVariable var = emfTypeFactory.createEMFVariable();
-				var.setName(node.getName());
-				var.setEClassifier(node.getType());
-				nodeToVar.put(node.getName(), var);
-			}
-			
-			locals.add(nodeToVar.get(node.getName()));
-		}
-	}
-
-	private void createUnequalConstraintsForInjectivity(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar) {
-		// Force injective matches through unequals-constraints
-		forceInjectiveMatchesForPattern((IbexBasePattern) ibexPattern, body, nodeToVar);
-	}
-
-	private void createConstraintsForEdges(IBlackPattern ibexPattern, Map<String, EMFVariable> nodeToVar, EList<Constraint> constraints) {
-		ibexPattern.getLocalEdges()
-			.stream()
-			.forEach(edge -> {
-				assert(edge.getSrcNode() != null);
-				assert(edge.getTrgNode() != null);
-				assert(edge.getType() != null);
-				assert(nodeToVar.containsKey(edge.getSrcNode().getName()));
-				assert(nodeToVar.containsKey(edge.getTrgNode().getName()));
-				
-				Reference ref = emfTypeFactory.createReference();
-				ref.setEModelElement(edge.getType());
-
-				ConstraintParameter from = factory.createConstraintParameter();
-				from.setReference(nodeToVar.get(edge.getSrcNode().getName()));
-				ref.getParameters().add(from);
-
-				ConstraintParameter to = factory.createConstraintParameter();
-				to.setReference(nodeToVar.get(edge.getTrgNode().getName()));
-				ref.getParameters().add(to);
-
-				constraints.add(ref);
-			});
-	}
-
-	private void forceInjectiveMatchesForPattern(IBlackPattern pattern, PatternBody body, Map<String, EMFVariable> nodeToVar) {
-		pattern.getInjectivityChecks().stream()
-									  .forEach(pair -> {
-			RelationalConstraint unequal = rcFactory.createUnequal();
-
-			ConstraintParameter p1 = factory.createConstraintParameter();
-			ConstraintParameter p2 = factory.createConstraintParameter();
-			unequal.getParameters().add(p1);
-			unequal.getParameters().add(p2);
-			p1.setReference(nodeToVar.get(pair.getLeft().getName()));
-			p2.setReference(nodeToVar.get(pair.getRight().getName()));
-
-			body.getConstraints().add(unequal);
-		});
-	}
-
-	private PatternInvocationConstraint createInvocationConstraint(PatternInvocation inv, boolean isTrue, Map<String, EMFVariable> nodeToVar) {
-			PatternInvocationConstraint invCon = factory.createPatternInvocationConstraint();
-			invCon.setPositive(isTrue);
-			invCon.setInvokedPattern(ibexToDemocles(inv.getInvokedPattern()));
-
-		for (TGGRuleNode element : inv.getInvokedPattern().getSignatureNodes()) {
-			TGGRuleNode invElem = inv.getPreImage(element);
-			ConstraintParameter parameter = factory.createConstraintParameter();
-			invCon.getParameters().add(parameter);
-			parameter.setReference(nodeToVar.get(invElem.getName()));
-			assert(parameter.getReference() != null);
-		}
-
-		return invCon;
+		this.patterns = transformation.getPatterns();
 	}
 
 	private void retrievePatternMatchers() {
@@ -407,7 +236,9 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 	}
 
 	private void handleTGGAttributeConstraints(ReteSearchPlanAlgorithm algorithm) {
-		if(!handleAttributeConstraintsInEngine()) return;
+		if (!this.options.blackInterpSupportsAttrConstrs()) {
+			return;
+		}
 		
 		TGGAttributeConstraintAdornmentStrategy.INSTANCE.setIsModelGen(options.isModelGen());
 		
@@ -430,10 +261,6 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 		algorithm.addComponentBuilder(new TGGConstraintComponentBuilder<VariableRuntime>(tggNativeOperationModule));
 	}
 
-	private boolean handleAttributeConstraintsInEngine() {
-		return options.blackInterpSupportsAttrConstrs();
-	}
-
 	public void updateMatches() {
 		// Trigger the Rete network
 		retePatternMatcherModule.performIncrementalUpdates();
@@ -453,28 +280,23 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 
 		p.ifPresent(pattern -> {
 			// React to create
-			if (type.contentEquals(MatchEvent.INSERT) && (!matches.keySet().contains(frame) || matches.get(frame).stream().allMatch(m -> !m.patternName().equals(pattern.getName())))) {
+			if (type.contentEquals(MatchEvent.INSERT) && (!matches.keySet().contains(frame) || matches.get(frame).stream().allMatch(m -> !m.getPatternName().equals(pattern.getName())))) {
 				IMatch match = new DemoclesMatch(frame, pattern);
 				if (matches.keySet().contains(frame)) {
 					matches.get(frame).add(match);
 				} else {
 					matches.put(frame, new ArrayList<IMatch>(Arrays.asList(match)));
 				}
-
-				app.addOperationalRuleMatch(PatternSuffixes.removeSuffix(pattern.getName()), match);
+				app.addMatch(match);
 			}
 
 			// React to delete
 			if (type.equals(MatchEvent.DELETE)) {
 				Collection<IMatch> matchList = matches.get(frame);
-				Optional<IMatch> match = matchList == null ? Optional.empty() : matchList.stream().filter(m -> m.patternName().equals(pattern.getName())).findAny();
+				Optional<IMatch> match = matchList == null ? Optional.empty() : matchList.stream().filter(m -> m.getPatternName().equals(pattern.getName())).findAny();
 
 				match.ifPresent(m -> {
-					if (m.patternName().endsWith(PatternSuffixes.CONSISTENCY)) {
-						app.addBrokenMatch(m);
-					}
-
-					app.removeOperationalRuleMatch(m);
+					app.removeMatch(m);
 					if (matches.get(frame).size() > 1) {
 						matches.get(frame).remove(m);
 					} else {
