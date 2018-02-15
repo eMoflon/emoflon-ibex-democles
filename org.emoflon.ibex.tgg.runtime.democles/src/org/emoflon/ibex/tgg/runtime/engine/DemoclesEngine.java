@@ -16,13 +16,12 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.emoflon.ibex.common.operational.IMatchObserver;
 import org.emoflon.ibex.tgg.compiler.BlackPatternCompiler;
-import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
 import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.emoflon.ibex.tgg.operational.matches.IMatch;
-import org.emoflon.ibex.tgg.operational.strategies.OperationalStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
@@ -83,13 +82,13 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 	private RetePatternMatcherModule retePatternMatcherModule;
 	private EMFPatternBuilder<DefaultPattern, DefaultPatternBody> patternBuilder;
 	private Collection<RetePattern> patternMatchers;
-	protected OperationalStrategy app;
+	protected IMatchObserver app;
 	
 	private IbexOptions options;
 	private NotificationProcessor observer;
 
 	@Override
-	public void initialise(Registry registry, OperationalStrategy app, IbexOptions options) {
+	public void initialise(Registry registry, IMatchObserver app, IbexOptions options) {
 		this.registry = registry;
 		this.options = options;
 		patterns = new ArrayList<>();
@@ -288,8 +287,7 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 				} else {
 					matches.put(frame, new ArrayList<IMatch>(Arrays.asList(match)));
 				}
-
-				app.addOperationalRuleMatch(PatternSuffixes.removeSuffix(pattern.getName()), match);
+				app.addMatch(match);
 			}
 
 			// React to delete
@@ -298,11 +296,7 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 				Optional<IMatch> match = matchList == null ? Optional.empty() : matchList.stream().filter(m -> m.patternName().equals(pattern.getName())).findAny();
 
 				match.ifPresent(m -> {
-					if (m.patternName().endsWith(PatternSuffixes.CONSISTENCY)) {
-						app.addBrokenMatch(m);
-					}
-
-					app.removeOperationalRuleMatch(m);
+					app.removeMatch(m);
 					if (matches.get(frame).size() > 1) {
 						matches.get(frame).remove(m);
 					} else {
