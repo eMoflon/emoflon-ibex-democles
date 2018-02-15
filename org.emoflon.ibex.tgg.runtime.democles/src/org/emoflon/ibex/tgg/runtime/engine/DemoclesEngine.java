@@ -280,7 +280,7 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 
 		p.ifPresent(pattern -> {
 			// React to create
-			if (type.contentEquals(MatchEvent.INSERT) && (!matches.keySet().contains(frame) || matches.get(frame).stream().allMatch(m -> !m.patternName().equals(pattern.getName())))) {
+			if (type.contentEquals(MatchEvent.INSERT) && (!matches.keySet().contains(frame) || matches.get(frame).stream().allMatch(m -> !m.getPatternName().equals(pattern.getName())))) {
 				IMatch match = new DemoclesMatch(frame, pattern);
 				if (matches.keySet().contains(frame)) {
 					matches.get(frame).add(match);
@@ -293,7 +293,7 @@ public class DemoclesEngine implements MatchEventListener, IBlackInterpreter {
 			// React to delete
 			if (type.equals(MatchEvent.DELETE)) {
 				Collection<IMatch> matchList = matches.get(frame);
-				Optional<IMatch> match = matchList == null ? Optional.empty() : matchList.stream().filter(m -> m.patternName().equals(pattern.getName())).findAny();
+				Optional<IMatch> match = matchList == null ? Optional.empty() : matchList.stream().filter(m -> m.getPatternName().equals(pattern.getName())).findAny();
 
 				match.ifPresent(m -> {
 					app.removeMatch(m);
