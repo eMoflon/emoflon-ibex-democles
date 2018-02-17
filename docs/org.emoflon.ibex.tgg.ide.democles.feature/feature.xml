@@ -157,4 +157,46 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.emoflon.ibex.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.emoflon.ibex.gt"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.emoflon.ibex.gt.democles"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.emoflon.ibex.gt.editor"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.emoflon.ibex.gt.editor.ide"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.emoflon.ibex.gt.editor.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
