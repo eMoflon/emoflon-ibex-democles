@@ -5,22 +5,22 @@ Bundle-SymbolicName: org.emoflon.ibex.tgg.ide.democles;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Export-Package: org.emoflon.ibex.tgg.compiler.democles.defaults,
  org.emoflon.ibex.tgg.ide.democles.visualisation
-Require-Bundle: org.emoflon.ibex.tgg.ide;bundle-version="1.0.0",
- org.apache.log4j;bundle-version="1.2.15",
- org.eclipse.emf.ecore;bundle-version="2.12.0",
- net.sourceforge.plantuml.eclipse;bundle-version="1.1.18",
+Require-Bundle: org.emoflon.ibex.tgg.ide,
+ org.apache.log4j,
+ org.eclipse.emf.ecore,
+ net.sourceforge.plantuml.eclipse,
  org.eclipse.ui.workbench,
  org.eclipse.jface,
- org.gervarro.democles.specification.emf;bundle-version="3.0.0",
- org.eclipse.emf.ecore.editor;bundle-version="2.12.0",
+ org.gervarro.democles.specification.emf,
+ org.eclipse.emf.ecore.editor,
  com.google.guava,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
- org.emoflon.ibex.tgg.core.language;bundle-version="1.0.0",
- org.emoflon.ibex.tgg.core.runtime;bundle-version="1.0.0",
+ org.emoflon.ibex.tgg.core.language,
+ org.emoflon.ibex.tgg.core.runtime,
  org.emoflon.ibex.tgg.editor,
- org.eclipse.core.runtime;bundle-version="3.12.0",
- org.moflon.core.ui;bundle-version="1.0.0"
+ org.eclipse.core.runtime,
+ org.moflon.core.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 
