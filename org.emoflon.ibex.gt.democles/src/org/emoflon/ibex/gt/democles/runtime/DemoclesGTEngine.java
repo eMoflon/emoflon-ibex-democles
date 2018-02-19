@@ -121,6 +121,18 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 		this.savePatternsForDebugging();
 	}
 
+	/**
+	 * Saves the Democles patterns for debugging.
+	 */
+	private void savePatternsForDebugging() {
+		debugPath.ifPresent(path -> {
+			List<Pattern> sortedPatterns = patterns.stream() //
+					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName())) // alphabetically by name
+					.collect(Collectors.toList());
+			ModelPersistenceUtils.saveModel(sortedPatterns, path + "/democles-patterns");
+		});
+	}
+
 	protected void createAndRegisterPatterns() {
 		// Democles configuration
 		EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule = configureDemocles();
@@ -210,19 +222,6 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 		ReteSearchPlanAlgorithm algorithm = new ReteSearchPlanAlgorithm();
 		builders.forEach(builder -> algorithm.addComponentBuilder(builder));
 		return algorithm;
-	}
-
-	/**
-	 * Saves the Democles patterns for debugging.
-	 */
-	private void savePatternsForDebugging() {
-		debugPath.ifPresent(path -> {
-			List<Pattern> sortedPatterns = patterns.stream().sorted((p1, p2) -> p1.getName().compareTo(p2.getName())) // alphabetically
-																														// by
-																														// name
-					.collect(Collectors.toList());
-			ModelPersistenceUtils.saveModel(sortedPatterns, path + "/democles-patterns");
-		});
 	}
 
 	@Override
