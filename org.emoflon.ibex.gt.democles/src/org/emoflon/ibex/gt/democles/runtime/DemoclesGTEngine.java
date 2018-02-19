@@ -1,5 +1,7 @@
 package org.emoflon.ibex.gt.democles.runtime;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -7,7 +9,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.emf.ecore.EPackage.Registry;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.emoflon.ibex.common.operational.IMatchObserver;
 import org.emoflon.ibex.common.operational.IPatternInterpreter;
 import org.emoflon.ibex.common.utils.ModelPersistenceUtils;
@@ -16,6 +21,7 @@ import org.gervarro.democles.event.MatchEventListener;
 import org.gervarro.democles.incremental.emf.NotificationProcessor;
 import org.gervarro.democles.interpreter.incremental.rete.RetePattern;
 import org.gervarro.democles.interpreter.incremental.rete.RetePatternMatcherModule;
+import org.gervarro.democles.specification.emf.EMFDemoclesPatternMetamodelPlugin;
 import org.gervarro.democles.specification.emf.Pattern;
 
 import IBeXLanguage.IBeXPatternSet;
@@ -93,9 +99,20 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 	}
 
 	@Override
-	public ResourceSet createAndPrepareResourceSet(String workspacePath) {
-		// TODO Auto-generated method stub
-		return null;
+	public ResourceSet createAndPrepareResourceSet(final String workspacePath) {
+		ResourceSet resourceSet = new ResourceSetImpl();
+		// In contrast to EMFDemoclesPatternMetamodelPlugin.createDefaultResourceSet, we
+		// do not delegate directly to the global registry!
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap()
+				.put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
+
+		try {
+			EMFDemoclesPatternMetamodelPlugin.setWorkspaceRootDirectory(resourceSet,
+					new File(workspacePath).getCanonicalPath());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return resourceSet;
 	}
 
 	@Override

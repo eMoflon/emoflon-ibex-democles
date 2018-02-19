@@ -1,6 +1,5 @@
 package org.emoflon.ibex.tgg.runtime.engine;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,8 +12,6 @@ import java.util.stream.Collectors;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.gt.democles.runtime.DemoclesGTEngine;
 import org.emoflon.ibex.tgg.compiler.BlackPatternCompiler;
@@ -57,7 +54,6 @@ import org.gervarro.democles.plan.incremental.leaf.ReteSearchPlanAlgorithm;
 import org.gervarro.democles.runtime.AdornedNativeOperationBuilder;
 import org.gervarro.democles.runtime.InterpretableAdornedOperation;
 import org.gervarro.democles.runtime.JavaIdentifierProvider;
-import org.gervarro.democles.specification.emf.EMFDemoclesPatternMetamodelPlugin;
 import org.gervarro.democles.specification.emf.EMFPatternBuilder;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.TypeModule;
@@ -306,25 +302,5 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 				});
 			}
 		});
-	}
-
-	@Override
-	public ResourceSet createAndPrepareResourceSet(final String workspacePath) {
-		ResourceSet rs = createDefaultResourceSet();
-		try {
-			EMFDemoclesPatternMetamodelPlugin.setWorkspaceRootDirectory(rs, new File(workspacePath).getCanonicalPath());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return rs;
-	}
-
-	private ResourceSet createDefaultResourceSet() {
-		final ResourceSet resourceSet = new ResourceSetImpl();
-		// In contrast to EMFDemoclesPatternMetamodelPlugin.createDefaultResourceSet, we
-		// do not delegate directly to the global registry!
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap()
-				.put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
-		return resourceSet;
 	}
 }
