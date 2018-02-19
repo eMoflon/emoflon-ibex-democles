@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.emf.ecore.EPackage.Registry;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.emoflon.ibex.common.operational.IMatchObserver;
 import org.emoflon.ibex.common.operational.IPatternInterpreter;
 import org.emoflon.ibex.common.utils.ModelPersistenceUtils;
 import org.gervarro.democles.event.MatchEvent;
@@ -14,7 +17,7 @@ import org.gervarro.democles.specification.emf.Pattern;
 import IBeXLanguage.IBeXPatternSet;
 
 /**
- * Engine for graph transformations with Democles.
+ * Engine for (unidirectional) graph transformations with Democles.
  */
 public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener {
 	/**
@@ -26,11 +29,6 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 	 * The Democles patterns.
 	 */
 	private List<Pattern> patterns = new ArrayList<Pattern>();
-
-	@Override
-	public void setDebugPath(final String debugPath) {
-		this.debugPath = Optional.of(debugPath);
-	}
 
 	@Override
 	public void initPatterns(final IBeXPatternSet ibexPatternSet) {
@@ -49,6 +47,41 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 					.collect(Collectors.toList());
 			ModelPersistenceUtils.saveModel(sortedPatterns, path + "/democles-patterns");
 		});
+	}
+
+	@Override
+	public void initialise(Registry registry, IMatchObserver matchObserver) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public ResourceSet createAndPrepareResourceSet(String workspacePath) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void monitor(ResourceSet resourceSet) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateMatches() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void terminate() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setDebugPath(final String debugPath) {
+		this.debugPath = Optional.of(debugPath);
 	}
 
 	/**
