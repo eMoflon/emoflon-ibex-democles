@@ -25,46 +25,16 @@ import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGConstraintComponentB
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGNativeOperationBuilder;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
-import org.gervarro.democles.common.PatternMatcherPlugin;
-import org.gervarro.democles.common.runtime.CategoryBasedQueueFactory;
-import org.gervarro.democles.common.runtime.ListOperationBuilder;
-import org.gervarro.democles.common.runtime.Task;
+import org.gervarro.democles.common.runtime.OperationBuilder;
 import org.gervarro.democles.common.runtime.VariableRuntime;
-import org.gervarro.democles.constraint.CoreConstraintModule;
-import org.gervarro.democles.constraint.emf.EMFConstraintModule;
 import org.gervarro.democles.event.MatchEvent;
-import org.gervarro.democles.incremental.emf.ModelDeltaCategorizer;
-import org.gervarro.democles.incremental.emf.NotificationProcessor;
 import org.gervarro.democles.interpreter.incremental.rete.RetePattern;
 import org.gervarro.democles.interpreter.incremental.rete.RetePatternBody;
-import org.gervarro.democles.interpreter.incremental.rete.RetePatternMatcherModule;
-import org.gervarro.democles.notification.emf.BidirectionalReferenceFilter;
-import org.gervarro.democles.notification.emf.EdgeDeltaFeeder;
-import org.gervarro.democles.notification.emf.ReferenceToEdgeConverter;
-import org.gervarro.democles.notification.emf.UndirectedEdgeToDirectedEdgeConverter;
-import org.gervarro.democles.operation.RelationalOperationBuilder;
-import org.gervarro.democles.operation.emf.DefaultEMFBatchAdornmentStrategy;
-import org.gervarro.democles.operation.emf.DefaultEMFIncrementalAdornmentStrategy;
 import org.gervarro.democles.operation.emf.EMFBatchOperationBuilder;
-import org.gervarro.democles.operation.emf.EMFIdentifierProviderBuilder;
-import org.gervarro.democles.operation.emf.EMFInterpretableIncrementalOperationBuilder;
-import org.gervarro.democles.plan.incremental.builder.AdornedNativeOperationDrivenComponentBuilder;
-import org.gervarro.democles.plan.incremental.builder.FilterComponentBuilder;
+import org.gervarro.democles.plan.incremental.leaf.Component;
 import org.gervarro.democles.plan.incremental.leaf.ReteSearchPlanAlgorithm;
-import org.gervarro.democles.runtime.AdornedNativeOperationBuilder;
-import org.gervarro.democles.runtime.InterpretableAdornedOperation;
-import org.gervarro.democles.runtime.JavaIdentifierProvider;
-import org.gervarro.democles.specification.emf.EMFPatternBuilder;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.TypeModule;
-import org.gervarro.democles.specification.emf.constraint.EMFTypeModule;
-import org.gervarro.democles.specification.emf.constraint.PatternInvocationTypeModule;
-import org.gervarro.democles.specification.emf.constraint.RelationalTypeModule;
-import org.gervarro.democles.specification.impl.DefaultPattern;
-import org.gervarro.democles.specification.impl.DefaultPatternBody;
-import org.gervarro.democles.specification.impl.DefaultPatternFactory;
-import org.gervarro.democles.specification.impl.PatternInvocationConstraintModule;
-import org.gervarro.notification.model.ModelDelta;
 
 import IBeXLanguage.IBeXPatternSet;
 
@@ -73,7 +43,6 @@ import IBeXLanguage.IBeXPatternSet;
  */
 public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpreter {
 	private HashMap<IDataFrame, Collection<IMatch>> matches;
-	private EMFPatternBuilder<DefaultPattern, DefaultPatternBody> patternBuilder;
 	private IbexOptions options;
 
 	/**
@@ -87,7 +56,58 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	@Override
 	public void setOptions(final IbexOptions options) {
 		this.options = options;
-		createAndRegisterPatterns();
+		initPatterns(null);
+	}
+
+	@Override
+	public void initPatterns(final IBeXPatternSet ibexPatternSet) {
+		BlackPatternCompiler compiler = new BlackPatternCompiler(options);
+		compiler.preparePatterns();
+
+		IBlackToDemoclesPatternTransformation transformation = new IBlackToDemoclesPatternTransformation(this.options);
+		for (String r : compiler.getRuleToPatternMap().keySet()) {
+			for (IBlackPattern pattern : compiler.getRuleToPatternMap().get(r)) {
+				if (IBlackToDemoclesPatternTransformation.patternIsNotEmpty(pattern)
+						&& app.isPatternRelevantForCompiler(pattern.getName())) {
+					transformation.ibexToDemocles(pattern);
+				}
+			}
+		}
+		this.patterns = transformation.getPatterns();
+		this.createAndRegisterPatterns();
+	}
+
+	@Override
+	protected ReteSearchPlanAlgorithm initReteSearchPlanAlgorithm(
+			Collection<OperationBuilder<Component, Component, VariableRuntime>> builders) {
+		ReteSearchPlanAlgorithm algorithm = super.initReteSearchPlanAlgorithm(builders);
+		this.handleTGGAttributeConstraints().ifPresent(b -> algorithm.addComponentBuilder(b));
+		return algorithm;
+	}
+
+	private Optional<TGGConstraintComponentBuilder<VariableRuntime>> handleTGGAttributeConstraints() {
+		if (!this.options.blackInterpSupportsAttrConstrs()) {
+			return Optional.empty();
+		}
+
+		TGGAttributeConstraintAdornmentStrategy.INSTANCE.setIsModelGen(options.isModelGen());
+
+		// Handle constraints for the EMF to Java transformation
+		TGGAttributeConstraintModule.INSTANCE.registerConstraintTypes(options.constraintProvider());
+		TypeModule<TGGAttributeConstraintModule> tggAttributeConstraintTypeModule = new TGGAttributeConstraintTypeModule(
+				TGGAttributeConstraintModule.INSTANCE);
+		patternBuilder.addConstraintTypeSwitch(tggAttributeConstraintTypeModule.getConstraintTypeSwitch());
+
+		// Native operation
+		final TGGNativeOperationBuilder<VariableRuntime> tggNativeOperationModule = new TGGNativeOperationBuilder<VariableRuntime>(
+				options.constraintProvider());
+		// Batch operations
+		final EMFBatchOperationBuilder<VariableRuntime> tggBatchOperationModule = new EMFBatchOperationBuilder<VariableRuntime>(
+				tggNativeOperationModule, TGGAttributeConstraintAdornmentStrategy.INSTANCE);
+		retePatternMatcherModule.addOperationBuilder(tggBatchOperationModule);
+
+		// Incremental operation
+		return Optional.of(new TGGConstraintComponentBuilder<VariableRuntime>(tggNativeOperationModule));
 	}
 
 	@Override
@@ -98,38 +118,6 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 		}
 
 		super.monitor(resourceSet);
-	}
-
-	private void createAndRegisterPatterns() {
-		// Create EMF-based pattern specification
-		initPatterns(null);
-
-		// Democles configuration
-		final EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule = configureDemocles();
-
-		// Build the pattern matchers in 2 phases
-		// 1) EMF-based to EMF-independent transformation
-		final Collection<DefaultPattern> internalPatterns = patternBuilder.build(patterns);
-
-		// 2) EMF-independent to pattern matcher runtime (i.e., Rete network)
-		// transformation
-		retePatternMatcherModule.build(internalPatterns.toArray(new DefaultPattern[internalPatterns.size()]));
-		retePatternMatcherModule.getSession().setAutoCommitMode(false);
-
-		// Attach match listener to pattern matchers
-		retrievePatternMatchers();
-		patternMatchers.forEach(pm -> pm.addEventListener(this));
-
-		// Install model event listeners on the resource set
-		EdgeDeltaFeeder edgeDeltaFeeder = new EdgeDeltaFeeder(emfNativeOperationModule);
-		UndirectedEdgeToDirectedEdgeConverter undirectedEdgeToDirectedEdgeConverter = new UndirectedEdgeToDirectedEdgeConverter(
-				edgeDeltaFeeder);
-		ReferenceToEdgeConverter referenceToEdgeConverter = new ReferenceToEdgeConverter(
-				undirectedEdgeToDirectedEdgeConverter);
-		BidirectionalReferenceFilter bidirectionalReferenceFilter = new BidirectionalReferenceFilter(
-				referenceToEdgeConverter);
-		observer = new NotificationProcessor(bidirectionalReferenceFilter,
-				new CategoryBasedQueueFactory<ModelDelta>(ModelDeltaCategorizer.INSTANCE));
 	}
 
 	private void printReteNetwork() {
@@ -153,116 +141,6 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public void initPatterns(final IBeXPatternSet ibexPatternSet) {
-		BlackPatternCompiler compiler = new BlackPatternCompiler(options);
-		compiler.preparePatterns();
-
-		IBlackToDemoclesPatternTransformation transformation = new IBlackToDemoclesPatternTransformation(this.options);
-		for (String r : compiler.getRuleToPatternMap().keySet()) {
-			for (IBlackPattern pattern : compiler.getRuleToPatternMap().get(r)) {
-				if (IBlackToDemoclesPatternTransformation.patternIsNotEmpty(pattern)
-						&& app.isPatternRelevantForCompiler(pattern.getName())) {
-					transformation.ibexToDemocles(pattern);
-				}
-			}
-		}
-		this.patterns = transformation.getPatterns();
-	}
-
-	private void retrievePatternMatchers() {
-		for (Pattern pattern : patterns) {
-			if (app.isPatternRelevantForCompiler(pattern.getName())) {
-				patternMatchers.add(retePatternMatcherModule.getPatternMatcher(getPatternID(pattern)));
-			}
-		}
-	}
-
-	private String getPatternID(Pattern pattern) {
-		return PatternMatcherPlugin.getIdentifier(pattern.getName(), pattern.getSymbolicParameters().size());
-	}
-
-	private EMFInterpretableIncrementalOperationBuilder<VariableRuntime> configureDemocles() {
-		final EMFConstraintModule emfTypeModule = new EMFConstraintModule(registry);
-		final EMFTypeModule internalEMFTypeModule = new EMFTypeModule(emfTypeModule);
-		final RelationalTypeModule internalRelationalTypeModule = new RelationalTypeModule(
-				CoreConstraintModule.INSTANCE);
-
-		patternBuilder = new EMFPatternBuilder<DefaultPattern, DefaultPatternBody>(new DefaultPatternFactory());
-		final PatternInvocationConstraintModule<DefaultPattern, DefaultPatternBody> patternInvocationTypeModule = new PatternInvocationConstraintModule<DefaultPattern, DefaultPatternBody>(
-				patternBuilder);
-		final PatternInvocationTypeModule<DefaultPattern, DefaultPatternBody> internalPatternInvocationTypeModule = new PatternInvocationTypeModule<DefaultPattern, DefaultPatternBody>(
-				patternInvocationTypeModule);
-		patternBuilder.addConstraintTypeSwitch(internalPatternInvocationTypeModule.getConstraintTypeSwitch());
-		patternBuilder.addConstraintTypeSwitch(internalRelationalTypeModule.getConstraintTypeSwitch());
-		patternBuilder.addConstraintTypeSwitch(internalEMFTypeModule.getConstraintTypeSwitch());
-		patternBuilder.addVariableTypeSwitch(internalEMFTypeModule.getVariableTypeSwitch());
-
-		retePatternMatcherModule = new RetePatternMatcherModule();
-
-		retePatternMatcherModule.setTaskQueueFactory(
-				new CategoryBasedQueueFactory<Task>(org.gervarro.democles.runtime.IncrementalTaskCategorizer.INSTANCE));
-
-		// EMF native
-		// NativeOperation
-		final EMFInterpretableIncrementalOperationBuilder<VariableRuntime> emfNativeOperationModule = new EMFInterpretableIncrementalOperationBuilder<VariableRuntime>(
-				retePatternMatcherModule, emfTypeModule);
-		// EMF batch
-		final EMFBatchOperationBuilder<VariableRuntime> emfBatchOperationModule = new EMFBatchOperationBuilder<VariableRuntime>(
-				emfNativeOperationModule, DefaultEMFBatchAdornmentStrategy.INSTANCE);
-		final EMFIdentifierProviderBuilder<VariableRuntime> emfIdentifierProviderModule = new EMFIdentifierProviderBuilder<VariableRuntime>(
-				JavaIdentifierProvider.INSTANCE);
-		// Relational
-		final ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime> relationalOperationModule = new ListOperationBuilder<InterpretableAdornedOperation, VariableRuntime>(
-				new RelationalOperationBuilder<VariableRuntime>());
-
-		final ReteSearchPlanAlgorithm algorithm = new ReteSearchPlanAlgorithm();
-		// EMF incremental
-		final AdornedNativeOperationBuilder<VariableRuntime> emfIncrementalOperationModule = new AdornedNativeOperationBuilder<VariableRuntime>(
-				emfNativeOperationModule, DefaultEMFIncrementalAdornmentStrategy.INSTANCE);
-		// EMF component
-		algorithm.addComponentBuilder(
-				new AdornedNativeOperationDrivenComponentBuilder<VariableRuntime>(emfIncrementalOperationModule));
-		// Relational component
-		algorithm.addComponentBuilder(new FilterComponentBuilder<VariableRuntime>(relationalOperationModule));
-
-		retePatternMatcherModule.setSearchPlanAlgorithm(algorithm);
-		retePatternMatcherModule.addOperationBuilder(emfBatchOperationModule);
-		retePatternMatcherModule.addOperationBuilder(relationalOperationModule);
-
-		retePatternMatcherModule.addIdentifierProviderBuilder(emfIdentifierProviderModule);
-
-		// TGG attribute constraints
-		handleTGGAttributeConstraints(algorithm);
-
-		return emfNativeOperationModule;
-	}
-
-	private void handleTGGAttributeConstraints(ReteSearchPlanAlgorithm algorithm) {
-		if (!this.options.blackInterpSupportsAttrConstrs()) {
-			return;
-		}
-
-		TGGAttributeConstraintAdornmentStrategy.INSTANCE.setIsModelGen(options.isModelGen());
-
-		// Handle constraints for the EMF to Java transformation
-		TGGAttributeConstraintModule.INSTANCE.registerConstraintTypes(options.constraintProvider());
-		TypeModule<TGGAttributeConstraintModule> tggAttributeConstraintTypeModule = new TGGAttributeConstraintTypeModule(
-				TGGAttributeConstraintModule.INSTANCE);
-		patternBuilder.addConstraintTypeSwitch(tggAttributeConstraintTypeModule.getConstraintTypeSwitch());
-
-		// Native operation
-		final TGGNativeOperationBuilder<VariableRuntime> tggNativeOperationModule = new TGGNativeOperationBuilder<VariableRuntime>(
-				options.constraintProvider());
-		// Batch operations
-		final EMFBatchOperationBuilder<VariableRuntime> tggBatchOperationModule = new EMFBatchOperationBuilder<VariableRuntime>(
-				tggNativeOperationModule, TGGAttributeConstraintAdornmentStrategy.INSTANCE);
-		retePatternMatcherModule.addOperationBuilder(tggBatchOperationModule);
-
-		// Incremental operation
-		algorithm.addComponentBuilder(new TGGConstraintComponentBuilder<VariableRuntime>(tggNativeOperationModule));
 	}
 
 	public void handleEvent(final MatchEvent event) {
