@@ -1,6 +1,7 @@
 package org.emoflon.ibex.gt.democles.runtime;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -12,6 +13,9 @@ import org.emoflon.ibex.common.operational.IPatternInterpreter;
 import org.emoflon.ibex.common.utils.ModelPersistenceUtils;
 import org.gervarro.democles.event.MatchEvent;
 import org.gervarro.democles.event.MatchEventListener;
+import org.gervarro.democles.incremental.emf.NotificationProcessor;
+import org.gervarro.democles.interpreter.incremental.rete.RetePattern;
+import org.gervarro.democles.interpreter.incremental.rete.RetePatternMatcherModule;
 import org.gervarro.democles.specification.emf.Pattern;
 
 import IBeXLanguage.IBeXPatternSet;
@@ -21,14 +25,47 @@ import IBeXLanguage.IBeXPatternSet;
  */
 public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener {
 	/**
+	 * The registry.
+	 */
+	protected Registry registry;
+
+	/**
+	 * The match observer.
+	 */
+	protected IMatchObserver app;
+
+	/**
+	 * The Democles patterns.
+	 */
+	protected Collection<Pattern> patterns = new ArrayList<Pattern>();
+
+	/**
+	 * The pattern matchers.
+	 */
+	protected Collection<RetePattern> patternMatchers;
+
+	/**
+	 * The pattern matcher module.
+	 */
+	protected RetePatternMatcherModule retePatternMatcherModule;
+
+	/**
+	 * The observer (??).
+	 */
+	protected NotificationProcessor observer;
+
+	/**
 	 * The path for debugging output.
 	 */
 	protected Optional<String> debugPath = Optional.empty();
 
 	/**
-	 * The Democles patterns.
+	 * Creates a new DemoclesGTEngine.
 	 */
-	private List<Pattern> patterns = new ArrayList<Pattern>();
+	public DemoclesGTEngine() {
+		this.patterns = new ArrayList<>();
+		this.patternMatchers = new ArrayList<>();
+	}
 
 	@Override
 	public void initPatterns(final IBeXPatternSet ibexPatternSet) {
@@ -51,8 +88,8 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 
 	@Override
 	public void initialise(Registry registry, IMatchObserver matchObserver) {
-		// TODO Auto-generated method stub
-
+		this.registry = registry;
+		this.app = matchObserver;
 	}
 
 	@Override
@@ -62,21 +99,19 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 	}
 
 	@Override
-	public void monitor(ResourceSet resourceSet) {
-		// TODO Auto-generated method stub
-
+	public void monitor(final ResourceSet resourceSet) {
+		this.observer.install(resourceSet);
 	}
 
 	@Override
 	public void updateMatches() {
-		// TODO Auto-generated method stub
-
+		// Trigger the Rete network.
+		this.retePatternMatcherModule.performIncrementalUpdates();
 	}
 
 	@Override
 	public void terminate() {
-		// TODO Auto-generated method stub
-
+		this.patternMatchers.forEach(pm -> pm.removeEventListener(this));
 	}
 
 	@Override

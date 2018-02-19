@@ -11,18 +11,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.emoflon.ibex.common.operational.IMatchObserver;
+import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.gt.democles.runtime.DemoclesGTEngine;
 import org.emoflon.ibex.tgg.compiler.BlackPatternCompiler;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
 import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
-import org.emoflon.ibex.tgg.operational.matches.IMatch;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
@@ -78,39 +76,32 @@ import IBeXLanguage.IBeXPatternSet;
  * Engine for (bidirectional) graph transformations with Democles.
  */
 public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpreter {
-	private Registry registry;
-	private Collection<Pattern> patterns;
 	private HashMap<IDataFrame, Collection<IMatch>> matches;
-	private RetePatternMatcherModule retePatternMatcherModule;
 	private EMFPatternBuilder<DefaultPattern, DefaultPatternBody> patternBuilder;
-	private Collection<RetePattern> patternMatchers;
-	protected IMatchObserver app;
-
 	private IbexOptions options;
-	private NotificationProcessor observer;
 
-	@Override
-	public void initialise(Registry registry, IMatchObserver app) {
-		this.registry = registry;
-		patterns = new ArrayList<>();
-		matches = new HashMap<>();
-		patternMatchers = new ArrayList<>();
-		this.app = app;
+	/**
+	 * Creates a new DemoclesTGGEngine.
+	 */
+	public DemoclesTGGEngine() {
+		super();
+		this.matches = new HashMap<IDataFrame, Collection<IMatch>>();
 	}
 
-	public void setOptions(IbexOptions options) {
+	@Override
+	public void setOptions(final IbexOptions options) {
 		this.options = options;
 		createAndRegisterPatterns();
 	}
 
 	@Override
-	public void monitor(ResourceSet rs) {
+	public void monitor(final ResourceSet resourceSet) {
 		if (options.debug()) {
-			saveDemoclesPatterns(rs);
+			saveDemoclesPatterns(resourceSet);
 			printReteNetwork();
 		}
 
-		observer.install(rs);
+		super.monitor(resourceSet);
 	}
 
 	private void createAndRegisterPatterns() {
@@ -276,16 +267,6 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 
 		// Incremental operation
 		algorithm.addComponentBuilder(new TGGConstraintComponentBuilder<VariableRuntime>(tggNativeOperationModule));
-	}
-
-	public void updateMatches() {
-		// Trigger the Rete network
-		retePatternMatcherModule.performIncrementalUpdates();
-	}
-
-	public void terminate() {
-		if (patternMatchers != null)
-			patternMatchers.forEach(pm -> pm.removeEventListener(this));
 	}
 
 	public void handleEvent(final MatchEvent event) {

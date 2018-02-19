@@ -10,4 +10,6 @@ Export-Package: org.emoflon.ibex.gt.democles.runtime
 Require-Bundle: org.emoflon.ibex.common,
  org.emoflon.ibex.gt,
  org.gervarro.democles.common,
+ org.gervarro.democles.interpreter.incremental,
+ org.gervarro.democles.notification.emf,
  org.gervarro.democles.specification.emf
