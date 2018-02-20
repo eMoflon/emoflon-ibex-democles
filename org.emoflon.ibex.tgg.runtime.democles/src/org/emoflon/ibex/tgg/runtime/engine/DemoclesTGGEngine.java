@@ -138,6 +138,6 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 
 	@Override
 	protected IMatch createMatch(final DataFrame frame, final Pattern pattern) {
-		return new DemoclesMatch(frame, pattern);
+		return new DemoclesTGGMatch(frame, pattern);
 	}
 }

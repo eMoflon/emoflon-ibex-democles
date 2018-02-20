@@ -9,7 +9,7 @@ import org.gervarro.democles.specification.emf.Pattern;
 /**
  * A TGG match from Democles.
  */
-public class DemoclesMatch extends DemoclesGTMatch implements IMatch {
+public class DemoclesTGGMatch extends DemoclesGTMatch implements IMatch {
 	/**
 	 * Creates a new DemoclesMatch with the given frame and pattern.
 	 * 
@@ -18,7 +18,7 @@ public class DemoclesMatch extends DemoclesGTMatch implements IMatch {
 	 * @param pattern
 	 *            the Democles pattern
 	 */
-	public DemoclesMatch(final IDataFrame frame, final Pattern pattern) {
+	public DemoclesTGGMatch(final IDataFrame frame, final Pattern pattern) {
 		super(frame, pattern);
 	}
 
