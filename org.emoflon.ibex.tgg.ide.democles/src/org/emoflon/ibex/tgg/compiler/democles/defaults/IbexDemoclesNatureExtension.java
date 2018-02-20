@@ -40,7 +40,7 @@ public class IbexDemoclesNatureExtension implements NatureExtension {
 								"org.gervarro.plan.dynprog"
 						),
 						Arrays.asList(
-								// Ibex democles deps
+								// Ibex Democles deps
 								"org.emoflon.ibex.tgg.runtime.democles"
 						));
 				return changed;

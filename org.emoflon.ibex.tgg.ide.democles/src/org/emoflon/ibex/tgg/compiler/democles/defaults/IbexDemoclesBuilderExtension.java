@@ -12,8 +12,8 @@ public class IbexDemoclesBuilderExtension implements BuilderExtension {
 
 	private Logger logger = Logger.getLogger(IbexDemoclesBuilderExtension.class);
 	
-	private static final String ENGINE = "DemoclesEngine";
-	private static final String IMPORT = "import org.emoflon.ibex.tgg.runtime.engine.DemoclesEngine;";
+	private static final String ENGINE = "DemoclesTGGEngine";
+	private static final String IMPORT = "import org.emoflon.ibex.tgg.runtime.engine.DemoclesTGGEngine;";
 	
 	@Override
 	public void run(IbexTGGBuilder builder, TripleGraphGrammarFile editorModel, TripleGraphGrammarFile flattenedEditorModel) {
