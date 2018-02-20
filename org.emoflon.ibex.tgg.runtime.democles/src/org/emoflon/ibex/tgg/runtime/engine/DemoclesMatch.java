@@ -1,48 +1,25 @@
 package org.emoflon.ibex.tgg.runtime.engine;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-
+import org.emoflon.ibex.gt.democles.runtime.DemoclesGTMatch;
 import org.emoflon.ibex.tgg.operational.matches.IMatch;
 import org.emoflon.ibex.tgg.operational.matches.SimpleMatch;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.specification.emf.Pattern;
 
-public class DemoclesMatch implements IMatch {
-	private IDataFrame frame;
-	private Pattern pattern;
-
-	public DemoclesMatch(IDataFrame frame, Pattern pattern) {
-		this.frame = frame;
-		this.pattern = pattern;
-	}
-	
-	public Collection<String> getParameterNames() {
-		return pattern.getSymbolicParameters()
-				.stream()
-				.map(p -> p.getName())
-				.collect(Collectors.toList());
-	}
-
-	public Object get(String name) {
-		int index = varNameToIndex(name);
-		return index == -1 ? null : frame.getValue(index);
-	}
-
-	public String getPatternName() {
-		return pattern.getName();
-	}
-	
-	private int varNameToIndex(String varName) {
-		for(int i = 0; i < pattern.getSymbolicParameters().size(); i++){
-			if(varName.equals(pattern.getSymbolicParameters().get(i).getName()))
-				return i;
-		}
-		return -1;
-	}
-	
-	public String toString() {
-		return getPatternName();
+/**
+ * A TGG match from Democles.
+ */
+public class DemoclesMatch extends DemoclesGTMatch implements IMatch {
+	/**
+	 * Creates a new DemoclesMatch with the given frame and pattern.
+	 * 
+	 * @param frame
+	 *            the Democles frame
+	 * @param pattern
+	 *            the Democles pattern
+	 */
+	public DemoclesMatch(final IDataFrame frame, final Pattern pattern) {
+		super(frame, pattern);
 	}
 
 	@Override

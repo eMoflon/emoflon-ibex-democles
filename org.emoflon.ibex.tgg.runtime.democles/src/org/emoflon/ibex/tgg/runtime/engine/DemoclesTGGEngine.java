@@ -1,10 +1,7 @@
 package org.emoflon.ibex.tgg.runtime.engine;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,10 +21,8 @@ import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintT
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGConstraintComponentBuilder;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGNativeOperationBuilder;
 import org.gervarro.democles.common.DataFrame;
-import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.runtime.OperationBuilder;
 import org.gervarro.democles.common.runtime.VariableRuntime;
-import org.gervarro.democles.event.MatchEvent;
 import org.gervarro.democles.interpreter.incremental.rete.RetePattern;
 import org.gervarro.democles.interpreter.incremental.rete.RetePatternBody;
 import org.gervarro.democles.operation.emf.EMFBatchOperationBuilder;
@@ -42,7 +37,6 @@ import IBeXLanguage.IBeXPatternSet;
  * Engine for (bidirectional) graph transformations with Democles.
  */
 public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpreter {
-	private HashMap<IDataFrame, Collection<IMatch>> matches;
 	private IbexOptions options;
 
 	/**
@@ -50,7 +44,6 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	 */
 	public DemoclesTGGEngine() {
 		super();
-		this.matches = new HashMap<IDataFrame, Collection<IMatch>>();
 	}
 
 	@Override
@@ -143,42 +136,8 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 		}
 	}
 
-	public void handleEvent(final MatchEvent event) {
-		// React to events
-		final String type = event.getEventType();
-		final DataFrame frame = event.getMatching();
-
-		Optional<Pattern> p = patterns.stream()
-				.filter(pattern -> getPatternID(pattern).equals(event.getSource().toString())).findAny();
-
-		p.ifPresent(pattern -> {
-			// React to create
-			if (type.contentEquals(MatchEvent.INSERT) && (!matches.keySet().contains(frame)
-					|| matches.get(frame).stream().allMatch(m -> !m.getPatternName().equals(pattern.getName())))) {
-				IMatch match = new DemoclesMatch(frame, pattern);
-				if (matches.keySet().contains(frame)) {
-					matches.get(frame).add(match);
-				} else {
-					matches.put(frame, new ArrayList<IMatch>(Arrays.asList(match)));
-				}
-				app.addMatch(match);
-			}
-
-			// React to delete
-			if (type.equals(MatchEvent.DELETE)) {
-				Collection<IMatch> matchList = matches.get(frame);
-				Optional<IMatch> match = matchList == null ? Optional.empty()
-						: matchList.stream().filter(m -> m.getPatternName().equals(pattern.getName())).findAny();
-
-				match.ifPresent(m -> {
-					app.removeMatch(m);
-					if (matches.get(frame).size() > 1) {
-						matches.get(frame).remove(m);
-					} else {
-						matches.remove(frame);
-					}
-				});
-			}
-		});
+	@Override
+	protected IMatch createMatch(final DataFrame frame, final Pattern pattern) {
+		return new DemoclesMatch(frame, pattern);
 	}
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,9 +15,12 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.common.operational.IMatchObserver;
 import org.emoflon.ibex.common.operational.IPatternInterpreter;
 import org.emoflon.ibex.common.utils.ModelPersistenceUtils;
+import org.gervarro.democles.common.DataFrame;
+import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.PatternMatcherPlugin;
 import org.gervarro.democles.common.runtime.CategoryBasedQueueFactory;
 import org.gervarro.democles.common.runtime.ListOperationBuilder;
@@ -77,6 +81,11 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 	protected IMatchObserver app;
 
 	/**
+	 * The matches.
+	 */
+	protected HashMap<IDataFrame, Collection<IMatch>> matches;
+
+	/**
 	 * The Democles patterns.
 	 */
 	protected Collection<Pattern> patterns = new ArrayList<Pattern>();
@@ -112,6 +121,7 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 	public DemoclesGTEngine() {
 		this.patterns = new ArrayList<>();
 		this.patternMatchers = new ArrayList<>();
+		this.matches = new HashMap<IDataFrame, Collection<IMatch>>();
 	}
 
 	@Override
@@ -119,6 +129,7 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 		IBeXToDemoclesPatternTransformation transformation = new IBeXToDemoclesPatternTransformation();
 		patterns = transformation.transform(ibexPatternSet);
 		this.savePatternsForDebugging();
+		this.createAndRegisterPatterns();
 	}
 
 	/**
@@ -276,8 +287,39 @@ public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener
 	 */
 	@Override
 	public void handleEvent(final MatchEvent event) {
-		// TODO Auto-generated method stub
-		System.out.println("GTDemoclesEngine.handleEvent: " + event.getEventType() + " - " + event.getSource());
+		String type = event.getEventType();
+		DataFrame frame = event.getMatching();
+		Optional<Pattern> p = patterns.stream()
+				.filter(pattern -> getPatternID(pattern).equals(event.getSource().toString())).findAny();
+		p.ifPresent(pattern -> {
+			if (type.contentEquals(MatchEvent.INSERT) && (!matches.keySet().contains(frame)
+					|| matches.get(frame).stream().allMatch(m -> !m.getPatternName().equals(pattern.getName())))) {
+				IMatch match = this.createMatch(frame, pattern);
+				if (matches.keySet().contains(frame)) {
+					matches.get(frame).add(match);
+				} else {
+					matches.put(frame, new ArrayList<IMatch>(Arrays.asList(match)));
+				}
+				app.addMatch(match);
+			}
+			if (type.equals(MatchEvent.DELETE)) {
+				Collection<IMatch> matchList = matches.get(frame);
+				Optional<IMatch> match = matchList == null ? Optional.empty()
+						: matchList.stream().filter(m -> m.getPatternName().equals(pattern.getName())).findAny();
+				match.ifPresent(m -> {
+					app.removeMatch(m);
+					if (matches.get(frame).size() > 1) {
+						matches.get(frame).remove(m);
+					} else {
+						matches.remove(frame);
+					}
+				});
+			}
+		});
+	}
+
+	protected IMatch createMatch(final DataFrame frame, final Pattern pattern) {
+		return new DemoclesGTMatch(frame, pattern);
 	}
 
 	/**
