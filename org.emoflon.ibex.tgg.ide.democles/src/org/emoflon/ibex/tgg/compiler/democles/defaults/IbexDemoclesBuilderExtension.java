@@ -28,6 +28,8 @@ public class IbexDemoclesBuilderExtension implements BuilderExtension {
 					-> DefaultFilesGenerator.generateCOAppFile(projectName, fileName, ENGINE, IMPORT));
 			builder.createDefaultRunFile("FWD_OPT_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateFWDOptAppFile(projectName, fileName, ENGINE, IMPORT));
+			builder.createDefaultRunFile("BWD_OPT_App", (projectName, fileName) 
+					-> DefaultFilesGenerator.generateBWDOptAppFile(projectName, fileName, ENGINE, IMPORT));
 			builder.createDefaultRunFile("_RegistrationHelper", (projectName, fileName)
 					-> DefaultFilesGenerator.generateRegHelperFile(projectName));
 		} catch (CoreException e) {
