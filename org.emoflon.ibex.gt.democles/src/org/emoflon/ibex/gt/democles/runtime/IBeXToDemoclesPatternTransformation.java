@@ -71,7 +71,7 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 		PatternBody body = democlesSpecificationFactory.createPatternBody();
 		pattern.getBodies().add(body);
 
-		// Signature nodes -> parameter in Democles pattern.
+		// Signature nodes -> parameter in the Democles pattern.
 		Map<IBeXNode, EMFVariable> nodeToVariable = new HashMap<>();
 		ibexPattern.getSignatureNodes().forEach(ibexSignatureNode -> {
 			if (!nodeToVariable.containsKey(ibexSignatureNode)) {
@@ -80,12 +80,12 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 			pattern.getSymbolicParameters().add(nodeToVariable.get(ibexSignatureNode));
 		});
 
-		// Local node -> local variables in the Democles PatternBody.
+		// Local node -> parameter in the Democles PatternBody.
 		ibexPattern.getLocalNodes().forEach(ibexLocalNode -> {
 			if (!nodeToVariable.containsKey(ibexLocalNode)) {
 				nodeToVariable.put(ibexLocalNode, transformSignatureNodeToVariable(ibexLocalNode));
 			}
-			body.getLocalVariables().add(nodeToVariable.get(ibexLocalNode));
+			pattern.getSymbolicParameters().add(nodeToVariable.get(ibexLocalNode));
 		});
 
 		ibexPattern.getInjectivityConstraints().forEach(injectivityConstraint -> {
