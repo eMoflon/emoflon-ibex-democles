@@ -1,13 +1,12 @@
 package org.emoflon.ibex.tgg.compiler.democles.defaults;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.emoflon.ibex.tgg.ide.admin.NatureExtension;
-import org.emoflon.ibex.tgg.ui.ide.admin.plugins.ManifestFileUpdater;
+import org.moflon.core.plugins.manifest.ManifestFileUpdater;
 import org.moflon.util.LogUtils;
 
 public class IbexDemoclesNatureExtension implements NatureExtension {
@@ -37,17 +36,15 @@ public class IbexDemoclesNatureExtension implements NatureExtension {
 								"org.gervarro.democles.plan.incremental.leaf",
 								"org.gervarro.util",
 								"org.gervarro.notification",
-								"org.gervarro.plan.dynprog"
-						),
-						Arrays.asList(
+								"org.gervarro.plan.dynprog",
+
 								// Ibex Democles deps
 								"org.emoflon.ibex.tgg.runtime.democles"
 						));
 				return changed;
 			});
-		} catch (CoreException | IOException e) {
+		} catch (CoreException e) {
 			LogUtils.error(logger, e);
 		}
 	}
-
 }

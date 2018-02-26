@@ -5,22 +5,23 @@ Bundle-SymbolicName: org.emoflon.ibex.tgg.ide.democles;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Export-Package: org.emoflon.ibex.tgg.compiler.democles.defaults,
  org.emoflon.ibex.tgg.ide.democles.visualisation
-Require-Bundle: org.emoflon.ibex.tgg.ide,
- org.apache.log4j,
- org.eclipse.emf.ecore,
+Require-Bundle: com.google.guava,
  net.sourceforge.plantuml.eclipse,
- org.eclipse.ui.workbench,
- org.eclipse.jface,
- org.gervarro.democles.specification.emf,
+ org.apache.log4j,
+ org.eclipse.core.runtime,
+ org.eclipse.emf.ecore,
  org.eclipse.emf.ecore.editor,
- com.google.guava,
- org.eclipse.xtext.xbase.lib,
+ org.eclipse.jface,
+ org.eclipse.ui.workbench,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
+ org.eclipse.xtext.xbase.lib,
+ org.gervarro.democles.specification.emf,
  org.emoflon.ibex.tgg.core.language,
  org.emoflon.ibex.tgg.core.runtime,
  org.emoflon.ibex.tgg.editor,
- org.eclipse.core.runtime,
+ org.emoflon.ibex.tgg.ide,
+ org.moflon.core.plugins,
  org.moflon.core.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 
