@@ -34,78 +34,11 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
    </url>
 
    <requires>
-      <import plugin="org.eclipse.emf.ecore"/>
-      <import plugin="com.google.guava" version="15.0.0" match="greaterOrEqual"/>
-      <import plugin="org.emoflon.ibex.tgg.editor" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.apache.log4j"/>
-      <import plugin="org.eclipse.core.runtime" version="3.12.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.emf.ecore.xmi"/>
-      <import plugin="org.eclipse.emf.common"/>
-      <import plugin="org.eclipse.xtext.xbase.lib"/>
-      <import plugin="org.eclipse.xtend.lib"/>
-      <import plugin="org.eclipse.xtend.lib.macro"/>
-      <import plugin="org.eclipse.xtext"/>
-      <import plugin="org.eclipse.equinox.common"/>
-      <import plugin="org.eclipse.xtext.util"/>
-      <import plugin="org.antlr.runtime"/>
-      <import plugin="org.eclipse.xtext.common.types"/>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.core.commands"/>
-      <import plugin="org.eclipse.emf.mwe2.launch"/>
-      <import plugin="org.eclipse.jdt.core"/>
-      <import plugin="org.eclipse.jdt.ui"/>
-      <import plugin="org.eclipse.pde.core"/>
-      <import plugin="org.eclipse.xtext.ui"/>
-      <import plugin="org.eclipse.xtext.ui.shared"/>
-      <import plugin="org.eclipse.xtext.builder"/>
-      <import plugin="org.eclipse.xtext.common.types.ui"/>
-      <import plugin="org.eclipse.xtext.ui.codetemplates.ui"/>
-      <import plugin="org.eclipse.compare"/>
-      <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.emf.ecore.editor" version="2.11.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.jface"/>
-      <import plugin="org.apache.log4j" version="1.2.15" match="greaterOrEqual"/>
-      <import plugin="org.emoflon.ibex.tgg.ide" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui.workbench"/>
-      <import plugin="net.sourceforge.plantuml.eclipse"/>
-      <import plugin="org.eclipse.e4.core.di"/>
-      <import plugin="org.moflon.core.ui"/>
-      <import plugin="org.eclipse.emf.ecore" version="2.12.0" match="greaterOrEqual"/>
-      <import plugin="net.sourceforge.plantuml.eclipse" version="1.1.18" match="greaterOrEqual"/>
-      <import plugin="org.gervarro.democles.specification.emf" version="3.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.emf.ecore.editor" version="2.12.0" match="greaterOrEqual"/>
-      <import plugin="org.emoflon.ibex.tgg.core.language" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.emoflon.ibex.tgg.core.runtime" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.moflon.core.ui" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.apache.log4j" version="1.2.15" match="compatible"/>
-      <import plugin="org.eclipse.core.runtime" version="3.5.0" match="compatible"/>
-      <import plugin="org.eclipse.emf.ecore" version="2.10.0" match="compatible"/>
-      <import plugin="org.eclipse.emf.ecore.xmi" version="2.10.0" match="compatible"/>
-      <import plugin="org.gervarro.util" version="1.0.0" match="compatible"/>
-      <import plugin="org.gervarro.plan.dynprog" version="1.0.1" match="compatible"/>
-      <import plugin="org.gervarro.notification" version="1.0.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.common" version="3.0.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.plan" version="3.0.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.emf" version="2.1.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.plan.emf" version="1.0.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.specification.emf" version="3.0.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.interpreter" version="1.0.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.interpreter.emf" version="1.0.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.interpreter.incremental" version="1.0.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.interpreter.incremental.emf" version="1.0.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.plan.incremental.leaf" version="1.0.0" match="compatible"/>
-      <import plugin="org.gervarro.democles.notification.emf" version="1.0.0" match="compatible"/>
-      <import plugin="org.emoflon.ibex.tgg.core.language" version="1.0.0" match="compatible"/>
-      <import plugin="org.emoflon.ibex.tgg.core.runtime" version="1.0.0" match="compatible"/>
-      <import feature="org.gervarro.democles.feature.advanced" version="0.5.0.v20170708-0016" match="greaterOrEqual"/>
-      <import feature="org.gervarro.democles.feature.interpreter" version="0.5.0.v20170709-2342" match="greaterOrEqual"/>
-      <import feature="org.gervarro.democles.feature.specification" version="0.5.0.v20170708-0007" match="greaterOrEqual"/>
-      <import feature="org.eclipse.xtext.sdk" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
-      <import feature="org.eclipse.xtend.sdk" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
-      <import feature="org.moflon.core.feature" version="2.32.0.201801261705"/>
-      <import feature="net.sourceforge.plantuml.feature" version="1.1.19"/>
-      <import feature="net.sourceforge.plantuml.lib.feature" version="1.2017.15"/>
+      <import feature="org.moflon.core.feature" version="1.0.0.201802251848" match="greaterOrEqual"/>
+      <import feature="org.gervarro.democles.feature.advanced" version="0.5.0.v20171213-2219" match="greaterOrEqual"/>
+      <import feature="org.gervarro.democles.feature.interpreter" version="0.5.0.v20180225-0009" match="greaterOrEqual"/>
+      <import feature="net.sourceforge.plantuml.feature" version="1.1.19" match="greaterOrEqual"/>
+      <import feature="org.eclipse.xtext.runtime" version="2.12.0.v20170519-1412" match="greaterOrEqual"/>
    </requires>
 
    <plugin
