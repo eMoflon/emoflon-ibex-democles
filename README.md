@@ -6,6 +6,7 @@ Democles-specific component for [eMoflon::IBeX](https://github.com/eMoflon/emofl
 2. Install [Gurobi](http://www.gurobi.com/downloads/gurobi-optimizer) 7.0.2
 	(make sure it is exactly this version!)
 3. Get the latest version of the [Eclipse Modeling Tools](https://www.eclipse.org/downloads/packages/).
+4. Install Xtext from this update site:  http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/
 4. Install Ibex from this update site:
 	https://emoflon.github.io/emoflon-ibex-democles/org.emoflon.ibex.tgg.ide.democles.updatesite/
     - **Important**: Make sure you enable "contact all update sites" in the update manager
