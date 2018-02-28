@@ -17,7 +17,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.common.operational.IMatchObserver;
-import org.emoflon.ibex.common.operational.IPatternInterpreter;
+import org.emoflon.ibex.common.operational.IContextPatternInterpreter;
 import org.emoflon.ibex.common.utils.ModelPersistenceUtils;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
@@ -69,7 +69,7 @@ import IBeXLanguage.IBeXPatternSet;
 /**
  * Engine for (unidirectional) graph transformations with Democles.
  */
-public class DemoclesGTEngine implements IPatternInterpreter, MatchEventListener {
+public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventListener {
 	/**
 	 * The registry.
 	 */
