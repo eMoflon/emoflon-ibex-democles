@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.emoflon.ibex.common.utils.IBeXPatternUtils;
 import org.emoflon.ibex.gt.transformations.AbstractModelTransformation;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.Pattern;
@@ -49,7 +50,12 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 
 	@Override
 	public List<Pattern> transform(final IBeXPatternSet ibexPatternSet) {
-		ibexPatternSet.getPatterns().forEach(p -> this.transformPattern(p));
+		ibexPatternSet.getPatterns().forEach(ibexPattern -> {
+			// Ignore empty patterns.
+			if (!IBeXPatternUtils.isEmptyPattern(ibexPattern)) {
+				this.transformPattern(ibexPattern);
+			}
+		});
 		return this.democlesPatterns;
 	}
 
