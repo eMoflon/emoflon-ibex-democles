@@ -7,7 +7,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.emoflon.ibex.tgg.ide.admin.NatureExtension;
 import org.moflon.core.plugins.manifest.ManifestFileUpdater;
-import org.moflon.util.LogUtils;
+import org.moflon.core.utilities.LogUtils;
 
 public class IbexDemoclesNatureExtension implements NatureExtension {
 

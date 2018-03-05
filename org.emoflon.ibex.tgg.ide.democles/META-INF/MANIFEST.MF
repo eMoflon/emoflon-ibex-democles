@@ -22,6 +22,7 @@ Require-Bundle: com.google.guava,
  org.emoflon.ibex.tgg.editor,
  org.emoflon.ibex.tgg.ide,
  org.moflon.core.plugins,
- org.moflon.core.ui
+ org.moflon.core.ui,
+ org.moflon.core.utilities
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 

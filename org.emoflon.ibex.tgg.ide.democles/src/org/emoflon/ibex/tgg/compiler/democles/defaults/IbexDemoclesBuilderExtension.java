@@ -5,8 +5,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.emoflon.ibex.tgg.compiler.defaults.DefaultFilesGenerator;
 import org.emoflon.ibex.tgg.ide.admin.BuilderExtension;
 import org.emoflon.ibex.tgg.ide.admin.IbexTGGBuilder;
+import org.moflon.core.utilities.LogUtils;
 import org.moflon.tgg.mosl.tgg.TripleGraphGrammarFile;
-import org.moflon.util.LogUtils;
 
 public class IbexDemoclesBuilderExtension implements BuilderExtension {
 
