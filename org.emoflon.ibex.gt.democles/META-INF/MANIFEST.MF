@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Unidirectional Graph Transformations based on Democles pattern matcher
+Bundle-Name: eMoflon::IBeX Unidirectional Model Transformation via Graph Transformation and pattern matching with Democles
 Bundle-SymbolicName: org.emoflon.ibex.gt.democles;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

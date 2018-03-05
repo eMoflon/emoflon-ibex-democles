@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: %pluginName
+Bundle-Name: eMoflon::IBeX Bidirectional Model Transformation via Triple Graph Grammars and pattern matching with Democles - Runtime
 Bundle-SymbolicName: org.emoflon.ibex.tgg.runtime.democles;singleton:=true
 Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: eMoflon::IBeX Developers
 Bundle-ClassPath: .
-Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Require-Bundle: org.apache.log4j,
  org.eclipse.core.runtime,

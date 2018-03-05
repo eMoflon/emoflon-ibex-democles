@@ -1,8 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: org.emoflon.ibex.tgg.ide.democles
+Bundle-Name: eMoflon::IBeX Bidirectional Model Transformation via Triple Graph Grammars and pattern matching with Democles - IDE
 Bundle-SymbolicName: org.emoflon.ibex.tgg.ide.democles;singleton:=true
 Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: eMoflon::IBeX Developers
 Export-Package: org.emoflon.ibex.tgg.compiler.democles.defaults,
  org.emoflon.ibex.tgg.ide.democles.visualisation
 Require-Bundle: com.google.guava,
@@ -22,6 +23,6 @@ Require-Bundle: com.google.guava,
  org.emoflon.ibex.tgg.editor,
  org.emoflon.ibex.tgg.ide,
  org.moflon.core.plugins,
- org.moflon.core.ui
+ org.moflon.core.ui,
+ org.moflon.core.utilities
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-
