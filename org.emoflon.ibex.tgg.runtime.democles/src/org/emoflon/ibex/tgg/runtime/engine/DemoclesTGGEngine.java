@@ -25,9 +25,9 @@ import org.gervarro.democles.common.runtime.OperationBuilder;
 import org.gervarro.democles.common.runtime.VariableRuntime;
 import org.gervarro.democles.interpreter.incremental.rete.RetePattern;
 import org.gervarro.democles.interpreter.incremental.rete.RetePatternBody;
-import org.gervarro.democles.operation.emf.EMFBatchOperationBuilder;
 import org.gervarro.democles.plan.incremental.leaf.Component;
 import org.gervarro.democles.plan.incremental.leaf.ReteSearchPlanAlgorithm;
+import org.gervarro.democles.runtime.GenericOperationBuilder;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.TypeModule;
 
@@ -95,7 +95,7 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 		final TGGNativeOperationBuilder<VariableRuntime> tggNativeOperationModule = new TGGNativeOperationBuilder<VariableRuntime>(
 				options.constraintProvider());
 		// Batch operations
-		final EMFBatchOperationBuilder<VariableRuntime> tggBatchOperationModule = new EMFBatchOperationBuilder<VariableRuntime>(
+		final GenericOperationBuilder<VariableRuntime> tggBatchOperationModule = new GenericOperationBuilder<VariableRuntime>(
 				tggNativeOperationModule, TGGAttributeConstraintAdornmentStrategy.INSTANCE);
 		retePatternMatcherModule.addOperationBuilder(tggBatchOperationModule);
 
