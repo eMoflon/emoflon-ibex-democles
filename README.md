@@ -33,6 +33,8 @@ Now you are ready to use eMoflon::IBeX Democles.
 5. Set up your runtime and test workspaces by starting a runtime Eclipse workspace
 	from your development workspace, and importing this PSF file:
 	https://raw.githubusercontent.com/eMoflon/emoflon-ibex-tests/master/testProjectSet.psf
-6. Run the JUnit tests to ensure that all is well by right-clicking ```Testsuite.launch``` and ```TestsuiteGT.launch``` 
+6. Set UTF-8 as file encoding for the development workspace
+	and build all projects to trigger code generation.
+7. Run the JUnit tests to ensure that all is well by right-clicking ```Testsuite.launch``` and ```TestsuiteGT.launch``` 
 	in the projects of the same name and start the tests by selecting ```Run As/JUnit```.
 	If everything is set up correctly, all tests should be green.
