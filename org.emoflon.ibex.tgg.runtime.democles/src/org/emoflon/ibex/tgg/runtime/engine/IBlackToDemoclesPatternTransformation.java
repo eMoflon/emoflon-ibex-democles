@@ -89,7 +89,7 @@ public class IBlackToDemoclesPatternTransformation {
 	}
 	
 	protected static boolean patternIsNotEmpty(IBlackPattern pattern) {
-		return !pattern.getSignatureNodes().isEmpty();
+		return !(pattern.getSignatureNodes().isEmpty() && pattern.getNegativeInvocations().isEmpty() && pattern.getPositiveInvocations().isEmpty());
 	}
 
 	private EList<Constraint> ibexToDemocles(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {		
