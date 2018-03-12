@@ -8,6 +8,7 @@ import java.util.Map;
 import org.eclipse.emf.common.util.EList;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
+import org.emoflon.ibex.tgg.compiler.patterns.common.NacPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.PatternInvocation;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.gervarro.democles.specification.emf.Constraint;
@@ -77,7 +78,7 @@ public class IBlackToDemoclesPatternTransformation {
 		for (PatternInvocation inv : ibexPattern.getNegativeInvocations()) {
 			if (patternIsNotEmpty(inv.getInvokedPattern())) {
 				PatternInvocationConstraint invCon = createInvocationConstraint(inv, false, nodeToVar);
-				if(!invCon.getParameters().isEmpty())
+//				if(!invCon.getParameters().isEmpty())
 					constraints.add(invCon);
 			}
 		}
@@ -89,7 +90,20 @@ public class IBlackToDemoclesPatternTransformation {
 	}
 	
 	protected static boolean patternIsNotEmpty(IBlackPattern pattern) {
-		return !(pattern.getSignatureNodes().isEmpty() && pattern.getNegativeInvocations().isEmpty() && pattern.getPositiveInvocations().isEmpty());
+//		return !pattern.getSignatureNodes().isEmpty();
+		boolean hasNegativeInvocations = false;
+		for(PatternInvocation p : pattern.getNegativeInvocations()) {
+			if(patternIsNotEmpty(p.getInvokedPattern())) {
+				hasNegativeInvocations = true;
+			}
+		}
+		boolean hasPositiveInvocations = false;
+		for(PatternInvocation p : pattern.getPositiveInvocations()) {
+			if(patternIsNotEmpty(p.getInvokedPattern())) {
+				hasPositiveInvocations = true;
+			}
+		}
+		return !(pattern.getSignatureNodes().isEmpty() && !hasNegativeInvocations && !hasPositiveInvocations && pattern.getLocalNodes().isEmpty());
 	}
 
 	private EList<Constraint> ibexToDemocles(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {		
