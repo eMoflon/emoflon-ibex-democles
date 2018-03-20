@@ -8,7 +8,6 @@ import java.util.Map;
 import org.eclipse.emf.common.util.EList;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
-import org.emoflon.ibex.tgg.compiler.patterns.common.NacPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.PatternInvocation;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.gervarro.democles.specification.emf.Constraint;
