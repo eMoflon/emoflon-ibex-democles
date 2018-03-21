@@ -107,12 +107,17 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	public void monitor(final ResourceSet resourceSet) {
 		if (options.debug()) {
 			saveDemoclesPatterns(resourceSet);
-			printReteNetwork();
 		}
 
 		super.monitor(resourceSet);
 	}
 
+	
+	/**
+	 * Use this method to get extra debug information concerning the rete network.
+	 * Currently not used to reduce debug output.
+	 */
+	@SuppressWarnings("unused")
 	private void printReteNetwork() {
 		for (final RetePattern retePattern : retePatternMatcherModule.getPatterns()) {
 			final List<RetePatternBody> bodies = retePattern.getBodies();
