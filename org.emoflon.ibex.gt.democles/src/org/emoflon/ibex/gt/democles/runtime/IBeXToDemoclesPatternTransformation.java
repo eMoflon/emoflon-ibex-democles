@@ -5,21 +5,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.emoflon.ibex.common.utils.IBeXPatternUtils;
 import org.emoflon.ibex.gt.transformations.AbstractModelTransformation;
+import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.PatternBody;
 import org.gervarro.democles.specification.emf.PatternInvocationConstraint;
 import org.gervarro.democles.specification.emf.SpecificationFactory;
+import org.gervarro.democles.specification.emf.Variable;
+import org.gervarro.democles.specification.emf.constraint.emf.emf.Attribute;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFTypeFactory;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.Reference;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraint;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintFactory;
 
+import IBeXLanguage.IBeXAttributeConstraint;
+import IBeXLanguage.IBeXAttributeValue;
+import IBeXLanguage.IBeXConstant;
 import IBeXLanguage.IBeXEdge;
+import IBeXLanguage.IBeXEnumLiteral;
 import IBeXLanguage.IBeXNode;
 import IBeXLanguage.IBeXNodePair;
 import IBeXLanguage.IBeXPattern;
@@ -109,10 +117,91 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 			body.getConstraints().add(this.transformInvocation(invocation, nodeToVariable));
 		});
 
+		// Attribute constraints.
+		ibexPattern.getAttributeConstraint().forEach(ac -> transformAttributeConstraint(ac, body, nodeToVariable));
+
 		// Add to patterns.
 		this.patternMap.put(ibexPattern.getName(), pattern);
 		this.democlesPatterns.add(pattern);
 		return pattern;
+	}
+
+	private static void transformAttributeConstraint(final IBeXAttributeConstraint ac, final PatternBody body,
+			final Map<IBeXNode, EMFVariable> nodeToVariable) {
+		IBeXAttributeValue value = ac.getValue();
+		Object constantValue = null;
+		if (value instanceof IBeXConstant) {
+			constantValue = ((IBeXConstant) value).getValue();
+		} else if (value instanceof IBeXEnumLiteral) {
+			constantValue = ((IBeXEnumLiteral) value).getLiteral().getInstance();
+		}
+		if (constantValue == null) {
+			return;
+		}
+
+		Constant c = SpecificationFactory.eINSTANCE.createConstant();
+		c.setValue(constantValue);
+		body.getConstants().add(c);
+
+		EMFVariable attributeVariable;
+		String attributeVariableName = ac.getNode().getName() + "__" + ac.getType().getName();
+
+		Optional<EMFVariable> existingAttributeVariable = body.getLocalVariables().stream()
+				.filter(v -> v instanceof EMFVariable).map(v -> (EMFVariable) v)
+				.filter(v -> attributeVariableName.equals(v.getName())).findAny();
+		if (existingAttributeVariable.isPresent()) {
+			attributeVariable = existingAttributeVariable.get();
+		} else {
+			attributeVariable = EMFTypeFactory.eINSTANCE.createEMFVariable();
+			attributeVariable.setEClassifier(ac.getType().getEAttributeType());
+			attributeVariable.setName(attributeVariableName);
+			body.getLocalVariables().add(attributeVariable);
+		}
+
+		Attribute attributeConstraint = EMFTypeFactory.eINSTANCE.createAttribute();
+		ConstraintParameter parameterForNode = SpecificationFactory.eINSTANCE.createConstraintParameter();
+		attributeConstraint.getParameters().add(parameterForNode);
+		parameterForNode.setReference(nodeToVariable.get(ac.getNode()));
+
+		ConstraintParameter parameterForAttribute = SpecificationFactory.eINSTANCE.createConstraintParameter();
+		attributeConstraint.getParameters().add(parameterForAttribute);
+		parameterForAttribute.setReference(attributeVariable);
+		attributeConstraint.setEModelElement(ac.getType());
+		body.getConstraints().add(attributeConstraint);
+
+		RelationalConstraint constraint;
+		switch (ac.getRelation()) {
+		case EQUAL:
+			constraint = RelationalConstraintFactory.eINSTANCE.createEqual();
+			break;
+		case GREATER_OR_EQUAL:
+			constraint = RelationalConstraintFactory.eINSTANCE.createLargerOrEqual();
+			break;
+		case GREATER:
+			constraint = RelationalConstraintFactory.eINSTANCE.createLarger();
+			break;
+		case SMALLER:
+			constraint = RelationalConstraintFactory.eINSTANCE.createSmallerOrEqual();
+			break;
+		case SMALLER_OR_EQUAL:
+			constraint = RelationalConstraintFactory.eINSTANCE.createSmaller();
+			break;
+		case UNEQUAL:
+			constraint = RelationalConstraintFactory.eINSTANCE.createUnequal();
+			break;
+		default:
+			throw new IllegalArgumentException("Illegal relation type " + ac.getRelation());
+		}
+
+		ConstraintParameter parameterForAttributeInRelConstraint = SpecificationFactory.eINSTANCE.createConstraintParameter();
+		constraint.getParameters().add(parameterForAttributeInRelConstraint);
+		parameterForAttributeInRelConstraint.setReference(attributeVariable);
+
+		ConstraintParameter parameterForConstant = SpecificationFactory.eINSTANCE.createConstraintParameter();
+		constraint.getParameters().add(parameterForConstant);
+		parameterForConstant.setReference(c);
+
+		body.getConstraints().add(constraint);
 	}
 
 	/**
