@@ -70,17 +70,17 @@ public class DemoclesPatternUtils {
 
 		String name = ac.getNode().getName() + "__" + ac.getType().getName();
 		Optional<EMFVariable> existingAttributeVariable = body.getLocalVariables().stream()
-				.filter(v -> v instanceof EMFVariable).map(v -> (EMFVariable) v).filter(v -> name.equals(v.getName()))
-				.findAny();
+				.filter(v -> v instanceof EMFVariable).map(v -> (EMFVariable) v) //
+				.filter(v -> name.equals(v.getName())).findAny();
 		if (existingAttributeVariable.isPresent()) {
 			return existingAttributeVariable.get();
-		} else {
-			EMFVariable attributeVariable = EMFTypeFactory.eINSTANCE.createEMFVariable();
-			attributeVariable.setEClassifier(ac.getType().getEAttributeType());
-			attributeVariable.setName(name);
-			body.getLocalVariables().add(attributeVariable);
-			return attributeVariable;
 		}
+
+		EMFVariable attributeVariable = EMFTypeFactory.eINSTANCE.createEMFVariable();
+		attributeVariable.setEClassifier(ac.getType().getEAttributeType());
+		attributeVariable.setName(name);
+		body.getLocalVariables().add(attributeVariable);
+		return attributeVariable;
 	}
 
 	/**

@@ -250,9 +250,6 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 		} else if (value instanceof IBeXEnumLiteral) {
 			constantValue = ((IBeXEnumLiteral) value).getLiteral().getInstance();
 		}
-		if (constantValue == null) {
-			throw new IllegalArgumentException("The constant must not be null!");
-		}
 		Constant constant = DemoclesPatternUtils.addConstantToBody(constantValue, body);
 		EMFVariable attributeVariable = DemoclesPatternUtils.addAttributeVariableToBody(ac, body);
 
