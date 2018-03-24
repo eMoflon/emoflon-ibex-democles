@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.emoflon.ibex.common.utils.IBeXPatternUtils;
 import org.emoflon.ibex.gt.transformations.AbstractModelTransformation;
@@ -89,20 +88,17 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 		// Signature nodes -> parameter in the Democles pattern.
 		Map<IBeXNode, EMFVariable> nodeToVariable = new HashMap<>();
 		ibexPattern.getSignatureNodes().forEach(ibexSignatureNode -> {
-			if (!nodeToVariable.containsKey(ibexSignatureNode)) {
-				nodeToVariable.put(ibexSignatureNode, transformSignatureNodeToVariable(ibexSignatureNode));
-			}
+			nodeToVariable.put(ibexSignatureNode, transformNodeToVariable(ibexSignatureNode));
 			pattern.getSymbolicParameters().add(nodeToVariable.get(ibexSignatureNode));
 		});
 
 		// Local node -> local variables in the Democles PatternBody.
 		ibexPattern.getLocalNodes().forEach(ibexLocalNode -> {
-			if (!nodeToVariable.containsKey(ibexLocalNode)) {
-				nodeToVariable.put(ibexLocalNode, transformSignatureNodeToVariable(ibexLocalNode));
-			}
+			nodeToVariable.put(ibexLocalNode, transformNodeToVariable(ibexLocalNode));
 			body.getLocalVariables().add(nodeToVariable.get(ibexLocalNode));
 		});
 
+		// Injectivity constraints -> relational constraint (unequal).
 		ibexPattern.getInjectivityConstraints().forEach(injectivityConstraint -> {
 			body.getConstraints()
 					.add(transformInjectivityConstraintToRelationalConstraint(injectivityConstraint, nodeToVariable));
@@ -127,50 +123,6 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 		return pattern;
 	}
 
-	private static void transformAttributeConstraint(final IBeXAttributeConstraint ac, final PatternBody body,
-			final Map<IBeXNode, EMFVariable> nodeToVariable) {
-		IBeXAttributeValue value = ac.getValue();
-		if (value instanceof IBeXAttributeParameter) {
-			// Cannot handle parameters as their values are only known at runtime.
-			return;
-		}
-
-		Object constantValue = null;
-		if (value instanceof IBeXConstant) {
-			constantValue = ((IBeXConstant) value).getValue();
-		} else if (value instanceof IBeXEnumLiteral) {
-			constantValue = ((IBeXEnumLiteral) value).getLiteral().getInstance();
-		}
-		if (constantValue == null) {
-			throw new IllegalArgumentException("The constant must not be null!");
-		}
-
-		Constant c = SpecificationFactory.eINSTANCE.createConstant();
-		c.setValue(constantValue);
-		body.getConstants().add(c);
-
-		EMFVariable attributeVariable;
-		String attributeVariableName = ac.getNode().getName() + "__" + ac.getType().getName();
-
-		Optional<EMFVariable> existingAttributeVariable = body.getLocalVariables().stream()
-				.filter(v -> v instanceof EMFVariable).map(v -> (EMFVariable) v)
-				.filter(v -> attributeVariableName.equals(v.getName())).findAny();
-		if (existingAttributeVariable.isPresent()) {
-			attributeVariable = existingAttributeVariable.get();
-		} else {
-			attributeVariable = EMFTypeFactory.eINSTANCE.createEMFVariable();
-			attributeVariable.setEClassifier(ac.getType().getEAttributeType());
-			attributeVariable.setName(attributeVariableName);
-			body.getLocalVariables().add(attributeVariable);
-		}
-
-		Attribute attributeConstraint = DemoclesPatternUtils.createAttributeConstraint(ac.getType(),
-				nodeToVariable.get(ac.getNode()), attributeVariable);
-		RelationalConstraint relationalConstraint = DemoclesPatternUtils
-				.createRelationalConstraintForAttribute(ac.getRelation(), attributeVariable, c);
-		body.getConstraints().addAll(Arrays.asList(attributeConstraint, relationalConstraint));
-	}
-
 	/**
 	 * Transforms an {@link IBeXNode} to an equivalent {@link EMFVariable}.
 	 * 
@@ -178,7 +130,7 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 	 *            the IBeXNode to transform
 	 * @return the EMFVariable
 	 */
-	private static EMFVariable transformSignatureNodeToVariable(final IBeXNode ibexNode) {
+	private static EMFVariable transformNodeToVariable(final IBeXNode ibexNode) {
 		EMFVariable variable = democlesEmfTypeFactory.createEMFVariable();
 		variable.setName(ibexNode.getName());
 		variable.setEClassifier(ibexNode.getType());
@@ -218,12 +170,12 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 	private static Reference transformLocalEdgeToReference(final IBeXEdge ibexEdge,
 			final Map<IBeXNode, EMFVariable> nodeToVariable) {
 		// Edge type.
-		Objects.requireNonNull(ibexEdge.getType(), "The type of IBeXEdge may not be null!");
+		Objects.requireNonNull(ibexEdge.getType(), "The type of IBeXEdge must not be null!");
 		Reference reference = democlesEmfTypeFactory.createReference();
 		reference.setEModelElement(ibexEdge.getType());
 
 		// Parameter for the source node.
-		Objects.requireNonNull(ibexEdge.getSourceNode(), "The source node of an IBeXEdge may not be null!");
+		Objects.requireNonNull(ibexEdge.getSourceNode(), "The source node of an IBeXEdge must not be null!");
 		Objects.requireNonNull(nodeToVariable.get(ibexEdge.getSourceNode()),
 				"A mapping for the source node must exist!");
 		ConstraintParameter parameterForSourceNode = democlesSpecificationFactory.createConstraintParameter();
@@ -231,7 +183,7 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 		reference.getParameters().add(parameterForSourceNode);
 
 		// Parameter for the target node.
-		Objects.requireNonNull(ibexEdge.getTargetNode(), "The target node of an IBeXEdge may not be null!");
+		Objects.requireNonNull(ibexEdge.getTargetNode(), "The target node of an IBeXEdge must not be null!");
 		Objects.requireNonNull(nodeToVariable.get(ibexEdge.getTargetNode()),
 				"A mapping for the target node must exist!");
 		ConstraintParameter parameterForTargetNode = democlesSpecificationFactory.createConstraintParameter();
@@ -271,5 +223,43 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 		});
 
 		return invocationConstraint;
+	}
+
+	/**
+	 * Transforms the attribute constraint to an attribute and a relational
+	 * constraint and adds the created constraints to the pattern body.
+	 * 
+	 * @param ac
+	 *            the attribute constraint
+	 * @param body
+	 *            the body
+	 * @param nodeToVariable
+	 *            the node to variable mapping
+	 */
+	private static void transformAttributeConstraint(final IBeXAttributeConstraint ac, final PatternBody body,
+			final Map<IBeXNode, EMFVariable> nodeToVariable) {
+		IBeXAttributeValue value = ac.getValue();
+		if (value instanceof IBeXAttributeParameter) {
+			// Cannot handle parameters as their values are only known at runtime.
+			return;
+		}
+
+		Object constantValue = null;
+		if (value instanceof IBeXConstant) {
+			constantValue = ((IBeXConstant) value).getValue();
+		} else if (value instanceof IBeXEnumLiteral) {
+			constantValue = ((IBeXEnumLiteral) value).getLiteral().getInstance();
+		}
+		if (constantValue == null) {
+			throw new IllegalArgumentException("The constant must not be null!");
+		}
+		Constant constant = DemoclesPatternUtils.addConstantToBody(constantValue, body);
+		EMFVariable attributeVariable = DemoclesPatternUtils.addAttributeVariableToBody(ac, body);
+
+		Attribute attributeConstraint = DemoclesPatternUtils.createAttributeConstraint(ac.getType(),
+				nodeToVariable.get(ac.getNode()), attributeVariable);
+		RelationalConstraint relationalConstraint = DemoclesPatternUtils
+				.createRelationalConstraintForAttribute(ac.getRelation(), attributeVariable, constant);
+		body.getConstraints().addAll(Arrays.asList(attributeConstraint, relationalConstraint));
 	}
 }

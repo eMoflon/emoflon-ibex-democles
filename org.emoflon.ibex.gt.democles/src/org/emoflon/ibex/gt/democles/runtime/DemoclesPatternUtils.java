@@ -1,15 +1,21 @@
 package org.emoflon.ibex.gt.democles.runtime;
 
-import org.eclipse.emf.ecore.EAttribute;
+import java.util.Objects;
+import java.util.Optional;
 
+import org.eclipse.emf.ecore.EAttribute;
+import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.ConstraintVariable;
+import org.gervarro.democles.specification.emf.PatternBody;
 import org.gervarro.democles.specification.emf.SpecificationFactory;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.Attribute;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFTypeFactory;
+import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraint;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintFactory;
 
+import IBeXLanguage.IBeXAttributeConstraint;
 import IBeXLanguage.IBeXRelation;
 
 /**
@@ -46,6 +52,62 @@ public class DemoclesPatternUtils {
 		parameterForAttribute.setReference(attributeVariable);
 
 		return attributeConstraint;
+	}
+
+	/**
+	 * Adds a variable with the given name and attribute type to the body if such a
+	 * variable does not exist yet. Otherwise, the existing variable is returned.
+	 * 
+	 * @param ac
+	 *            the attribute constraint whose attribute to create a variable for
+	 * @param body
+	 *            the pattern body
+	 * @return the variable for the attribute
+	 */
+	public static EMFVariable addAttributeVariableToBody(final IBeXAttributeConstraint ac, final PatternBody body) {
+		Objects.requireNonNull(ac, "The attribute constraint must not be null!");
+		Objects.requireNonNull(body, "The pattern body must not be null!");
+
+		String name = ac.getNode().getName() + "__" + ac.getType().getName();
+		Optional<EMFVariable> existingAttributeVariable = body.getLocalVariables().stream()
+				.filter(v -> v instanceof EMFVariable).map(v -> (EMFVariable) v).filter(v -> name.equals(v.getName()))
+				.findAny();
+		if (existingAttributeVariable.isPresent()) {
+			return existingAttributeVariable.get();
+		} else {
+			EMFVariable attributeVariable = EMFTypeFactory.eINSTANCE.createEMFVariable();
+			attributeVariable.setEClassifier(ac.getType().getEAttributeType());
+			attributeVariable.setName(name);
+			body.getLocalVariables().add(attributeVariable);
+			return attributeVariable;
+		}
+	}
+
+	/**
+	 * If there is no constant for the given value yet, a constant with the given
+	 * value is added to the pattern body. Otherwise the existing constant is
+	 * returned.
+	 * 
+	 * @param constantValue
+	 *            the value for the constant
+	 * @param body
+	 *            the pattern body
+	 * @return the constant
+	 */
+	public static Constant addConstantToBody(final Object constantValue, final PatternBody body) {
+		Objects.requireNonNull(constantValue, "The constant must not be null!");
+		Objects.requireNonNull(body, "The pattern body must not be null!");
+
+		Optional<Constant> existingConstant = body.getConstants().stream()
+				.filter(c -> c.getValue().equals(constantValue)).findAny();
+		if (existingConstant.isPresent()) {
+			return existingConstant.get();
+		}
+
+		Constant constant = SpecificationFactory.eINSTANCE.createConstant();
+		constant.setValue(constantValue);
+		body.getConstants().add(constant);
+		return constant;
 	}
 
 	/**
