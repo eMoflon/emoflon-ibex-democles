@@ -61,6 +61,27 @@ public class DemoclesPatternUtils {
 	 */
 	public static RelationalConstraint createRelationalConstraintForAttribute(final IBeXRelation relation,
 			final ConstraintVariable attributeVariable, final ConstraintVariable attributeValueVariable) {
+		RelationalConstraint constraint = getRelationalConstraintForRelation(relation);
+
+		ConstraintParameter parameterForAttribute = SpecificationFactory.eINSTANCE.createConstraintParameter();
+		constraint.getParameters().add(parameterForAttribute);
+		parameterForAttribute.setReference(attributeVariable);
+
+		ConstraintParameter parameterForConstant = SpecificationFactory.eINSTANCE.createConstraintParameter();
+		constraint.getParameters().add(parameterForConstant);
+		parameterForConstant.setReference(attributeValueVariable);
+
+		return constraint;
+	}
+
+	/**
+	 * Returns an relational constraint for the given relation.
+	 * 
+	 * @param relation
+	 *            the relation
+	 * @return the empty relational constraint
+	 */
+	private static RelationalConstraint getRelationalConstraintForRelation(IBeXRelation relation) {
 		RelationalConstraint constraint;
 		switch (relation) {
 		case EQUAL:
@@ -84,15 +105,6 @@ public class DemoclesPatternUtils {
 		default:
 			throw new IllegalArgumentException("Illegal relation type " + relation);
 		}
-
-		ConstraintParameter parameterForAttribute = SpecificationFactory.eINSTANCE.createConstraintParameter();
-		constraint.getParameters().add(parameterForAttribute);
-		parameterForAttribute.setReference(attributeVariable);
-
-		ConstraintParameter parameterForConstant = SpecificationFactory.eINSTANCE.createConstraintParameter();
-		constraint.getParameters().add(parameterForConstant);
-		parameterForConstant.setReference(attributeValueVariable);
-
 		return constraint;
 	}
 }
