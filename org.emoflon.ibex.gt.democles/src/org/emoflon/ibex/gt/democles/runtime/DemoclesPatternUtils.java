@@ -7,6 +7,7 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.ConstraintVariable;
+import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.PatternBody;
 import org.gervarro.democles.specification.emf.SpecificationFactory;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.Attribute;
@@ -16,6 +17,7 @@ import org.gervarro.democles.specification.emf.constraint.relational.RelationalC
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintFactory;
 
 import IBeXLanguage.IBeXAttributeConstraint;
+import IBeXLanguage.IBeXAttributeExpression;
 import IBeXLanguage.IBeXRelation;
 
 /**
@@ -67,6 +69,30 @@ public class DemoclesPatternUtils {
 	 */
 	public static EMFVariable addAttributeVariableToBody(final IBeXAttributeConstraint ac, final PatternBody body) {
 		return addAttributeVariableToBody(ac.getNode().getName(), ac.getType(), body);
+	}
+
+	/**
+	 * Adds a constraint for the attribute expression to the body.
+	 * 
+	 * @param attributeExpression
+	 *            the attribute expression
+	 * @param body
+	 *            the pattern body
+	 * @return the variable for the attribute value of the expression
+	 */
+	public static EMFVariable addConstraintForAttributeExpressionToBody(
+			final IBeXAttributeExpression attributeExpression, final PatternBody body) {
+		EMFVariable nodeVariableOfExpression = ((Pattern) body.eContainer()).getSymbolicParameters().stream()
+				.filter(s -> s.getName().equals(attributeExpression.getNodeName())).map(v -> (EMFVariable) v).findAny()
+				.get();
+		EMFVariable attributeVariableOfExpression = addAttributeVariableToBody(attributeExpression.getNodeName(),
+				attributeExpression.getAttribute(), body);
+
+		Attribute attributeOfExpression = createAttributeConstraint(attributeExpression.getAttribute(),
+				nodeVariableOfExpression, attributeVariableOfExpression);
+		body.getConstraints().add(attributeOfExpression);
+
+		return attributeVariableOfExpression;
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package org.emoflon.ibex.gt.democles.runtime;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.Objects;
 
 import org.emoflon.ibex.common.utils.IBeXPatternUtils;
 import org.emoflon.ibex.gt.transformations.AbstractModelTransformation;
-import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.ConstraintVariable;
 import org.gervarro.democles.specification.emf.Pattern;
@@ -249,21 +247,12 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 		EMFVariable attributeVariable = DemoclesPatternUtils.addAttributeVariableToBody(ac, body);
 		Attribute attribute = DemoclesPatternUtils.createAttributeConstraint(ac.getType(),
 				nodeToVariable.get(ac.getNode()), attributeVariable);
+		body.getConstraints().add(attribute);
 
-		ConstraintVariable attributeValueVariable;
+		ConstraintVariable valueVariable;
 		if (value instanceof IBeXAttributeExpression) {
-			IBeXAttributeExpression attributeExpression = (IBeXAttributeExpression) value;
-			EMFVariable nodeVariableOfExpression = ((Pattern) body.eContainer()).getSymbolicParameters().stream()
-					.filter(s -> s.getName().equals(attributeExpression.getNodeName())).map(v -> (EMFVariable) v)
-					.findAny().get();
-			EMFVariable attributeVariableOfExpression = DemoclesPatternUtils.addAttributeVariableToBody(
-					attributeExpression.getNodeName(), attributeExpression.getAttribute(), body);
-
-			Attribute attributeOfExpression = DemoclesPatternUtils.createAttributeConstraint(
-					attributeExpression.getAttribute(), nodeVariableOfExpression, attributeVariableOfExpression);
-			body.getConstraints().add(attributeOfExpression);
-
-			attributeValueVariable = attributeVariableOfExpression;
+			valueVariable = DemoclesPatternUtils
+					.addConstraintForAttributeExpressionToBody((IBeXAttributeExpression) value, body);
 		} else {
 			Object constantValue = null;
 			if (value instanceof IBeXConstant) {
@@ -271,11 +260,11 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 			} else if (value instanceof IBeXEnumLiteral) {
 				constantValue = ((IBeXEnumLiteral) value).getLiteral().getInstance();
 			}
-			attributeValueVariable = DemoclesPatternUtils.addConstantToBody(constantValue, body);
+			valueVariable = DemoclesPatternUtils.addConstantToBody(constantValue, body);
 		}
 
 		RelationalConstraint relationalConstraint = DemoclesPatternUtils
-				.createRelationalConstraintForAttribute(ac.getRelation(), attributeVariable, attributeValueVariable);
-		body.getConstraints().addAll(Arrays.asList(attribute, relationalConstraint));
+				.createRelationalConstraintForAttribute(ac.getRelation(), attributeVariable, valueVariable);
+		body.getConstraints().add(relationalConstraint);
 	}
 }
