@@ -55,8 +55,9 @@ public class DemoclesPatternUtils {
 	}
 
 	/**
-	 * Adds a variable with the given name and attribute type to the body if such a
-	 * variable does not exist yet. Otherwise, the existing variable is returned.
+	 * Adds a variable for the node/attribute of the attribute constraint to the
+	 * body if such a variable does not exist yet. Otherwise, the existing variable
+	 * is returned.
 	 * 
 	 * @param ac
 	 *            the attribute constraint whose attribute to create a variable for
@@ -65,10 +66,28 @@ public class DemoclesPatternUtils {
 	 * @return the variable for the attribute
 	 */
 	public static EMFVariable addAttributeVariableToBody(final IBeXAttributeConstraint ac, final PatternBody body) {
-		Objects.requireNonNull(ac, "The attribute constraint must not be null!");
+		return addAttributeVariableToBody(ac.getNode().getName(), ac.getType(), body);
+	}
+
+	/**
+	 * Adds a variable for the given node and attribute type to the body if such a
+	 * variable does not exist yet. Otherwise, the existing variable is returned.
+	 * 
+	 * @param nodeName
+	 *            the node
+	 * @param attribute
+	 *            the attribute type
+	 * @param body
+	 *            the pattern body
+	 * @return the variable for the attribute
+	 */
+	public static EMFVariable addAttributeVariableToBody(final String nodeName, final EAttribute attribute,
+			final PatternBody body) {
+		Objects.requireNonNull(nodeName, "The name of the node must not be null!");
+		Objects.requireNonNull(attribute, "The attribute must not be null!");
 		Objects.requireNonNull(body, "The pattern body must not be null!");
 
-		String name = ac.getNode().getName() + "__" + ac.getType().getName();
+		String name = nodeName + "__" + attribute.getName();
 		Optional<EMFVariable> existingAttributeVariable = body.getLocalVariables().stream()
 				.filter(v -> v instanceof EMFVariable).map(v -> (EMFVariable) v) //
 				.filter(v -> name.equals(v.getName())).findAny();
@@ -77,7 +96,7 @@ public class DemoclesPatternUtils {
 		}
 
 		EMFVariable attributeVariable = EMFTypeFactory.eINSTANCE.createEMFVariable();
-		attributeVariable.setEClassifier(ac.getType().getEAttributeType());
+		attributeVariable.setEClassifier(attribute.getEAttributeType());
 		attributeVariable.setName(name);
 		body.getLocalVariables().add(attributeVariable);
 		return attributeVariable;
