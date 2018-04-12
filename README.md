@@ -3,14 +3,10 @@ Democles-specific component for [eMoflon::IBeX](https://github.com/eMoflon/emofl
 
 ## How to install
 1. Install [GraphViz](http://www.graphviz.org/download/).
-2. (Optional) Install [GLPK for Windows](https://sourceforge.net/projects/winglpk/)
-	or install GLPK via your package manager (Linux).
-3. (Optional) Install [Gurobi](http://www.gurobi.com/downloads/gurobi-optimizer) 7.0.2
-	(make sure it is exactly this version!)
-4. Get the latest version of the [Eclipse Modeling Tools](https://www.eclipse.org/downloads/packages/).
-5. Install Xtext from this update site:
+2. Get the latest version of the [Eclipse Modeling Tools](https://www.eclipse.org/downloads/packages/).
+3. Install Xtext from this update site:
 	http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/
-6. Install eMoflon::IBeX from this update site:
+4. Install eMoflon::IBeX from this update site:
 	https://emoflon.github.io/emoflon-ibex-democles/org.emoflon.ibex.tgg.ide.democles.updatesite/
     - **Important**: Make sure you enable "contact all update sites" in the update manager
 		so all dependencies are automatically installed.
@@ -20,6 +16,13 @@ Democles-specific component for [eMoflon::IBeX](https://github.com/eMoflon/emofl
 		before clicking `Install`.
 
 Now you are ready to use eMoflon::IBeX Democles.
+
+5. (Optional) Install [GLPK for Windows](https://sourceforge.net/projects/winglpk/)
+	or install GLPK via your package manager (Linux).
+6. (Optional) Install [Gurobi](http://www.gurobi.com/downloads/gurobi-optimizer) 7.0.2
+	(make sure it is exactly this version!)
+
+Note that Gurobi is only free for academical use (but not for commercial).
 
 ## How to develop
 1. Do all steps from the *How to install* section above.
@@ -44,8 +47,8 @@ Now you are ready to use eMoflon::IBeX Democles.
 	and start the tests by selecting ```Run As/JUnit```.
 	If everything is set up correctly, all tests should be green.
 
-Running ```Testsuite_GLPK.launch``` requires GLPK (see installation step 2).
+Running ```Testsuite_GLPK.launch``` requires GLPK (see installation step 5).
 	
-Running ```Testsuite_Gurobi.launch``` requires Gurobi (see installation step 3).
+Running ```Testsuite_Gurobi.launch``` requires Gurobi (see installation step 6).
 
 ```Testsuite_SAT4J.launch``` uses the SAT4J (automatically installed, but the slowest option).  
