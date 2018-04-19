@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,9 +14,9 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.emoflon.ibex.common.operational.IContextPatternInterpreter;
 import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.common.operational.IMatchObserver;
-import org.emoflon.ibex.common.operational.IContextPatternInterpreter;
 import org.emoflon.ibex.common.utils.ModelPersistenceUtils;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
@@ -65,6 +64,7 @@ import org.gervarro.democles.specification.impl.PatternInvocationConstraintModul
 import org.gervarro.notification.model.ModelDelta;
 
 import IBeXLanguage.IBeXPatternSet;
+import gnu.trove.map.hash.THashMap;
 
 /**
  * Engine for (unidirectional) graph transformations with Democles.
@@ -83,7 +83,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	/**
 	 * The matches.
 	 */
-	protected HashMap<IDataFrame, Collection<IMatch>> matches;
+	protected THashMap<IDataFrame, Collection<IMatch>> matches;
 
 	/**
 	 * The Democles patterns.
@@ -121,7 +121,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	public DemoclesGTEngine() {
 		this.patterns = new ArrayList<>();
 		this.patternMatchers = new ArrayList<>();
-		this.matches = new HashMap<IDataFrame, Collection<IMatch>>();
+		this.matches = new THashMap<IDataFrame, Collection<IMatch>>();
 	}
 
 	@Override
@@ -271,7 +271,12 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 
 	@Override
 	public void terminate() {
-		patternMatchers.forEach(pm -> pm.removeEventListener(this));
+		patternMatchers.forEach(pm -> {
+			pm.removeEventListener(this);
+			pm.clearListeners();
+		});
+		observer.unsetTarget(null);
+		matches.clear();
 	}
 
 	@Override
@@ -307,15 +312,39 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 				Optional<IMatch> match = matchList == null ? Optional.empty()
 						: matchList.stream().filter(m -> m.getPatternName().equals(pattern.getName())).findAny();
 				match.ifPresent(m -> {
-					app.removeMatch(m);
-					if (matches.get(frame).size() > 1) {
-						matches.get(frame).remove(m);
-					} else {
-						matches.remove(frame);
-					}
+					removeMatch(frame, m);
 				});
 			}
 		});
+	}
+	
+	/**
+	 * Removes the match
+	 * @param iDataFrame The data frame the match is associated with
+	 * @param match The match to remove
+	 */
+	private void removeMatch(IDataFrame iDataFrame, IMatch match) {
+		app.removeMatch(match);
+		Collection<IMatch> matchList = matches.get(iDataFrame);
+		if(matchList == null) {
+			return;
+		}
+		matchList.remove(match);
+		if (matchList.isEmpty()) {
+			matches.remove(iDataFrame);
+		}
+	}
+	
+	/**
+	 * Removes the given match
+	 * @param match The match to remove
+	 */
+	@SuppressWarnings("unused")
+	private void removeMatch(IMatch match) {
+		this.matches.entrySet().stream()
+			.filter(entry -> entry.getValue().contains(match))
+			.collect(Collectors.toList()).stream()
+			.forEach(entry -> removeMatch(entry.getKey(), match));
 	}
 
 	protected IMatch createMatch(final DataFrame frame, final Pattern pattern) {
