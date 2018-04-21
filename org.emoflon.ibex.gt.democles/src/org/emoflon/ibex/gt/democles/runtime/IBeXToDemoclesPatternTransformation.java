@@ -26,11 +26,11 @@ import IBeXLanguage.IBeXAttributeExpression;
 import IBeXLanguage.IBeXAttributeParameter;
 import IBeXLanguage.IBeXAttributeValue;
 import IBeXLanguage.IBeXConstant;
+import IBeXLanguage.IBeXContextPattern;
 import IBeXLanguage.IBeXEdge;
 import IBeXLanguage.IBeXEnumLiteral;
 import IBeXLanguage.IBeXNode;
 import IBeXLanguage.IBeXNodePair;
-import IBeXLanguage.IBeXPattern;
 import IBeXLanguage.IBeXPatternInvocation;
 import IBeXLanguage.IBeXPatternSet;
 
@@ -58,7 +58,7 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 
 	@Override
 	public List<Pattern> transform(final IBeXPatternSet ibexPatternSet) {
-		ibexPatternSet.getPatterns().forEach(ibexPattern -> {
+		ibexPatternSet.getContextPatterns().forEach(ibexPattern -> {
 			// Ignore empty patterns.
 			if (!IBeXPatternUtils.isEmptyPattern(ibexPattern)) {
 				this.transformPattern(ibexPattern);
@@ -71,10 +71,10 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 	 * Transforms an {@link IBeXPattern} to a Democles {@link Pattern}.
 	 * 
 	 * @param ibexPattern
-	 *            the IBeXPattern to transform
+	 *            the IBeXContextPattern to transform
 	 * @return the Democles pattern
 	 */
-	private Pattern transformPattern(final IBeXPattern ibexPattern) {
+	private Pattern transformPattern(final IBeXContextPattern ibexPattern) {
 		if (patternMap.containsKey(ibexPattern.getName())) {
 			return patternMap.get(ibexPattern.getName());
 		}
