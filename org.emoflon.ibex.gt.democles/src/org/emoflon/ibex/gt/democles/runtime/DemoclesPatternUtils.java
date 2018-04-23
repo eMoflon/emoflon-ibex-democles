@@ -82,10 +82,10 @@ public class DemoclesPatternUtils {
 	 */
 	public static EMFVariable addConstraintForAttributeExpressionToBody(
 			final IBeXAttributeExpression attributeExpression, final PatternBody body) {
+		String ibexNodeName = attributeExpression.getNode().getName();
 		EMFVariable nodeVariableOfExpression = ((Pattern) body.eContainer()).getSymbolicParameters().stream()
-				.filter(s -> s.getName().equals(attributeExpression.getNodeName())).map(v -> (EMFVariable) v).findAny()
-				.get();
-		EMFVariable attributeVariableOfExpression = addAttributeVariableToBody(attributeExpression.getNodeName(),
+				.filter(s -> s.getName().equals(ibexNodeName)).map(v -> (EMFVariable) v).findAny().get();
+		EMFVariable attributeVariableOfExpression = addAttributeVariableToBody(ibexNodeName,
 				attributeExpression.getAttribute(), body);
 
 		Attribute attributeOfExpression = createAttributeConstraint(attributeExpression.getAttribute(),
