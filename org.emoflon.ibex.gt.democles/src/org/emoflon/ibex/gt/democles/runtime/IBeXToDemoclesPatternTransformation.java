@@ -10,7 +10,6 @@ import org.emoflon.ibex.common.utils.IBeXPatternUtils;
 import org.emoflon.ibex.gt.transformations.AbstractModelTransformation;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.Pattern;
-import org.gervarro.democles.specification.emf.PatternBody;
 import org.gervarro.democles.specification.emf.PatternInvocationConstraint;
 import org.gervarro.democles.specification.emf.SpecificationFactory;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable;
@@ -23,10 +22,7 @@ import IBeXLanguage.IBeXPatternInvocation;
 import IBeXLanguage.IBeXPatternSet;
 
 /**
- * Transformation from an IBeXPatternSet to Democles Patterns.
- * 
- * @author Patrick Robrecht
- * @version 0.1
+ * Transformation from the IBeX model to Democles Patterns.
  */
 public class IBeXToDemoclesPatternTransformation extends AbstractModelTransformation<IBeXPatternSet, List<Pattern>> {
 	// Factories from Democles.
@@ -94,27 +90,36 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 			return patternMap.get(ibexPattern.getName());
 		}
 
-		Pattern pattern = democlesSpecificationFactory.createPattern();
-		pattern.setName(ibexPattern.getName());
-
-		PatternBody body = democlesSpecificationFactory.createPatternBody();
-		pattern.getBodies().add(body);
-
 		// Transform nodes, edges, injectivity and attribute constraints.
-		IBeXToDemoclesPatternHelper patternHelper = new IBeXToDemoclesPatternHelper(ibexPattern, pattern);
-		patternHelper.transform();
+		IBeXToDemoclesPatternHelper patternHelper = new IBeXToDemoclesPatternHelper(ibexPattern);
+		Pattern democlesPattern = patternHelper.transform();
 
 		// Transform each invocations to a PatternInvocationConstraint.
-		Map<IBeXNode, EMFVariable> nodeToVariable = patternHelper.getNodeToVariableMapping();
-		for (final IBeXPatternInvocation invocation : ibexPattern.getInvocations()) {
-			PatternInvocationConstraint constraint = transformInvocation(invocation, nodeToVariable);
-			body.getConstraints().add(constraint);
-		}
+		transformPatternInvocations(ibexPattern, democlesPattern, patternHelper.getNodeToVariableMapping());
 
 		// Add to patterns.
-		patternMap.put(ibexPattern.getName(), pattern);
-		democlesPatterns.add(pattern);
-		return pattern;
+		patternMap.put(ibexPattern.getName(), democlesPattern);
+		democlesPatterns.add(democlesPattern);
+		return democlesPattern;
+	}
+
+	/**
+	 * Transforms the pattern invocation from the IBeX to the Democles
+	 * representation.
+	 * 
+	 * @param ibexPattern
+	 *            the {@link IBeXContextPattern} whose invocations to transform
+	 * @param democlesPattern
+	 *            the DemoclesPattern
+	 * @param nodeToVariable
+	 *            the mapping from IBeXNodes to Democles variables
+	 */
+	private void transformPatternInvocations(final IBeXContextPattern ibexPattern, final Pattern democlesPattern,
+			final Map<IBeXNode, EMFVariable> nodeToVariable) {
+		for (final IBeXPatternInvocation invocation : ibexPattern.getInvocations()) {
+			PatternInvocationConstraint constraint = transformInvocation(invocation, nodeToVariable);
+			democlesPattern.getBodies().get(0).getConstraints().add(constraint);
+		}
 	}
 
 	/**

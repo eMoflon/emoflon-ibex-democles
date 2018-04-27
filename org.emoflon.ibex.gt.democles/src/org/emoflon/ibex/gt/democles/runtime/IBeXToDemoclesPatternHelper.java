@@ -65,22 +65,27 @@ public class IBeXToDemoclesPatternHelper {
 	 * @param democlesPattern
 	 *            the Democles pattern
 	 */
-	public IBeXToDemoclesPatternHelper(final IBeXContextPattern ibexPattern, final Pattern democlesPattern) {
+	public IBeXToDemoclesPatternHelper(final IBeXContextPattern ibexPattern) {
 		this.ibexPattern = ibexPattern;
-		this.democlesPattern = democlesPattern;
-		this.democlesPatternBody = democlesPattern.getBodies().get(0);
+
+		democlesPattern = democlesSpecificationFactory.createPattern();
+		democlesPattern.setName(ibexPattern.getName());
+
+		democlesPatternBody = democlesSpecificationFactory.createPatternBody();
+		democlesPattern.getBodies().add(democlesPatternBody);
 	}
 
 	/**
 	 * Transforms the nodes to variables and the injectivity constraints and edges
 	 * to constraints.
 	 */
-	public void transform() {
+	public Pattern transform() {
 		transformSignatureNodesToSymbolicParameters();
 		transformLocalNodesToLocalVariables();
 		transformInjectivityConstraints();
 		transformLocalEdgesToConstraints();
 		transformAttributeConstraints();
+		return democlesPattern;
 	}
 
 	/**
@@ -174,28 +179,31 @@ public class IBeXToDemoclesPatternHelper {
 	 * @return the Reference
 	 */
 	private Reference transformLocalEdgeToReference(final IBeXEdge ibexEdge) {
-		// Edge type.
 		Objects.requireNonNull(ibexEdge.getType(), "The type of IBeXEdge must not be null!");
+
 		Reference reference = democlesEmfTypeFactory.createReference();
 		reference.setEModelElement(ibexEdge.getType());
 
-		// Parameter for the source node.
-		Objects.requireNonNull(ibexEdge.getSourceNode(), "The source node of an IBeXEdge must not be null!");
-		Objects.requireNonNull(nodeToVariable.get(ibexEdge.getSourceNode()),
-				"A mapping for the source node must exist!");
-		ConstraintParameter parameterForSourceNode = democlesSpecificationFactory.createConstraintParameter();
-		parameterForSourceNode.setReference(nodeToVariable.get(ibexEdge.getSourceNode()));
-		reference.getParameters().add(parameterForSourceNode);
-
-		// Parameter for the target node.
-		Objects.requireNonNull(ibexEdge.getTargetNode(), "The target node of an IBeXEdge must not be null!");
-		Objects.requireNonNull(nodeToVariable.get(ibexEdge.getTargetNode()),
-				"A mapping for the target node must exist!");
-		ConstraintParameter parameterForTargetNode = democlesSpecificationFactory.createConstraintParameter();
-		parameterForTargetNode.setReference(nodeToVariable.get(ibexEdge.getTargetNode()));
-		reference.getParameters().add(parameterForTargetNode);
+		addParameterToReference(reference, ibexEdge.getSourceNode());
+		addParameterToReference(reference, ibexEdge.getTargetNode());
 
 		return reference;
+	}
+
+	/**
+	 * Adds a parameter for the given node to the reference.
+	 * 
+	 * @param reference
+	 *            the reference.
+	 * @param ibexNode
+	 *            the node
+	 */
+	private void addParameterToReference(final Reference reference, final IBeXNode ibexNode) {
+		Objects.requireNonNull(ibexNode, "The node referenced by an IBeXEdge must not be null!");
+		Objects.requireNonNull(nodeToVariable.get(ibexNode), "A mapping for the source node must exist!");
+		ConstraintParameter parameterForSourceNode = democlesSpecificationFactory.createConstraintParameter();
+		parameterForSourceNode.setReference(nodeToVariable.get(ibexNode));
+		reference.getParameters().add(parameterForSourceNode);
 	}
 
 	/**

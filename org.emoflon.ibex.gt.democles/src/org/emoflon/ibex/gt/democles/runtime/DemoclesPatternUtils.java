@@ -22,7 +22,7 @@ import IBeXLanguage.IBeXRelation;
 
 /**
  * Utility methods for transforming attribute constraints from the IBeX model to
- * their representation in a Democles pattern
+ * their representation in a Democles pattern.
  */
 public class DemoclesPatternUtils {
 	// Factories from Democles.
