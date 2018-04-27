@@ -21,7 +21,8 @@ import IBeXLanguage.IBeXAttributeExpression;
 import IBeXLanguage.IBeXRelation;
 
 /**
- * Utility methods for creating Democles patterns.
+ * Utility methods for transforming attribute constraints from the IBeX model to
+ * their representation in a Democles pattern
  */
 public class DemoclesPatternUtils {
 	// Factories from Democles.
@@ -188,7 +189,7 @@ public class DemoclesPatternUtils {
 	 *            the relation
 	 * @return the empty relational constraint
 	 */
-	private static RelationalConstraint getRelationalConstraintForRelation(IBeXRelation relation) {
+	private static RelationalConstraint getRelationalConstraintForRelation(final IBeXRelation relation) {
 		RelationalConstraint constraint;
 		switch (relation) {
 		case EQUAL:
