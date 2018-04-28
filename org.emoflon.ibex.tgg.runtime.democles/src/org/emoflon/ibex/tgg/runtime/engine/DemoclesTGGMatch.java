@@ -24,7 +24,7 @@ public class DemoclesTGGMatch extends DemoclesGTMatch implements IMatch {
 
 	@Override
 	public IMatch copy() {
-		SimpleMatch copy = new SimpleMatch(pattern.getName());
+		SimpleMatch copy = new SimpleMatch(getPatternName());
 		getParameterNames().forEach(n -> copy.put(n, get(n)));
 		return copy;
 	}
