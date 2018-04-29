@@ -21,7 +21,8 @@ import IBeXLanguage.IBeXAttributeExpression;
 import IBeXLanguage.IBeXRelation;
 
 /**
- * Utility methods for creating Democles patterns.
+ * Utility methods for transforming attribute constraints from the IBeX model to
+ * their representation in a Democles pattern.
  */
 public class DemoclesPatternUtils {
 	// Factories from Democles.
@@ -82,10 +83,10 @@ public class DemoclesPatternUtils {
 	 */
 	public static EMFVariable addConstraintForAttributeExpressionToBody(
 			final IBeXAttributeExpression attributeExpression, final PatternBody body) {
+		String ibexNodeName = attributeExpression.getNode().getName();
 		EMFVariable nodeVariableOfExpression = ((Pattern) body.eContainer()).getSymbolicParameters().stream()
-				.filter(s -> s.getName().equals(attributeExpression.getNodeName())).map(v -> (EMFVariable) v).findAny()
-				.get();
-		EMFVariable attributeVariableOfExpression = addAttributeVariableToBody(attributeExpression.getNodeName(),
+				.filter(s -> s.getName().equals(ibexNodeName)).map(v -> (EMFVariable) v).findAny().get();
+		EMFVariable attributeVariableOfExpression = addAttributeVariableToBody(ibexNodeName,
 				attributeExpression.getAttribute(), body);
 
 		Attribute attributeOfExpression = createAttributeConstraint(attributeExpression.getAttribute(),
@@ -188,7 +189,7 @@ public class DemoclesPatternUtils {
 	 *            the relation
 	 * @return the empty relational constraint
 	 */
-	private static RelationalConstraint getRelationalConstraintForRelation(IBeXRelation relation) {
+	private static RelationalConstraint getRelationalConstraintForRelation(final IBeXRelation relation) {
 		RelationalConstraint constraint;
 		switch (relation) {
 		case EQUAL:
