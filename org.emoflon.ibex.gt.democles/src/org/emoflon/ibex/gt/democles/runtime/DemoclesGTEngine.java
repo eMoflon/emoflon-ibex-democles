@@ -317,16 +317,19 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 			}
 		});
 	}
-	
+
 	/**
 	 * Removes the match
-	 * @param iDataFrame The data frame the match is associated with
-	 * @param match The match to remove
+	 * 
+	 * @param iDataFrame
+	 *            The data frame the match is associated with
+	 * @param match
+	 *            The match to remove
 	 */
 	private void removeMatch(IDataFrame iDataFrame, IMatch match) {
 		app.removeMatch(match);
 		Collection<IMatch> matchList = matches.get(iDataFrame);
-		if(matchList == null) {
+		if (matchList == null) {
 			return;
 		}
 		matchList.remove(match);
@@ -334,10 +337,12 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 			matches.remove(iDataFrame);
 		}
 	}
-	
+
 	/**
 	 * Removes the given match
-	 * @param match The match to remove
+	 * 
+	 * @param match
+	 *            The match to remove
 	 */
 	@SuppressWarnings("unused")
 	private void removeMatch(IMatch match) {
