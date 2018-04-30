@@ -19,7 +19,8 @@ Now you are ready to use eMoflon::IBeX Democles.
 
 5. (Optional) Install [GLPK for Windows](https://sourceforge.net/projects/winglpk/)
 	or install GLPK via your package manager (Linux).
-6. (Optional) Install [Gurobi](http://www.gurobi.com/downloads/gurobi-optimizer) 7.0.2
+6. (Optional) Install [Google OR](https://developers.google.com/optimization/introduction/installing/binary) (not necessary on 64-bit Windows)
+7. (Optional) Install [Gurobi](http://www.gurobi.com/downloads/gurobi-optimizer) 7.0.2
 	(make sure it is exactly this version!)
 
 Note that Gurobi is only free for academical use (but not for commercial).
@@ -50,5 +51,7 @@ Note that Gurobi is only free for academical use (but not for commercial).
 Running ```Testsuite_GLPK.launch``` requires GLPK (see installation step 5).
 	
 Running ```Testsuite_Gurobi.launch``` requires Gurobi (see installation step 6).
+
+Running ```Testsuite_CBC.launch``` requires Google OR tools (see installation step 7).
 
 ```Testsuite_SAT4J.launch``` uses the SAT4J (automatically installed, but the slowest option).  
