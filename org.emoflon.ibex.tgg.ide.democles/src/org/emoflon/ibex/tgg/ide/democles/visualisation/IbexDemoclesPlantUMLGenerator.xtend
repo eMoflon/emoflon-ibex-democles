@@ -8,6 +8,8 @@ import org.gervarro.democles.specification.emf.Variable
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable
 import org.gervarro.democles.specification.emf.constraint.emf.emf.Reference
 import org.emoflon.ibex.tgg.ide.visualisation.IbexPlantUMLGenerator
+import org.eclipse.emf.ecore.EClassifier
+import org.eclipse.emf.ecore.EReference
 
 class IbexDemoclesPlantUMLGenerator extends IbexPlantUMLGenerator {
 	
@@ -56,9 +58,13 @@ class IbexDemoclesPlantUMLGenerator extends IbexPlantUMLGenerator {
 			class «identifierFor(v, b.header, prefix)»<< (L,#B0D8F0)>>
 		«ENDFOR»
 		«FOR ref : referenceConstraints(b)»
-			«identifierFor(extractSrc(ref), b.header, prefix)» --> "«ref.getEModelElement.name»" «identifierFor(extractTrg(ref), b.header, prefix)»
+			«identifierFor(extractSrc(ref), b.header, prefix)» --> "«extractType(ref.EModelElement)»" «identifierFor(extractTrg(ref), b.header, prefix)»
 		«ENDFOR»
 		'''
+	}
+	
+	private def static extractType(EReference ref){
+		if(ref === null || ref.name === null) "???" else ref.name
 	}
 	
 	private def static localVariables(PatternBody body) {
@@ -66,7 +72,11 @@ class IbexDemoclesPlantUMLGenerator extends IbexPlantUMLGenerator {
 	}
 	
 	private static def identifierFor(Variable v, Pattern pattern, String prefix){
-		'''"«prefix»«pattern.name».«v.name»:«(v as EMFVariable).getEClassifier.name»"'''
+		'''"«prefix»«pattern.name».«v.name»:«extractType((v as EMFVariable).getEClassifier)»"'''
+	}
+	
+	def static extractType(EClassifier classifier) {
+		if(classifier === null || classifier.name === null) "???" else classifier.name 
 	}
 	
 	private static def extractVar(Reference ref, int i){

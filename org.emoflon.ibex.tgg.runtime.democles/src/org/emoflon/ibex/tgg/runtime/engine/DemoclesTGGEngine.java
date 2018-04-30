@@ -83,8 +83,6 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 			return Optional.empty();
 		}
 
-		TGGAttributeConstraintAdornmentStrategy.INSTANCE.setIsModelGen(options.isModelGen());
-
 		// Handle constraints for the EMF to Java transformation
 		TGGAttributeConstraintModule.INSTANCE.registerConstraintTypes(options.constraintProvider());
 		TypeModule<TGGAttributeConstraintModule> tggAttributeConstraintTypeModule = new TGGAttributeConstraintTypeModule(

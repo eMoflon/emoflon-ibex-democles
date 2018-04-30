@@ -6,9 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
@@ -38,7 +36,6 @@ import language.basic.expressions.TGGExpression;
 import language.basic.expressions.TGGLiteralExpression;
 import language.basic.expressions.TGGParamValue;
 import language.csp.TGGAttributeConstraint;
-import language.csp.TGGAttributeVariable;
 import language.inplaceAttributes.TGGAttributeConstraintOperators;
 import language.inplaceAttributes.TGGInplaceAttributeExpression;
 
@@ -48,10 +45,7 @@ public class DemoclesAttributeHelper {
 	private Map<String, EMFVariable> body_attr_vars; 
 	private Map<String, EMFVariable> signature_attr_vars; 
 	private Map<String, Attribute> attrs;
-	private Set<Constraint> ops;
-	
-	private Logger logger = Logger.getLogger(DemoclesAttributeHelper.class);
-	private IbexOptions options;	
+	private Set<Constraint> ops;	
 	
 	public DemoclesAttributeHelper(IbexOptions options) {
 		constants = new HashMap<>();
@@ -59,7 +53,6 @@ public class DemoclesAttributeHelper {
 		signature_attr_vars = new HashMap<>();
 		attrs = new HashMap<>();
 		ops = new HashSet<>();
-		this.options = options;
 	}
 
 	public void createAttributeInplaceAttributeConditions(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
@@ -87,36 +80,6 @@ public class DemoclesAttributeHelper {
 	private void createConstraintsForAttributeConstraints(IBlackPattern pattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		Collection<TGGAttributeConstraint> extractedConstraints = pattern.getAttributeConstraints();
 		extractedConstraints.forEach(constraint -> createAttributeConstraint(constraint, nodeToVar));
-		
-		if(!extractedConstraints.isEmpty() && options.debug()) {
-			logger.debug("\n-----------------------------------------\n"
-				+ "Compiling attribute constraints for pattern \n" + 
-				pattern.getName() + " with constraints:\n" + 
-				extractedConstraints.stream()
-									.map(this::print) 
-									.collect(Collectors.joining("\n"))
-				+ "\n-----------------------------------------\n");
-		}
-	}
-	
-	private String print(TGGAttributeConstraint c) {
-		return c.getDefinition().getName() + "(" + 
-				c.getParameters().stream()
-					.map(this::print)
-					.collect(Collectors.joining(", "))
-			+ ")";
-	}
-	
-	private String print(TGGParamValue p) {
-		if(p instanceof TGGAttributeExpression) {
-			return ((TGGAttributeExpression) p).getObjectVar().getName() + "." + ((TGGAttributeExpression) p).getAttribute().getName();
-		} else if(p instanceof TGGAttributeVariable) {
-			return ((TGGAttributeVariable) p).getName();
-		} else if(p instanceof TGGLiteralExpression) {
-			return ((TGGLiteralExpression) p).getValue();
-		} else {
-			return ((TGGEnumExpression) p).getEenum().getName() + "." + ((TGGEnumExpression) p).getLiteral().getName();
-		}
 	}
 
 	private void createAttributeConstraint(TGGAttributeConstraint constraint, Map<String, EMFVariable> nodeToVar) {

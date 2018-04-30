@@ -297,10 +297,10 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 		Optional<Pattern> p = patterns.stream()
 				.filter(pattern -> getPatternID(pattern).equals(event.getSource().toString())).findAny();
 		p.ifPresent(pattern -> {
-			if (type.contentEquals(MatchEvent.INSERT) && (!matches.keySet().contains(frame)
+			if (type.contentEquals(MatchEvent.INSERT) && (!matches.containsKey(frame)
 					|| matches.get(frame).stream().allMatch(m -> !m.getPatternName().equals(pattern.getName())))) {
 				IMatch match = this.createMatch(frame, pattern);
-				if (matches.keySet().contains(frame)) {
+				if (matches.containsKey(frame)) {
 					matches.get(frame).add(match);
 				} else {
 					matches.put(frame, new ArrayList<IMatch>(Arrays.asList(match)));
