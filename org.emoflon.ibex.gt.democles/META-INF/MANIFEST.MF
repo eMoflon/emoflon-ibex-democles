@@ -23,3 +23,5 @@ Require-Bundle: org.eclipse.emf.ecore.xmi,
  org.gervarro.plan.dynprog;visibility:=reexport,
  org.gervarro.util;visibility:=reexport
 Automatic-Module-Name: org.emoflon.ibex.gt.democles
+Import-Package: gnu.trove.impl.hash,
+ gnu.trove.map.hash
