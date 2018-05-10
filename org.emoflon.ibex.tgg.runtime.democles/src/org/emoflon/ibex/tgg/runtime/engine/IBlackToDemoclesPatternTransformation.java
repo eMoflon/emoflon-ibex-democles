@@ -32,22 +32,22 @@ public class IBlackToDemoclesPatternTransformation {
 	private IbexOptions options;
 	private HashMap<IBlackPattern, Pattern> patternMap;
 	private Collection<Pattern> patterns;
-	
+
 	// Factories
 	private final SpecificationFactory factory = SpecificationFactory.eINSTANCE;
 	private final EMFTypeFactory emfTypeFactory = EMFTypeFactory.eINSTANCE;
 	private final RelationalConstraintFactory rcFactory = RelationalConstraintFactory.eINSTANCE;
-	
+
 	public IBlackToDemoclesPatternTransformation(IbexOptions options) {
 		this.options = options;
 		patternMap = new HashMap<>();
 		patterns = new ArrayList<>();
 	}
-	
+
 	public Collection<Pattern> getPatterns() {
 		return this.patterns;
 	}
-	
+
 	public Pattern ibexToDemocles(IBlackPattern ibexPattern) {
 		if (patternMap.containsKey(ibexPattern))
 			return patternMap.get(ibexPattern);
@@ -69,7 +69,7 @@ public class IBlackToDemoclesPatternTransformation {
 		for (PatternInvocation inv : ibexPattern.getPositiveInvocations()) {
 			if (patternIsNotEmpty(inv.getInvokedPattern())) {
 				PatternInvocationConstraint invCon = createInvocationConstraint(inv, true, nodeToVar);
-				if(!invCon.getParameters().isEmpty())
+				if (!invCon.getParameters().isEmpty())
 					constraints.add(invCon);
 			}
 		}
@@ -77,8 +77,7 @@ public class IBlackToDemoclesPatternTransformation {
 		for (PatternInvocation inv : ibexPattern.getNegativeInvocations()) {
 			if (patternIsNotEmpty(inv.getInvokedPattern())) {
 				PatternInvocationConstraint invCon = createInvocationConstraint(inv, false, nodeToVar);
-//				if(!invCon.getParameters().isEmpty())
-					constraints.add(invCon);
+				constraints.add(invCon);
 			}
 		}
 
@@ -87,39 +86,41 @@ public class IBlackToDemoclesPatternTransformation {
 
 		return pattern;
 	}
-	
+
 	protected static boolean patternIsNotEmpty(IBlackPattern pattern) {
-//		return !pattern.getSignatureNodes().isEmpty();
 		boolean hasNegativeInvocations = false;
-		for(PatternInvocation p : pattern.getNegativeInvocations()) {
-			if(patternIsNotEmpty(p.getInvokedPattern())) {
+		for (PatternInvocation p : pattern.getNegativeInvocations()) {
+			if (patternIsNotEmpty(p.getInvokedPattern())) {
 				hasNegativeInvocations = true;
 			}
 		}
 		boolean hasPositiveInvocations = false;
-		for(PatternInvocation p : pattern.getPositiveInvocations()) {
-			if(patternIsNotEmpty(p.getInvokedPattern())) {
+		for (PatternInvocation p : pattern.getPositiveInvocations()) {
+			if (patternIsNotEmpty(p.getInvokedPattern())) {
 				hasPositiveInvocations = true;
 			}
 		}
-		return !(pattern.getSignatureNodes().isEmpty() && !hasNegativeInvocations && !hasPositiveInvocations && pattern.getLocalNodes().isEmpty());
+		return !(pattern.getSignatureNodes().isEmpty() && !hasNegativeInvocations && !hasPositiveInvocations
+				&& pattern.getLocalNodes().isEmpty());
 	}
 
-	private EList<Constraint> ibexToDemocles(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {		
+	private EList<Constraint> ibexToDemocles(IBlackPattern ibexPattern, PatternBody body,
+			Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		createVariablesForNodes(ibexPattern, body, nodeToVar, parameters);
-		
+
 		DemoclesAttributeHelper dAttrHelper = new DemoclesAttributeHelper(options);
 		dAttrHelper.createAttributeInplaceAttributeConditions(ibexPattern, body, nodeToVar, parameters);
 		if (this.options.blackInterpSupportsAttrConstrs())
 			dAttrHelper.createAttributeConstraints(ibexPattern, body, nodeToVar, parameters);
-		
+
 		createConstraintsForEdges(ibexPattern, nodeToVar, body.getConstraints());
 		createUnequalConstraintsForInjectivity(ibexPattern, body, nodeToVar);
 
 		return body.getConstraints();
 	}
 
-	private void createVariablesForNodes(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
+	private void createVariablesForNodes(IBlackPattern ibexPattern, PatternBody body,
+			Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
 		// Signature elements
 		for (TGGRuleNode element : ibexPattern.getSignatureNodes()) {
 			if (!nodeToVar.containsKey(element.getName())) {
@@ -133,7 +134,7 @@ public class IBlackToDemoclesPatternTransformation {
 			}
 			parameters.add(nodeToVar.get(element.getName()));
 		}
-	
+
 		// All other nodes
 		EList<Variable> locals = body.getLocalVariables();
 		Collection<TGGRuleNode> allOtherNodes = new ArrayList<>(ibexPattern.getLocalNodes());
@@ -144,44 +145,44 @@ public class IBlackToDemoclesPatternTransformation {
 				var.setEClassifier(node.getType());
 				nodeToVar.put(node.getName(), var);
 			}
-			
+
 			locals.add(nodeToVar.get(node.getName()));
 		}
 	}
 
-	private void createUnequalConstraintsForInjectivity(IBlackPattern ibexPattern, PatternBody body, Map<String, EMFVariable> nodeToVar) {
+	private void createUnequalConstraintsForInjectivity(IBlackPattern ibexPattern, PatternBody body,
+			Map<String, EMFVariable> nodeToVar) {
 		// Force injective matches through unequals-constraints
 		forceInjectiveMatchesForPattern((IbexBasePattern) ibexPattern, body, nodeToVar);
 	}
 
-	private void createConstraintsForEdges(IBlackPattern ibexPattern, Map<String, EMFVariable> nodeToVar, EList<Constraint> constraints) {
-		ibexPattern.getLocalEdges()
-			.stream()
-			.forEach(edge -> {
-				assert(edge.getSrcNode() != null);
-				assert(edge.getTrgNode() != null);
-				assert(edge.getType() != null);
-				assert(nodeToVar.containsKey(edge.getSrcNode().getName()));
-				assert(nodeToVar.containsKey(edge.getTrgNode().getName()));
-				
-				Reference ref = emfTypeFactory.createReference();
-				ref.setEModelElement(edge.getType());
+	private void createConstraintsForEdges(IBlackPattern ibexPattern, Map<String, EMFVariable> nodeToVar,
+			EList<Constraint> constraints) {
+		ibexPattern.getLocalEdges().stream().forEach(edge -> {
+			assert (edge.getSrcNode() != null);
+			assert (edge.getTrgNode() != null);
+			assert (edge.getType() != null);
+			assert (nodeToVar.containsKey(edge.getSrcNode().getName()));
+			assert (nodeToVar.containsKey(edge.getTrgNode().getName()));
 
-				ConstraintParameter from = factory.createConstraintParameter();
-				from.setReference(nodeToVar.get(edge.getSrcNode().getName()));
-				ref.getParameters().add(from);
+			Reference ref = emfTypeFactory.createReference();
+			ref.setEModelElement(edge.getType());
 
-				ConstraintParameter to = factory.createConstraintParameter();
-				to.setReference(nodeToVar.get(edge.getTrgNode().getName()));
-				ref.getParameters().add(to);
+			ConstraintParameter from = factory.createConstraintParameter();
+			from.setReference(nodeToVar.get(edge.getSrcNode().getName()));
+			ref.getParameters().add(from);
 
-				constraints.add(ref);
-			});
+			ConstraintParameter to = factory.createConstraintParameter();
+			to.setReference(nodeToVar.get(edge.getTrgNode().getName()));
+			ref.getParameters().add(to);
+
+			constraints.add(ref);
+		});
 	}
 
-	private void forceInjectiveMatchesForPattern(IBlackPattern pattern, PatternBody body, Map<String, EMFVariable> nodeToVar) {
-		pattern.getInjectivityChecks().stream()
-									  .forEach(pair -> {
+	private void forceInjectiveMatchesForPattern(IBlackPattern pattern, PatternBody body,
+			Map<String, EMFVariable> nodeToVar) {
+		pattern.getInjectivityChecks().stream().forEach(pair -> {
 			RelationalConstraint unequal = rcFactory.createUnequal();
 
 			ConstraintParameter p1 = factory.createConstraintParameter();
@@ -195,17 +196,18 @@ public class IBlackToDemoclesPatternTransformation {
 		});
 	}
 
-	private PatternInvocationConstraint createInvocationConstraint(PatternInvocation inv, boolean isTrue, Map<String, EMFVariable> nodeToVar) {
-			PatternInvocationConstraint invCon = factory.createPatternInvocationConstraint();
-			invCon.setPositive(isTrue);
-			invCon.setInvokedPattern(ibexToDemocles(inv.getInvokedPattern()));
+	private PatternInvocationConstraint createInvocationConstraint(PatternInvocation inv, boolean isTrue,
+			Map<String, EMFVariable> nodeToVar) {
+		PatternInvocationConstraint invCon = factory.createPatternInvocationConstraint();
+		invCon.setPositive(isTrue);
+		invCon.setInvokedPattern(ibexToDemocles(inv.getInvokedPattern()));
 
 		for (TGGRuleNode element : inv.getInvokedPattern().getSignatureNodes()) {
 			TGGRuleNode invElem = inv.getPreImage(element);
 			ConstraintParameter parameter = factory.createConstraintParameter();
 			invCon.getParameters().add(parameter);
 			parameter.setReference(nodeToVar.get(invElem.getName()));
-			assert(parameter.getReference() != null);
+			assert (parameter.getReference() != null);
 		}
 
 		return invCon;

@@ -1,6 +1,5 @@
 package org.emoflon.ibex.tgg.runtime.engine;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -134,7 +133,7 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 		try {
 			r.save(null);
 			rs.getResources().remove(r);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -167,7 +167,7 @@ public class DemoclesAttributeHelper {
 			TGGLiteralExpression tle = (TGGLiteralExpression) expr;
 			value = Optional.of(convertLiteral(tle.getValue(), attrType));
 		} else if (expr instanceof TGGEnumExpression) {
-			value = Optional.of(((TGGEnumExpression) expr).getLiteral());
+			value = Optional.of(((TGGEnumExpression) expr).getLiteral().getInstance());
 		} else
 			throw new IllegalStateException("The RHS of an attribute expression can only be an enum or constant: " + expr);
 		
