@@ -22,6 +22,10 @@ public class IbexDemoclesBuilderExtension implements BuilderExtension {
 					-> DefaultFilesGenerator.generateModelGenFile(projectName, fileName, ENGINE, IMPORT));
 			builder.createDefaultRunFile("SYNC_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateSyncAppFile(projectName, fileName, ENGINE, IMPORT));
+			builder.createDefaultRunFile("INITIAL_FWD_App", (projectName, fileName) 
+					-> DefaultFilesGenerator.generateInitialFwdAppFile(projectName, fileName, ENGINE, IMPORT));
+			builder.createDefaultRunFile("INITIAL_BWD_App", (projectName, fileName) 
+					-> DefaultFilesGenerator.generateInitialBwdAppFile(projectName, fileName, ENGINE, IMPORT));
 			builder.createDefaultRunFile("CC_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateCCAppFile(projectName, fileName, ENGINE, IMPORT));
 			builder.createDefaultRunFile("CO_App", (projectName, fileName) 
