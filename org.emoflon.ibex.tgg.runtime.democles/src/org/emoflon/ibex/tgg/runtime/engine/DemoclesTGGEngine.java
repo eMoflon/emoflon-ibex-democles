@@ -102,9 +102,8 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 
 	@Override
 	public void monitor(final ResourceSet resourceSet) {
-		if (options.debug()) {
+		if (options.debug())
 			saveDemoclesPatterns(resourceSet);
-		}
 
 		super.monitor(resourceSet);
 	}
