@@ -64,7 +64,7 @@ import org.gervarro.democles.specification.impl.PatternInvocationConstraintModul
 import org.gervarro.notification.model.ModelDelta;
 
 import IBeXLanguage.IBeXPatternSet;
-import gnu.trove.map.hash.THashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 /**
  * Engine for (unidirectional) graph transformations with Democles.
@@ -83,7 +83,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	/**
 	 * The matches.
 	 */
-	protected THashMap<IDataFrame, Collection<IMatch>> matches;
+	protected Object2ObjectOpenHashMap<IDataFrame, Collection<IMatch>> matches;
 
 	/**
 	 * The Democles patterns.
@@ -121,7 +121,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	public DemoclesGTEngine() {
 		this.patterns = new ArrayList<>();
 		this.patternMatchers = new ArrayList<>();
-		this.matches = new THashMap<IDataFrame, Collection<IMatch>>();
+		this.matches = new Object2ObjectOpenHashMap<IDataFrame, Collection<IMatch>>();
 	}
 
 	@Override
