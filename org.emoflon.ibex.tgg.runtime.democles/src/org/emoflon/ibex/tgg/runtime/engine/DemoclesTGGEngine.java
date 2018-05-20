@@ -65,7 +65,7 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 				}
 			}
 		}
-		this.patterns = transformation.getPatterns();
+		this.setPatterns(transformation.getPatterns());
 		this.createAndRegisterPatterns();
 	}
 
@@ -127,7 +127,7 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	private void saveDemoclesPatterns(ResourceSet rs) {
 		Resource r = rs
 				.createResource(URI.createPlatformResourceURI(options.projectPath() + "/debug/patterns.xmi", true));
-		r.getContents().addAll(patterns.stream().sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
+		r.getContents().addAll(patterns.values().stream().sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
 				.collect(Collectors.toList()));
 		try {
 			r.save(null);
