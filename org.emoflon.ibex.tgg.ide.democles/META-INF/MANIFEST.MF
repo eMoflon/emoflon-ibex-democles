@@ -6,8 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: eMoflon::IBeX Developers
 Export-Package: org.emoflon.ibex.tgg.compiler.democles.defaults,
  org.emoflon.ibex.tgg.ide.democles.visualisation
-Require-Bundle: com.google.guava,
- net.sourceforge.plantuml.eclipse,
+Require-Bundle: net.sourceforge.plantuml.eclipse,
  org.apache.log4j,
  org.eclipse.core.runtime,
  org.eclipse.emf.ecore,

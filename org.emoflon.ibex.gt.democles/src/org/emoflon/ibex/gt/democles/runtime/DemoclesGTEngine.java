@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -64,7 +65,8 @@ import org.gervarro.democles.specification.impl.PatternInvocationConstraintModul
 import org.gervarro.notification.model.ModelDelta;
 
 import IBeXLanguage.IBeXPatternSet;
-import gnu.trove.map.hash.THashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 /**
  * Engine for (unidirectional) graph transformations with Democles.
@@ -83,12 +85,12 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	/**
 	 * The matches.
 	 */
-	protected THashMap<IDataFrame, Collection<IMatch>> matches;
+	protected Object2ObjectOpenHashMap<IDataFrame, Map<String, IMatch>> matches;
 
 	/**
 	 * The Democles patterns.
 	 */
-	protected Collection<Pattern> patterns = new ArrayList<Pattern>();
+	protected Map<String, Pattern> patterns;
 
 	/**
 	 * Democles pattern builder.
@@ -119,15 +121,22 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	 * Creates a new DemoclesGTEngine.
 	 */
 	public DemoclesGTEngine() {
-		this.patterns = new ArrayList<>();
+		this.patterns = new Object2ObjectLinkedOpenHashMap<String, Pattern>();
 		this.patternMatchers = new ArrayList<>();
-		this.matches = new THashMap<IDataFrame, Collection<IMatch>>();
+		this.matches = new Object2ObjectOpenHashMap<>();
+	}
+
+	public void setPatterns(Collection<Pattern> patterns) {
+		this.patterns = new Object2ObjectLinkedOpenHashMap<String, Pattern>();
+		for (Pattern p : patterns) {
+			this.patterns.put(getPatternID(p), p);
+		}
 	}
 
 	@Override
 	public void initPatterns(final IBeXPatternSet ibexPatternSet) {
 		IBeXToDemoclesPatternTransformation transformation = new IBeXToDemoclesPatternTransformation();
-		patterns = transformation.transform(ibexPatternSet);
+		this.setPatterns(transformation.transform(ibexPatternSet));
 		this.savePatternsForDebugging();
 		this.createAndRegisterPatterns();
 	}
@@ -137,7 +146,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	 */
 	private void savePatternsForDebugging() {
 		debugPath.ifPresent(path -> {
-			List<Pattern> sortedPatterns = patterns.stream() //
+			List<Pattern> sortedPatterns = patterns.values().stream() //
 					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName())) // alphabetically by name
 					.collect(Collectors.toList());
 			ModelPersistenceUtils.saveModel(sortedPatterns, path + "/democles-patterns");
@@ -150,7 +159,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 
 		// Build the pattern matchers in 2 phases
 		// 1) EMF-based to EMF-independent transformation
-		Collection<DefaultPattern> internalPatterns = patternBuilder.build(patterns);
+		Collection<DefaultPattern> internalPatterns = patternBuilder.build(patterns.values());
 
 		// 2) EMF-independent to pattern matcher runtime (i.e., Rete network)
 		// transformation
@@ -158,9 +167,9 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 		retePatternMatcherModule.getSession().setAutoCommitMode(false);
 
 		// Attach match listener to pattern matchers
-		patterns.forEach(pattern -> {
-			if (app.isPatternRelevantForCompiler(pattern.getName())) {
-				this.patternMatchers.add(retePatternMatcherModule.getPatternMatcher(getPatternID(pattern)));
+		patterns.entrySet().forEach(pattern -> {
+			if (app.isPatternRelevantForCompiler(pattern.getValue().getName())) {
+				this.patternMatchers.add(retePatternMatcherModule.getPatternMatcher(pattern.getKey()));
 			}
 		});
 		patternMatchers.forEach(pm -> pm.addEventListener(this));
@@ -294,28 +303,44 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	public void handleEvent(final MatchEvent event) {
 		String type = event.getEventType();
 		DataFrame frame = event.getMatching();
-		Optional<Pattern> p = patterns.stream()
-				.filter(pattern -> getPatternID(pattern).equals(event.getSource().toString())).findAny();
-		p.ifPresent(pattern -> {
-			if (type.contentEquals(MatchEvent.INSERT) && (!matches.containsKey(frame)
-					|| matches.get(frame).stream().allMatch(m -> !m.getPatternName().equals(pattern.getName())))) {
-				IMatch match = this.createMatch(frame, pattern);
-				if (matches.containsKey(frame)) {
-					matches.get(frame).add(match);
-				} else {
-					matches.put(frame, new ArrayList<IMatch>(Arrays.asList(match)));
-				}
-				app.addMatch(match);
-			}
-			if (type.equals(MatchEvent.DELETE)) {
-				Collection<IMatch> matchList = matches.get(frame);
-				Optional<IMatch> match = matchList == null ? Optional.empty()
-						: matchList.stream().filter(m -> m.getPatternName().equals(pattern.getName())).findAny();
-				match.ifPresent(m -> {
-					removeMatch(frame, m);
-				});
-			}
-		});
+		Pattern pattern = patterns.get(event.getSource().toString());
+		if (pattern == null) {
+			return;
+		}
+		switch(type) {
+		case MatchEvent.INSERT:
+			handleInsertEvent(frame, pattern);
+			break;
+		case MatchEvent.DELETE:
+			handleDeleteEvent(frame, pattern);
+			break;
+		}
+	}
+	
+	private void handleInsertEvent(DataFrame frame, Pattern pattern) {
+		String patternName = pattern.getName();
+		Map<String, IMatch> patternCollection = matches.get(frame);
+		if(patternCollection == null) {
+			patternCollection = new Object2ObjectOpenHashMap<>();
+			matches.put(frame, patternCollection);
+		}
+		if(patternCollection.containsKey(patternName)) {
+			return;
+		}
+		IMatch match = this.createMatch(frame, pattern);
+		patternCollection.put(patternName, match);
+		app.addMatch(match);
+	}
+	
+	private void handleDeleteEvent(DataFrame frame, Pattern pattern) {
+		String patternName = pattern.getName();
+		Map<String, IMatch> matchList = matches.get(frame);
+		if(matchList == null)
+			return;
+		IMatch match = matchList.get(patternName);
+		if(match != null) {
+			removeMatch(frame, match);
+		}
 	}
 
 	/**
@@ -328,11 +353,11 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	 */
 	private void removeMatch(IDataFrame iDataFrame, IMatch match) {
 		app.removeMatch(match);
-		Collection<IMatch> matchList = matches.get(iDataFrame);
+		Map<String, IMatch> matchList = matches.get(iDataFrame);
 		if (matchList == null) {
 			return;
 		}
-		matchList.remove(match);
+		matchList.remove(match.getPatternName());
 		if (matchList.isEmpty()) {
 			matches.remove(iDataFrame);
 		}
@@ -346,10 +371,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	 */
 	@SuppressWarnings("unused")
 	private void removeMatch(IMatch match) {
-		this.matches.entrySet().stream()
-			.filter(entry -> entry.getValue().contains(match))
-			.collect(Collectors.toList()).stream()
-			.forEach(entry -> removeMatch(entry.getKey(), match));
+		this.matches.entrySet().stream().filter(entry -> entry.getValue().containsValue(match)).forEach(entry -> removeMatch(entry.getKey(), match));
 	}
 
 	protected IMatch createMatch(final DataFrame frame, final Pattern pattern) {
