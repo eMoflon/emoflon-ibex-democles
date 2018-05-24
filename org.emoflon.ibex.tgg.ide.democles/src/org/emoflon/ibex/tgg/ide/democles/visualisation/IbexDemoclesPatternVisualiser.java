@@ -29,7 +29,7 @@ public class IbexDemoclesPatternVisualiser extends EMoflonVisualiser {
 	
 	private Optional<String> maybeVisualisePattern(IEditorPart editor, ISelection selection) {
 		return extractPatternBodyFromEditor(editor)					
-				.map(pb -> IbexDemoclesPlantUMLGenerator.visualisePatternBody(pb, "0\\"));
+				.map(pb -> IbexDemoclesPlantUMLGenerator.visualisePatternBody(pb, "0" + IbexDemoclesPlantUMLGenerator.separator()));
 	}
 
 	private Optional<PatternBody> extractPatternBodyFromEditor(IEditorPart editor) {

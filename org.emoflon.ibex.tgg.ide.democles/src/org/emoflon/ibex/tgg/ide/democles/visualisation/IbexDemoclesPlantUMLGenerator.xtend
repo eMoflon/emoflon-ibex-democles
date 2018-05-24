@@ -13,12 +13,16 @@ import org.eclipse.emf.ecore.EReference
 
 class IbexDemoclesPlantUMLGenerator extends IbexPlantUMLGenerator {
 	
+	public static def String separator(){
+		return "|"
+	}
+	
 	public static def String visualisePatternBody(PatternBody b, String prefix){
 		'''
 		«visualiseIsolatedPatternBody(b, prefix)»
 		«var j = 0»
 		«FOR pi : patternInvocations(b)»
-			«var subPrefix = prefix + "\\" + j++ + "\\"»
+			«var subPrefix = prefix + separator() + j++ + separator()»
 			«IF pi.invokedPattern.bodies.size == 1»
 				«visualisePatternBody(pi.invokedPattern.bodies.get(0), subPrefix)»
 			«ELSE»
