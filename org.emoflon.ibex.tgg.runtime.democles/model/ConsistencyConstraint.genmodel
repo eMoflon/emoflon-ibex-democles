@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.emoflon.ibex.tgg.runtime.democles/gen" modelPluginID="org.emoflon.ibex.tgg.runtime.democles"
+    modelName="ConsistencyConstraint" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    suppressInterfaces="true" importerID="org.eclipse.emf.importer.ecore" complianceLevel="8.0"
+    copyrightFields="false" usedGenPackages="../../org.gervarro.democles.specification.emf/model/specification.genmodel#//specification"
+    importOrganizing="true">
+  <foreignModel>ConsistencyConstraint.ecore</foreignModel>
+  <genPackages prefix="ConsistencyConstraint" disposableProviderFactory="true" ecorePackage="ConsistencyConstraint.ecore#/">
+    <genClasses ecoreClass="ConsistencyConstraint.ecore#//Consistency">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ConsistencyConstraint.ecore#//Consistency/name"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

@@ -13,4 +13,12 @@
             genModel="model/TGGAttributeConstraint.genmodel"/>
    </extension>
 
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated ConsistencyConstraint -->
+      <package
+            uri="platform:/resource/org.emoflon.ibex.tgg.runtime.democles/model/ConsistencyConstraint.ecore"
+            class="ConsistencyConstraint.ConsistencyConstraintPackage"
+            genModel="model/ConsistencyConstraint.genmodel"/>
+   </extension>
+
 </plugin>

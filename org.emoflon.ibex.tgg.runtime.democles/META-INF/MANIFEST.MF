@@ -8,7 +8,7 @@ Bundle-ClassPath: .
 Bundle-Localization: plugin
 Require-Bundle: org.apache.log4j,
  org.eclipse.core.runtime,
- org.eclipse.emf.ecore,
+ org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.ecore.xmi,
  org.gervarro.util,
  org.gervarro.plan.dynprog,
@@ -17,7 +17,7 @@ Require-Bundle: org.apache.log4j,
  org.gervarro.democles.plan,
  org.gervarro.democles.emf,
  org.gervarro.democles.plan.emf,
- org.gervarro.democles.specification.emf,
+ org.gervarro.democles.specification.emf;visibility:=reexport,
  org.gervarro.democles.interpreter,
  org.gervarro.democles.interpreter.emf,
  org.gervarro.democles.interpreter.incremental,
@@ -30,9 +30,10 @@ Require-Bundle: org.apache.log4j,
  org.emoflon.ibex.tgg.core.runtime
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: TGGAttributeConstraint,
+Export-Package: ConsistencyConstraint,
+ ConsistencyConstraint.util,
+ TGGAttributeConstraint,
  TGGAttributeConstraint.util,
  org.emoflon.ibex.tgg.runtime.engine,
- org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps,
- org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations
+ org.emoflon.ibex.tgg.runtime.engine.attributes.csp
 Automatic-Module-Name: org.emoflon.ibex.tgg.runtime.democles
