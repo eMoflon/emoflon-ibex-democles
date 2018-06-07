@@ -1,4 +1,4 @@
-package org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations;
+package org.emoflon.ibex.tgg.runtime.engine.attributes.csp;
 
 import org.emoflon.ibex.tgg.operational.csp.RuntimeTGGAttributeConstraint;
 import org.emoflon.ibex.tgg.operational.csp.constraints.factories.RuntimeTGGAttrConstraintProvider;

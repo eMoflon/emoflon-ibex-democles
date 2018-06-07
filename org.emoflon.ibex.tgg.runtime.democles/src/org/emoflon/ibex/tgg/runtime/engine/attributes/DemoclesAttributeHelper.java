@@ -1,4 +1,4 @@
-package org.emoflon.ibex.tgg.runtime.engine;
+package org.emoflon.ibex.tgg.runtime.engine.attributes;
 
 import java.util.Collection;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps;
+package org.emoflon.ibex.tgg.runtime.engine.attributes.csp;
 
 import java.util.HashMap;
 import java.util.Map;

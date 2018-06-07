@@ -1,11 +1,10 @@
-package org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps;
+package org.emoflon.ibex.tgg.runtime.engine.attributes.csp;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.emoflon.ibex.tgg.operational.csp.constraints.factories.RuntimeTGGAttrConstraintProvider;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations.TGGAttributeNativeOperation;
 import org.gervarro.democles.common.runtime.OperationBuilder;
 import org.gervarro.democles.common.runtime.VariableRuntime;
 import org.gervarro.democles.runtime.NativeOperation;
