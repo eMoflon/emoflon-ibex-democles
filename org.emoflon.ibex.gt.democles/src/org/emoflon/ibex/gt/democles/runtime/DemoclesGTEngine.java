@@ -15,10 +15,10 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.emoflon.ibex.common.emf.EMFSaveUtils;
 import org.emoflon.ibex.common.operational.IContextPatternInterpreter;
 import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.common.operational.IMatchObserver;
-import org.emoflon.ibex.common.utils.ModelPersistenceUtils;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.common.PatternMatcherPlugin;
@@ -149,7 +149,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 			List<Pattern> sortedPatterns = patterns.values().stream() //
 					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName())) // alphabetically by name
 					.collect(Collectors.toList());
-			ModelPersistenceUtils.saveModel(sortedPatterns, path + "/democles-patterns");
+			EMFSaveUtils.saveModel(sortedPatterns, path + "/democles-patterns");
 		});
 	}
 
