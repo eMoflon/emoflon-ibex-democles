@@ -307,7 +307,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 		if (pattern == null) {
 			return;
 		}
-		switch(type) {
+		switch (type) {
 		case MatchEvent.INSERT:
 			handleInsertEvent(frame, pattern);
 			break;
@@ -316,29 +316,30 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 			break;
 		}
 	}
-	
+
 	private void handleInsertEvent(DataFrame frame, Pattern pattern) {
 		String patternName = pattern.getName();
 		Map<String, IMatch> patternCollection = matches.get(frame);
-		if(patternCollection == null) {
+		if (patternCollection == null) {
 			patternCollection = new Object2ObjectOpenHashMap<>();
 			matches.put(frame, patternCollection);
 		}
-		if(patternCollection.containsKey(patternName)) {
+		if (patternCollection.containsKey(patternName)) {
 			return;
 		}
 		IMatch match = this.createMatch(frame, pattern);
 		patternCollection.put(patternName, match);
 		app.addMatch(match);
 	}
-	
+
 	private void handleDeleteEvent(DataFrame frame, Pattern pattern) {
 		String patternName = pattern.getName();
 		Map<String, IMatch> matchList = matches.get(frame);
-		if(matchList == null)
+		if (matchList == null) {
 			return;
+		}
 		IMatch match = matchList.get(patternName);
-		if(match != null) {
+		if (match != null) {
 			removeMatch(frame, match);
 		}
 	}
@@ -361,17 +362,6 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 		if (matchList.isEmpty()) {
 			matches.remove(iDataFrame);
 		}
-	}
-
-	/**
-	 * Removes the given match
-	 * 
-	 * @param match
-	 *            The match to remove
-	 */
-	@SuppressWarnings("unused")
-	private void removeMatch(IMatch match) {
-		this.matches.entrySet().stream().filter(entry -> entry.getValue().containsValue(match)).forEach(entry -> removeMatch(entry.getKey(), match));
 	}
 
 	protected IMatch createMatch(final DataFrame frame, final Pattern pattern) {
