@@ -36,6 +36,8 @@ public class IbexDemoclesBuilderExtension implements BuilderExtension {
 					-> DefaultFilesGenerator.generateBWDOptAppFile(projectName, fileName, ENGINE, IMPORT));
 			builder.createDefaultRunFile("_RegistrationHelper", (projectName, fileName)
 					-> DefaultFilesGenerator.generateRegHelperFile(projectName));
+			builder.enforceDefaultRunFile("_SchemaBasedAutoRegistration", (projectName, fileName)
+					-> DefaultFilesGenerator.generateSchemaAutoRegFile(projectName, editorModel));
 		} catch (CoreException e) {
 			LogUtils.error(logger, e);
 		}
