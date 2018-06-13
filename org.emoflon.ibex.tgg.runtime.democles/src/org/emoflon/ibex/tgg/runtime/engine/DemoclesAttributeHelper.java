@@ -10,10 +10,10 @@ import java.util.Set;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
-import org.eclipse.emf.ecore.EcorePackage;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
 import org.emoflon.ibex.tgg.compiler.patterns.common.IbexBasePattern;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
+import org.emoflon.ibex.tgg.util.String2EPrimitive;
 import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.Constraint;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
@@ -165,7 +165,7 @@ public class DemoclesAttributeHelper {
 		Optional<Object> value = Optional.empty();
 		if (expr instanceof TGGLiteralExpression) {
 			TGGLiteralExpression tle = (TGGLiteralExpression) expr;
-			value = Optional.of(convertLiteral(tle.getValue(), attrType));
+			value = Optional.of(String2EPrimitive.convertLiteral(tle.getValue(), attrType));
 		} else if (expr instanceof TGGEnumExpression) {
 			value = Optional.of(((TGGEnumExpression) expr).getLiteral().getInstance());
 		} else
@@ -229,36 +229,5 @@ public class DemoclesAttributeHelper {
 		constraint.getParameters().add(parameter2);
 		parameter2.setReference(to);
 		return constraint;
-	}
-	
-	private Object convertLiteral(String literal, EDataType type) {
-		if(type.equals(EcorePackage.Literals.ESTRING) ) {
-			if(!(literal.startsWith("\"") && literal.endsWith("\""))) 
-				throw new RuntimeException("Trimming of the string did not work. Your string should start and end with \"");
-			return literal.substring(1, literal.length() - 1);
-		}
-		if(type.equals(EcorePackage.Literals.EINT) ) {
-			return Integer.parseInt(literal);
-		}
-		if(type.equals(EcorePackage.Literals.EFLOAT) ) {
-			return Float.parseFloat(literal);
-		}
-		if(type.equals(EcorePackage.Literals.EDOUBLE) ) {
-			return Double.parseDouble(literal);
-		}
-		if(type.equals(EcorePackage.Literals.EBOOLEAN) ) {
-			return Boolean.parseBoolean(literal);
-		}
-		if(type.equals(EcorePackage.Literals.ECHAR) ) {
-			if(!(literal.startsWith("\'") && literal.endsWith("\'"))) 
-				throw new RuntimeException("Trimming of the char did not work. Your string should start and end with \'");
-
-			return literal.length() < 2 ? '\0' : literal.charAt(1);
-		}
-		if(type.equals(EcorePackage.Literals.ELONG) ) {
-			return Long.parseLong(literal);
-		}
-		
-		throw new RuntimeException(type + " is not yet supported as a Datatype");
 	}
 }
