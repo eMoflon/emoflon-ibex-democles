@@ -14,7 +14,7 @@ import org.eclipse.emf.ecore.EReference
 class IbexDemoclesPlantUMLGenerator extends IbexPlantUMLGenerator {
 	
 	public static def String separator(){
-		return "|"
+		return "_"
 	}
 	
 	public static def String visualisePatternBody(PatternBody b, String prefix){
