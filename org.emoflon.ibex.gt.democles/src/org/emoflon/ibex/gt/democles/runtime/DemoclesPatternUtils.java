@@ -84,16 +84,44 @@ public class DemoclesPatternUtils {
 	public static EMFVariable addConstraintForAttributeExpressionToBody(
 			final IBeXAttributeExpression attributeExpression, final PatternBody body) {
 		String ibexNodeName = attributeExpression.getNode().getName();
-		EMFVariable nodeVariableOfExpression = ((Pattern) body.eContainer()).getSymbolicParameters().stream()
-				.filter(s -> s.getName().equals(ibexNodeName)).map(v -> (EMFVariable) v).findAny().get();
+		Optional<EMFVariable> nodeVariableOfExpression = findEMFVariableWithName(body, ibexNodeName);
+		if (!nodeVariableOfExpression.isPresent()) {
+			throw new IllegalArgumentException(String.format("No EMFVariable %s found.", ibexNodeName));
+		}
+
 		EMFVariable attributeVariableOfExpression = addAttributeVariableToBody(ibexNodeName,
 				attributeExpression.getAttribute(), body);
 
 		Attribute attributeOfExpression = createAttributeConstraint(attributeExpression.getAttribute(),
-				nodeVariableOfExpression, attributeVariableOfExpression);
+				nodeVariableOfExpression.get(), attributeVariableOfExpression);
 		body.getConstraints().add(attributeOfExpression);
 
 		return attributeVariableOfExpression;
+	}
+
+	/**
+	 * Finds a EMFVariable with the given name in the pattern's symbolic parameters
+	 * or the local variables of the body.
+	 * 
+	 * @param body
+	 *            the pattern body
+	 * @param name
+	 *            the name of the EMFVariable to search
+	 * @return an Optional for the EMFVariable
+	 */
+	public static Optional<EMFVariable> findEMFVariableWithName(final PatternBody body, final String name) {
+		Optional<EMFVariable> nodeVariable = ((Pattern) body.eContainer()).getSymbolicParameters().stream()
+				.filter(s -> s.getName().equals(name)) //
+				.map(v -> (EMFVariable) v) //
+				.findAny();
+		if (nodeVariable.isPresent()) {
+			return nodeVariable;
+		}
+
+		return nodeVariable = body.getLocalVariables().stream() //
+				.filter(v -> v instanceof EMFVariable).map(v -> (EMFVariable) v) //
+				.filter(v -> v.getName().equals(name)) //
+				.findAny();
 	}
 
 	/**
