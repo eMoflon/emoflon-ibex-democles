@@ -230,10 +230,10 @@ public class DemoclesPatternUtils {
 			constraint = democlesRelationalConstraintFactory.createLarger();
 			break;
 		case SMALLER:
-			constraint = democlesRelationalConstraintFactory.createSmallerOrEqual();
+			constraint = democlesRelationalConstraintFactory.createSmaller();
 			break;
 		case SMALLER_OR_EQUAL:
-			constraint = democlesRelationalConstraintFactory.createSmaller();
+			constraint = democlesRelationalConstraintFactory.createSmallerOrEqual();
 			break;
 		case UNEQUAL:
 			constraint = democlesRelationalConstraintFactory.createUnequal();
