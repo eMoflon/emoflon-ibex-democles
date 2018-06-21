@@ -33,18 +33,28 @@ public class DemoclesPatternUtils {
 	/**
 	 * Creates an attribute constraint for the given node and attribute variable.
 	 * 
-	 * @param attribute
+	 * @param attributeType
 	 *            the attribute type
 	 * @param nodeVariable
 	 *            the variable for the node
 	 * @param attributeVariable
 	 *            the variable for the attribute
+	 * @param body
+	 *            the pattern body
 	 * @return the attribute constraint
 	 */
-	public static Attribute createAttributeConstraint(final EAttribute attribute, final ConstraintVariable nodeVariable,
-			final ConstraintVariable attributeVariable) {
+	public static Attribute addAttributeConstraint(final EAttribute attributeType,
+			final ConstraintVariable nodeVariable, final ConstraintVariable attributeVariable, final PatternBody body) {
+		Optional<Attribute> existingAttributeConstraint = body.getConstraints().stream() //
+				.filter(c -> c instanceof Attribute).map(a -> (Attribute) a) //
+				.filter(a -> attributeEquals(a, attributeType, nodeVariable, attributeVariable)) //
+				.findAny();
+		if (existingAttributeConstraint.isPresent()) {
+			return existingAttributeConstraint.get();
+		}
+
 		Attribute attributeConstraint = democlesEmfTypeFactory.createAttribute();
-		attributeConstraint.setEModelElement(attribute);
+		attributeConstraint.setEModelElement(attributeType);
 
 		ConstraintParameter parameterForNode = democlesSpecificationFactory.createConstraintParameter();
 		attributeConstraint.getParameters().add(parameterForNode);
@@ -54,7 +64,29 @@ public class DemoclesPatternUtils {
 		attributeConstraint.getParameters().add(parameterForAttribute);
 		parameterForAttribute.setReference(attributeVariable);
 
+		body.getConstraints().add(attributeConstraint);
 		return attributeConstraint;
+	}
+
+	/**
+	 * Checks whether the given attribute has parameters referencing all variables.
+	 * 
+	 * @param attribute
+	 *            the attribute
+	 * @param attributeType
+	 *            the attribute type
+	 * @param variable1
+	 *            the the variable
+	 * @param variable2
+	 *            second variable
+	 * @return true if and only if the parameters of the attribute reference exactly
+	 *         the variables
+	 */
+	private static boolean attributeEquals(final Attribute attribute, final EAttribute attributeType,
+			final ConstraintVariable variable1, final ConstraintVariable variable2) {
+		return attribute.getEModelElement().equals(attributeType)
+				&& attribute.getParameters().stream().anyMatch(p -> p.getReference().equals(variable1))
+				&& attribute.getParameters().stream().anyMatch(p -> p.getReference().equals(variable2));
 	}
 
 	/**
@@ -92,8 +124,8 @@ public class DemoclesPatternUtils {
 		EMFVariable attributeVariableOfExpression = addAttributeVariableToBody(ibexNodeName,
 				attributeExpression.getAttribute(), body);
 
-		Attribute attributeOfExpression = createAttributeConstraint(attributeExpression.getAttribute(),
-				nodeVariableOfExpression.get(), attributeVariableOfExpression);
+		Attribute attributeOfExpression = addAttributeConstraint(attributeExpression.getAttribute(),
+				nodeVariableOfExpression.get(), attributeVariableOfExpression, body);
 		body.getConstraints().add(attributeOfExpression);
 
 		return attributeVariableOfExpression;
