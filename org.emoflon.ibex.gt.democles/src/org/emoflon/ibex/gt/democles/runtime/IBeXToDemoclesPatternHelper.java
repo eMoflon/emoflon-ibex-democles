@@ -230,8 +230,8 @@ public class IBeXToDemoclesPatternHelper {
 		}
 
 		EMFVariable attributeVariable = DemoclesPatternUtils.addAttributeVariableToBody(ac, democlesPatternBody);
-		Attribute attribute = DemoclesPatternUtils.createAttributeConstraint(ac.getType(),
-				nodeToVariable.get(ac.getNode()), attributeVariable);
+		Attribute attribute = DemoclesPatternUtils.addAttributeConstraint(ac.getType(),
+				nodeToVariable.get(ac.getNode()), attributeVariable, democlesPatternBody);
 		democlesPatternBody.getConstraints().add(attribute);
 
 		ConstraintVariable valueVariable;
