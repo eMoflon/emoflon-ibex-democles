@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -72,6 +73,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
  * Engine for (unidirectional) graph transformations with Democles.
  */
 public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventListener {
+	private static final Logger logger = Logger.getLogger(DemoclesGTEngine.class);
+	
 	/**
 	 * The registry.
 	 */
@@ -269,6 +272,12 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 
 	@Override
 	public void monitor(final ResourceSet resourceSet) {
+		for (Resource r : resourceSet.getResources()) {
+			if(r.getURI().fileExtension().equals("ecore")) {
+				logger.warn("Are you sure your resourceSet should contain a resource for a metamodel?: " + r.getURI());
+				logger.warn("You should probably initialise this metamodel and make sure your resourceSet only contains models to be monitored by the pattern matcher.");
+			}
+		}
 		observer.install(resourceSet);
 	}
 
