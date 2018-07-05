@@ -19,6 +19,9 @@
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,docs/org.emoflon.ibex.tgg.ide.democles.feature"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,docs/org.emoflon.ibex.tgg.ide.democles.updatesite"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.runtime.democles"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.weights"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.weights.ide"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.weights.ui"/>
 </provider>
 <workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1496663509760_2" label="ibex-common" name="ibex-common">
 <item elementID="=org.emoflon.ibex.tgg.core.language" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
@@ -35,15 +38,20 @@
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.emoflon.ibex.tgg.ide.democles.updatesite" type="4"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.emoflon.ibex.tgg.ide.democles.feature" type="4"/>
 </workingSets>
-<workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1496663526007_3" label="ibex-ui" name="ibex-ui">
+<workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1496663526007_3" label="ibex-ui-gt" name="ibex-ui-gt">
 <item elementID="=org.emoflon.ibex.gt.editor.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.editor.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.ide" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.common.editor.utils" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.gt.editor.ui.tests" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.gt.editor.tests" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.emoflon.ibex.gt.editor.ide" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.emoflon.ibex.gt.editor" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+</workingSets>
+<workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1530777917293_7" label="ibex-ui-tgg" name="ibex-ui-tgg">
+<item elementID="=org.emoflon.ibex.tgg.editor.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.weights" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.weights.ide" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.ide" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.weights.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.emoflon.ibex.tgg.editor" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.common.editor.utils" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.tests" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.ui.tests" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 </workingSets>
 </psf>
