@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.emoflon.ibex.common.emf.EMFSaveUtils;
 import org.emoflon.ibex.common.operational.IContextPatternInterpreter;
@@ -74,7 +75,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
  */
 public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventListener {
 	private static final Logger logger = Logger.getLogger(DemoclesGTEngine.class);
-	
+
 	/**
 	 * The registry.
 	 */
@@ -273,11 +274,19 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	@Override
 	public void monitor(final ResourceSet resourceSet) {
 		for (Resource r : resourceSet.getResources()) {
-			if(r.getURI().fileExtension().equals("ecore")) {
+			if ("ecore".equals(r.getURI().fileExtension())) {
 				logger.warn("Are you sure your resourceSet should contain a resource for a metamodel?: " + r.getURI());
-				logger.warn("You should probably initialise this metamodel and make sure your resourceSet only contains models to be monitored by the pattern matcher.");
+				logger.warn("You should probably initialise this metamodel and make sure your "
+						+ "resourceSet only contains models to be monitored by the pattern matcher.");
 			}
 		}
+
+		EcoreUtil.resolveAll(resourceSet);
+
+		EcoreUtil.UnresolvedProxyCrossReferencer//
+				.find(resourceSet)//
+				.forEach((eob, settings) -> logger.error("Problems resolving: " + eob));
+
 		observer.install(resourceSet);
 	}
 
