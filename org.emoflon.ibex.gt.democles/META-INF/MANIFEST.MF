@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: eMoflon::IBeX Unidirectional Model Transformation via Graph Transformation and pattern matching with Democles
 Bundle-SymbolicName: org.emoflon.ibex.gt.democles;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-10
 Bundle-Vendor: eMoflon::IBeX Developers
 Bundle-ActivationPolicy: lazy
 Export-Package: org.emoflon.ibex.gt.democles.runtime
