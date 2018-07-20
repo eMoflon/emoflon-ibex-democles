@@ -24,5 +24,5 @@ Require-Bundle: net.sourceforge.plantuml.eclipse,
  org.moflon.core.plugins,
  org.moflon.core.ui,
  org.moflon.core.utilities
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-10
 Automatic-Module-Name: org.emoflon.ibex.tgg.ide.democles
