@@ -11,7 +11,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage.Registry;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -285,7 +287,15 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 
 		EcoreUtil.UnresolvedProxyCrossReferencer//
 				.find(resourceSet)//
-				.forEach((eob, settings) -> logger.error("Problems resolving: " + eob));
+				.forEach((eob, settings) -> {
+					logger.error("Problems resolving: " + eob);
+					settings.forEach(setting -> {
+						EObject o = setting.getEObject();
+						EStructuralFeature f = setting.getEStructuralFeature();
+						o.eSet(f, null);
+					});
+					logger.warn("Removed proxy (set to null).  You should probably check why this cannot be resolved!");
+				});
 
 		observer.install(resourceSet);
 	}
