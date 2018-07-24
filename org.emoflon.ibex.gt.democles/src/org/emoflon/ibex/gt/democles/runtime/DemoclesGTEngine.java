@@ -273,6 +273,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 		return resourceSet;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void monitor(final ResourceSet resourceSet) {
 		for (Resource r : resourceSet.getResources()) {
@@ -292,9 +293,21 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 					settings.forEach(setting -> {
 						EObject o = setting.getEObject();
 						EStructuralFeature f = setting.getEStructuralFeature();
-						o.eSet(f, null);
+
+						try {
+							if (f.isMany()) {
+								((Collection<Object>) o.eGet(f)).remove(eob);
+								logger.warn(
+										"Removed proxy from collection.  You should probably check why this cannot be resolved!");
+							} else {
+								o.eSet(f, null);
+								logger.warn(
+										"Removed proxy (set to null).  You should probably check why this cannot be resolved!");
+							}
+						} catch (Exception e) {
+							logger.warn("Unable to remove proxy: " + e);
+						}
 					});
-					logger.warn("Removed proxy (set to null).  You should probably check why this cannot be resolved!");
 				});
 
 		observer.install(resourceSet);
@@ -324,8 +337,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	/**
 	 * Handles the {@link MatchEvent} from Democles.
 	 * 
-	 * @param event
-	 *            the MatchEvent to handle
+	 * @param event the MatchEvent to handle
 	 */
 	@Override
 	public void handleEvent(final MatchEvent event) {
@@ -375,10 +387,8 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	/**
 	 * Removes the match
 	 * 
-	 * @param iDataFrame
-	 *            The data frame the match is associated with
-	 * @param match
-	 *            The match to remove
+	 * @param iDataFrame The data frame the match is associated with
+	 * @param match      The match to remove
 	 */
 	private void removeMatch(IDataFrame iDataFrame, IMatch match) {
 		app.removeMatch(match);
@@ -399,8 +409,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	/**
 	 * Returns the pattern identifier for the given pattern.
 	 * 
-	 * @param pattern
-	 *            the Democles pattern
+	 * @param pattern the Democles pattern
 	 * @return the identifier of the Democles pattern
 	 */
 	protected static String getPatternID(final Pattern pattern) {
