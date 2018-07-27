@@ -120,17 +120,11 @@ public class IBlackToDemoclesPatternTransformation {
 	}
 
 	private void createVariablesForNodes(IBlackPattern ibexPattern, PatternBody body,
-			Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {
+			Map<String, EMFVariable> nodeToVar, EList<Variable> parameters) {		
 		// Signature elements
 		for (TGGRuleNode element : ibexPattern.getSignatureNodes()) {
 			if (!nodeToVar.containsKey(element.getName())) {
-				if (element instanceof TGGRuleNode) {
-					TGGRuleNode node = (TGGRuleNode) element;
-					EMFVariable var = emfTypeFactory.createEMFVariable();
-					var.setName(node.getName());
-					var.setEClassifier(node.getType());
-					nodeToVar.put(node.getName(), var);
-				}
+				createVariableForNode(nodeToVar, element);
 			}
 			parameters.add(nodeToVar.get(element.getName()));
 		}
@@ -148,6 +142,13 @@ public class IBlackToDemoclesPatternTransformation {
 
 			locals.add(nodeToVar.get(node.getName()));
 		}
+	}
+
+	private void createVariableForNode(Map<String, EMFVariable> nodeToVar, TGGRuleNode element) {
+		EMFVariable var = emfTypeFactory.createEMFVariable();
+		var.setName(element.getName());
+		var.setEClassifier(element.getType());
+		nodeToVar.put(element.getName(), var);
 	}
 
 	private void createUnequalConstraintsForInjectivity(IBlackPattern ibexPattern, PatternBody body,
