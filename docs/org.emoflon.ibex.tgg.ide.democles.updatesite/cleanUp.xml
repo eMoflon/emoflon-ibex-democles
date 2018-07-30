@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     30 Jul 2018 15:29:25                                                        
+
+     cleanUp    
+     Delete all generated files
+                   
+     anthonyanjorin                                                                
+     ====================================================================== -->
+<project name="cleanUp" default="default">
+	<description>
+    	Delete all generated files
+    </description>
+
+	<!-- ================================= 
+          target: default              
+         ================================= -->
+	<target name="default">
+
+		<delete>
+			<fileset dir="features">
+				<include name="*.jar" />
+			</fileset>
+
+			<fileset dir="plugins">
+				<include name="*.jar" />
+			</fileset>
+		</delete>
+
+		<delete file="artifacts.jar" />
+		<delete file="content.jar" />
+
+	</target>
+</project>
