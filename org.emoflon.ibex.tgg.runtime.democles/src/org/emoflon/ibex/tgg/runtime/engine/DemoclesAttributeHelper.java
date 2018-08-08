@@ -29,15 +29,15 @@ import org.gervarro.democles.specification.emf.constraint.relational.RelationalC
 
 import TGGAttributeConstraint.AttributeConstraint;
 import TGGAttributeConstraint.TGGAttributeConstraintFactory;
+import language.TGGAttributeConstraint;
+import language.TGGAttributeConstraintOperators;
+import language.TGGAttributeExpression;
+import language.TGGEnumExpression;
+import language.TGGExpression;
+import language.TGGInplaceAttributeExpression;
+import language.TGGLiteralExpression;
+import language.TGGParamValue;
 import language.TGGRuleNode;
-import language.basic.expressions.TGGAttributeExpression;
-import language.basic.expressions.TGGEnumExpression;
-import language.basic.expressions.TGGExpression;
-import language.basic.expressions.TGGLiteralExpression;
-import language.basic.expressions.TGGParamValue;
-import language.csp.TGGAttributeConstraint;
-import language.inplaceAttributes.TGGAttributeConstraintOperators;
-import language.inplaceAttributes.TGGInplaceAttributeExpression;
 
 public class DemoclesAttributeHelper {
 	// Maps for attribute constraints

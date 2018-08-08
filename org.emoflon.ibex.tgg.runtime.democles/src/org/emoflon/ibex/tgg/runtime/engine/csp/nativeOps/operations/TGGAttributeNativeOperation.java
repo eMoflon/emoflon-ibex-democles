@@ -7,7 +7,7 @@ import org.gervarro.democles.runtime.InternalDataFrameProvider;
 import org.gervarro.democles.runtime.NativeOperation;
 import org.gervarro.democles.runtime.RemappedDataFrame;
 
-import language.csp.definition.TGGAttributeConstraintDefinition;
+import language.TGGAttributeConstraintDefinition;
 
 public class TGGAttributeNativeOperation extends NativeOperation {	
 	private String id;
