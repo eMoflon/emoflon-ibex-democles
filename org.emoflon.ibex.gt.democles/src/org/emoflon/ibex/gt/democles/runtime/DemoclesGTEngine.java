@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.emoflon.ibex.common.collections.CollectionFactory;
 import org.emoflon.ibex.common.emf.EMFSaveUtils;
 import org.emoflon.ibex.common.operational.IContextPatternInterpreter;
 import org.emoflon.ibex.common.operational.IMatch;
@@ -69,8 +70,6 @@ import org.gervarro.democles.specification.impl.PatternInvocationConstraintModul
 import org.gervarro.notification.model.ModelDelta;
 
 import IBeXLanguage.IBeXPatternSet;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 /**
  * Engine for (unidirectional) graph transformations with Democles.
@@ -91,7 +90,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	/**
 	 * The matches.
 	 */
-	protected Object2ObjectOpenHashMap<IDataFrame, Map<String, IMatch>> matches;
+	protected Map<IDataFrame, Map<String, IMatch>> matches;
 
 	/**
 	 * The Democles patterns.
@@ -127,13 +126,13 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	 * Creates a new DemoclesGTEngine.
 	 */
 	public DemoclesGTEngine() {
-		this.patterns = new Object2ObjectLinkedOpenHashMap<String, Pattern>();
+		this.patterns = CollectionFactory.INSTANCE.createObjectToObjectLinkedHashMap();
 		this.patternMatchers = new ArrayList<>();
-		this.matches = new Object2ObjectOpenHashMap<>();
+		this.matches = CollectionFactory.INSTANCE.createObjectToObjectHashMap();
 	}
 
 	public void setPatterns(Collection<Pattern> patterns) {
-		this.patterns = new Object2ObjectLinkedOpenHashMap<String, Pattern>();
+		this.patterns = CollectionFactory.INSTANCE.createObjectToObjectLinkedHashMap();
 		for (Pattern p : patterns) {
 			this.patterns.put(getPatternID(p), p);
 		}
@@ -361,7 +360,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 		String patternName = pattern.getName();
 		Map<String, IMatch> patternCollection = matches.get(frame);
 		if (patternCollection == null) {
-			patternCollection = new Object2ObjectOpenHashMap<>();
+			patternCollection = CollectionFactory.INSTANCE.createObjectToObjectLinkedHashMap();
 			matches.put(frame, patternCollection);
 		}
 		if (patternCollection.containsKey(patternName)) {
