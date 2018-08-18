@@ -9,7 +9,7 @@ import org.eclipse.ui.IEditorPart;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.PatternBody;
 import org.moflon.core.ui.visualisation.EMoflonPlantUMLGenerator;
-import org.moflon.core.ui.visualisation.EMoflonVisualiser;
+import org.moflon.core.ui.visualisation.common.EMoflonVisualiser;
 
 public class IbexDemoclesPatternVisualiser extends EMoflonVisualiser {
 
