@@ -1,5 +1,7 @@
 package org.emoflon.ibex.gt.democles.runtime;
 
+import static org.emoflon.ibex.common.collections.CollectionFactory.cfactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +21,6 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.emoflon.ibex.common.collections.CollectionFactory;
 import org.emoflon.ibex.common.emf.EMFSaveUtils;
 import org.emoflon.ibex.common.operational.IContextPatternInterpreter;
 import org.emoflon.ibex.common.operational.IMatch;
@@ -126,13 +127,13 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	 * Creates a new DemoclesGTEngine.
 	 */
 	public DemoclesGTEngine() {
-		this.patterns = CollectionFactory.INSTANCE.createObjectToObjectLinkedHashMap();
+		this.patterns = cfactory.createObjectToObjectLinkedHashMap();
 		this.patternMatchers = new ArrayList<>();
-		this.matches = CollectionFactory.INSTANCE.createObjectToObjectHashMap();
+		this.matches = cfactory.createObjectToObjectHashMap();
 	}
 
 	public void setPatterns(Collection<Pattern> patterns) {
-		this.patterns = CollectionFactory.INSTANCE.createObjectToObjectLinkedHashMap();
+		this.patterns = cfactory.createObjectToObjectLinkedHashMap();
 		for (Pattern p : patterns) {
 			this.patterns.put(getPatternID(p), p);
 		}
@@ -360,7 +361,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 		String patternName = pattern.getName();
 		Map<String, IMatch> patternCollection = matches.get(frame);
 		if (patternCollection == null) {
-			patternCollection = CollectionFactory.INSTANCE.createObjectToObjectLinkedHashMap();
+			patternCollection = cfactory.createObjectToObjectLinkedHashMap();
 			matches.put(frame, patternCollection);
 		}
 		if (patternCollection.containsKey(patternName)) {
