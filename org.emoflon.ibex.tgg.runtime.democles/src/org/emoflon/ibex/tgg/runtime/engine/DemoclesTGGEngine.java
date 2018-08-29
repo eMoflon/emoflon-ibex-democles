@@ -1,17 +1,18 @@
 package org.emoflon.ibex.tgg.runtime.engine;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.gt.democles.runtime.DemoclesGTEngine;
-import org.emoflon.ibex.tgg.compiler.BlackPatternCompiler;
-import org.emoflon.ibex.tgg.compiler.patterns.common.IBlackPattern;
+import org.emoflon.ibex.tgg.compiler.IContextPatternTransformation;
 import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
@@ -37,6 +38,7 @@ import IBeXLanguage.IBeXPatternSet;
  */
 public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpreter {
 	private IbexOptions options;
+	private IBeXPatternSet ibexPatterns;
 
 	/**
 	 * Creates a new DemoclesTGGEngine.
@@ -48,25 +50,10 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	@Override
 	public void setOptions(final IbexOptions options) {
 		this.options = options;
-		initPatterns(null);
-	}
 
-	@Override
-	public void initPatterns(final IBeXPatternSet ibexPatternSet) {
-		BlackPatternCompiler compiler = new BlackPatternCompiler(options);
-		compiler.preparePatterns();
-
-		IBlackToDemoclesPatternTransformation transformation = new IBlackToDemoclesPatternTransformation(this.options);
-		for (String r : compiler.getRuleToPatternMap().keySet()) {
-			for (IBlackPattern pattern : compiler.getRuleToPatternMap().get(r)) {
-				if (IBlackToDemoclesPatternTransformation.patternIsNotEmpty(pattern)
-						&& app.isPatternRelevantForCompiler(pattern.getName())) {
-					transformation.ibexToDemocles(pattern);
-				}
-			}
-		}
-		this.setPatterns(transformation.getPatterns());
-		this.createAndRegisterPatterns();
+		IContextPatternTransformation compiler = IContextPatternTransformation.getTransformation(options);
+		ibexPatterns = compiler.transform();
+		initPatterns(ibexPatterns);
 	}
 
 	@Override
@@ -102,13 +89,18 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 
 	@Override
 	public void monitor(final ResourceSet resourceSet) {
-		if (options.debug())
-			saveDemoclesPatterns(resourceSet);
+		if (options.debug()) {
+			savePatterns(resourceSet, options.projectPath() + "/debug/democles-patterns.xmi", patterns.values()//
+					.stream()//
+					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))//
+					.collect(Collectors.toList()));
+			
+			savePatterns(resourceSet, options.projectPath() + "/debug/ibex-patterns.xmi", Arrays.asList(ibexPatterns));
+		}
 
 		super.monitor(resourceSet);
 	}
 
-	
 	/**
 	 * Use this method to get extra debug information concerning the rete network.
 	 * Currently not used to reduce debug output.
@@ -124,14 +116,12 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 		}
 	}
 
-	private void saveDemoclesPatterns(ResourceSet rs) {
-		Resource r = rs
-				.createResource(URI.createPlatformResourceURI(options.projectPath() + "/debug/patterns.xmi", true));
-		r.getContents().addAll(patterns.values().stream().sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
-				.collect(Collectors.toList()));
+	private void savePatterns(ResourceSet rs, String path, Collection<EObject> patterns) {
+		Resource democlesPatterns = rs.createResource(URI.createPlatformResourceURI(path, true));
+		democlesPatterns.getContents().addAll(patterns);
 		try {
-			r.save(null);
-			rs.getResources().remove(r);
+			democlesPatterns.save(null);
+			rs.getResources().remove(democlesPatterns);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

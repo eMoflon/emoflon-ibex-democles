@@ -25,9 +25,12 @@ import org.gervarro.democles.specification.emf.constraint.relational.RelationalC
 
 import language.TGGRuleNode;
 
+// FIXME: This class should become obsolete after switching to IBexLanguage and the GT transformation to Democles
+
 /**
  * Transformation from IBlackPattern to (Democles) Pattern
  */
+@Deprecated
 public class IBlackToDemoclesPatternTransformation {
 	private IbexOptions options;
 	private HashMap<IBlackPattern, Pattern> patternMap;
