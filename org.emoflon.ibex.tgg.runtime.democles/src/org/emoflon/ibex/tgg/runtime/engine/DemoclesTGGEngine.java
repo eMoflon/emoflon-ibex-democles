@@ -50,7 +50,6 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	@Override
 	public void setOptions(final IbexOptions options) {
 		this.options = options;
-
 		IContextPatternTransformation compiler = IContextPatternTransformation.getTransformation(options);
 		ibexPatterns = compiler.transform();
 		initPatterns(ibexPatterns);
