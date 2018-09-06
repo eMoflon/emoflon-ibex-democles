@@ -31,12 +31,12 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 	/**
 	 * Democles patterns.
 	 */
-	private List<Pattern> democlesPatterns = new ArrayList<>();
+	protected List<Pattern> democlesPatterns = new ArrayList<>();
 
 	/**
 	 * Mapping between pattern names and Democles patterns.
 	 */
-	private HashMap<String, Pattern> patternMap = new HashMap<>();
+	protected HashMap<String, Pattern> patternMap = new HashMap<>();
 
 	@Override
 	public List<Pattern> transform(final IBeXPatternSet ibexPatternSet) {
@@ -85,7 +85,7 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 	 *            the IBeXContextPattern to transform
 	 * @return the Democles pattern
 	 */
-	private Pattern transformPattern(final IBeXContextPattern ibexPattern) {
+	protected Pattern transformPattern(final IBeXContextPattern ibexPattern) {
 		if (patternMap.containsKey(ibexPattern.getName())) {
 			return patternMap.get(ibexPattern.getName());
 		}
@@ -114,7 +114,7 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 	 * @param nodeToVariable
 	 *            the mapping from IBeXNodes to Democles variables
 	 */
-	private void transformPatternInvocations(final IBeXContextPattern ibexPattern, final Pattern democlesPattern,
+	protected void transformPatternInvocations(final IBeXContextPattern ibexPattern, final Pattern democlesPattern,
 			final Map<IBeXNode, EMFVariable> nodeToVariable) {
 		for (final IBeXPatternInvocation invocation : ibexPattern.getInvocations()) {
 			PatternInvocationConstraint constraint = transformInvocation(invocation, nodeToVariable);

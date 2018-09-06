@@ -3,6 +3,7 @@ package org.emoflon.ibex.tgg.runtime.engine;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -12,7 +13,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.gt.democles.runtime.DemoclesGTEngine;
-import org.emoflon.ibex.tgg.compiler.IContextPatternTransformation;
+import org.emoflon.ibex.gt.democles.runtime.IBeXToDemoclesPatternTransformation;
+import org.emoflon.ibex.tgg.compiler.transformations.ContextPatternTransformation;
 import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
@@ -31,7 +33,9 @@ import org.gervarro.democles.runtime.GenericOperationBuilder;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.TypeModule;
 
+import IBeXLanguage.IBeXContextPattern;
 import IBeXLanguage.IBeXPatternSet;
+import language.TGGNamedElement;
 
 /**
  * Engine for (bidirectional) graph transformations with Democles.
@@ -39,6 +43,7 @@ import IBeXLanguage.IBeXPatternSet;
 public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpreter {
 	private IbexOptions options;
 	private IBeXPatternSet ibexPatterns;
+	private Map<IBeXContextPattern, TGGNamedElement> patternToRuleMap;
 
 	/**
 	 * Creates a new DemoclesTGGEngine.
@@ -50,9 +55,19 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	@Override
 	public void setOptions(final IbexOptions options) {
 		this.options = options;
-		IContextPatternTransformation compiler = IContextPatternTransformation.getTransformation(options);
+		ContextPatternTransformation compiler = new ContextPatternTransformation(options);
 		ibexPatterns = compiler.transform();
+		patternToRuleMap = compiler.getPatternToRuleMap();
 		initPatterns(ibexPatterns);
+	}
+
+	@Override
+	public void initPatterns(final IBeXPatternSet ibexPatternSet) {
+		IBeXToDemoclesPatternTransformation transformation = new TGGIBeXToDemoclesPatternTransformation(options,
+				patternToRuleMap);
+		this.setPatterns(transformation.transform(ibexPatternSet));
+		this.savePatternsForDebugging();
+		this.createAndRegisterPatterns();
 	}
 
 	@Override
@@ -93,7 +108,7 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 					.stream()//
 					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))//
 					.collect(Collectors.toList()));
-			
+
 			savePatterns(resourceSet, options.projectPath() + "/debug/ibex-patterns.xmi", Arrays.asList(ibexPatterns));
 		}
 

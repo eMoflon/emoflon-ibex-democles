@@ -150,7 +150,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	/**
 	 * Saves the Democles patterns for debugging.
 	 */
-	private void savePatternsForDebugging() {
+	protected void savePatternsForDebugging() {
 		debugPath.ifPresent(path -> {
 			List<Pattern> sortedPatterns = patterns.values().stream() //
 					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName())) // alphabetically by name
