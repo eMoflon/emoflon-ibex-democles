@@ -9,14 +9,17 @@ import java.util.stream.Collectors;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emoflon.ibex.common.operational.IMatch;
+import org.emoflon.ibex.common.operational.IMatchObserver;
 import org.emoflon.ibex.gt.democles.runtime.DemoclesGTEngine;
 import org.emoflon.ibex.gt.democles.runtime.IBeXToDemoclesPatternTransformation;
 import org.emoflon.ibex.tgg.compiler.transformations.ContextPatternTransformation;
 import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
+import org.emoflon.ibex.tgg.operational.strategies.OperationalStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
 import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
@@ -44,6 +47,7 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	private IbexOptions options;
 	private IBeXPatternSet ibexPatterns;
 	private Map<IBeXContextPattern, TGGNamedElement> patternToRuleMap;
+	private OperationalStrategy strategy;
 
 	/**
 	 * Creates a new DemoclesTGGEngine.
@@ -53,9 +57,13 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	}
 
 	@Override
-	public void setOptions(final IbexOptions options) {
+	public void initialise(final IbexOptions options, Registry registry, IMatchObserver matchObserver) {
+		super.initialise(registry, matchObserver);
+		
 		this.options = options;
-		ContextPatternTransformation compiler = new ContextPatternTransformation(options);
+		this.strategy = (OperationalStrategy) matchObserver;
+		
+		ContextPatternTransformation compiler = new ContextPatternTransformation(options, strategy);
 		ibexPatterns = compiler.transform();
 		patternToRuleMap = compiler.getPatternToRuleMap();
 		initPatterns(ibexPatterns);
