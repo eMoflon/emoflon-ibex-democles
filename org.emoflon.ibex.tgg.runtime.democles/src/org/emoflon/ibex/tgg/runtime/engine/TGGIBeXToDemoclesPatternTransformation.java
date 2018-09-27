@@ -43,15 +43,17 @@ public class TGGIBeXToDemoclesPatternTransformation extends IBeXToDemoclesPatter
 		Pattern democlesPattern = patternHelper.transform();
 
 		// Handle TGG attribute constraints
-		PatternBody body = democlesPattern.getBodies().get(0);
-		DemoclesAttributeHelper helper = new DemoclesAttributeHelper(options, body);
-		TGGNamedElement tggElement = patternToRuleMap.get(ibexPattern);
-		if (tggElement != null) {
-			Map<String, EMFVariable> nameToVar = new HashMap<>();
-			patternHelper.getNodeToVariableMapping().keySet()
-					.forEach(k -> nameToVar.put(k.getName(), patternHelper.getNodeToVariableMapping().get(k)));
-			helper.createAttributeConstraints(getAttributeConstraintsForPattern(tggElement, ibexPattern), body,
-					nameToVar, democlesPattern.getSymbolicParameters());
+		if (options.blackInterpSupportsAttrConstrs()) {
+			PatternBody body = democlesPattern.getBodies().get(0);
+			DemoclesAttributeHelper helper = new DemoclesAttributeHelper(options, body);
+			TGGNamedElement tggElement = patternToRuleMap.get(ibexPattern);
+			if (tggElement != null) {
+				Map<String, EMFVariable> nameToVar = new HashMap<>();
+				patternHelper.getNodeToVariableMapping().keySet()
+						.forEach(k -> nameToVar.put(k.getName(), patternHelper.getNodeToVariableMapping().get(k)));
+				helper.createAttributeConstraints(getAttributeConstraintsForPattern(tggElement, ibexPattern), body,
+						nameToVar, democlesPattern.getSymbolicParameters());
+			}
 		}
 
 		// Transform each invocations to a PatternInvocationConstraint.
