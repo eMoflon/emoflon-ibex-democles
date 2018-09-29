@@ -127,13 +127,13 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	 * Creates a new DemoclesGTEngine.
 	 */
 	public DemoclesGTEngine() {
-		this.patterns = cfactory.createObjectToObjectLinkedHashMap();
+		this.patterns = cfactory.createObjectToObjectHashMap();
 		this.patternMatchers = new ArrayList<>();
 		this.matches = cfactory.createObjectToObjectHashMap();
 	}
 
 	public void setPatterns(Collection<Pattern> patterns) {
-		this.patterns = cfactory.createObjectToObjectLinkedHashMap();
+		this.patterns = cfactory.createObjectToObjectHashMap();
 		for (Pattern p : patterns) {
 			this.patterns.put(getPatternID(p), p);
 		}
@@ -150,7 +150,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	/**
 	 * Saves the Democles patterns for debugging.
 	 */
-	private void savePatternsForDebugging() {
+	protected void savePatternsForDebugging() {
 		debugPath.ifPresent(path -> {
 			List<Pattern> sortedPatterns = patterns.values().stream() //
 					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName())) // alphabetically by name
