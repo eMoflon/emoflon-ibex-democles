@@ -33,6 +33,12 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
       <discovery label="eMoflon Core" url="https://emoflon.org/emoflon-core-updatesite/snapshot/updatesite/"/>
    </url>
 
+   <includes
+         id="org.emoflon.ibex.tgg.editor.feature"
+         version="0.0.0"
+         name="TGG Visualization with Sirius"
+         optional="true"/>
+
    <requires>
       <import feature="org.moflon.core.feature" version="1.0" match="greaterOrEqual"/>
       <import feature="org.gervarro.democles.feature.advanced" version="0.5" match="greaterOrEqual"/>

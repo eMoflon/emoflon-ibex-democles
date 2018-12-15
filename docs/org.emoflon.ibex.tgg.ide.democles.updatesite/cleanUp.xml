@@ -18,6 +18,8 @@
 	<target name="default">
 
 		<delete>
+			<fileset dir="build">
+			</fileset>
 			<fileset dir="features">
 				<include name="*.jar" />
 			</fileset>
