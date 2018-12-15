@@ -5,7 +5,7 @@
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.common"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.common.editor.utils"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.gt"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,new-deployment,org.emoflon.ibex.gt.democles"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.gt.democles"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.gt.editor"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.gt.editor.ide"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.gt.editor.tests"/>
@@ -20,10 +20,10 @@
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-sirius.git,master,org.emoflon.ibex.tgg.editor.feature"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.editor.ui"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.ide"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,new-deployment,org.emoflon.ibex.tgg.ide.democles"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,new-deployment,docs/org.emoflon.ibex.tgg.ide.democles.feature"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,new-deployment,docs/org.emoflon.ibex.tgg.ide.democles.updatesite"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,new-deployment,org.emoflon.ibex.tgg.runtime.democles"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.ide.democles"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,docs/org.emoflon.ibex.tgg.ide.democles.feature"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,docs/org.emoflon.ibex.tgg.ide.democles.updatesite"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.runtime.democles"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.weights"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.weights.ide"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.weights.ui"/>
