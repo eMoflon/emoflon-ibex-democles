@@ -25,7 +25,7 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
    </license>
 
    <url>
-      <update label="eMoflon::IBeX" url="https://emoflon.org/emoflon-ibex-democles/org.emoflon.ibex.tgg.ide.democles.updatesite/"/>
+      <update label="eMoflon::IBeX" url="https://emoflon.org/emoflon-ibex-democles-updatesite/stable/updatesite"/>
       <discovery label="Democles" url="http://gervarro.org/democles/integration-0.5.0/"/>
       <discovery label="Democles Advanced" url="http://gervarro.org/democles/advanced/integration-0.5.0/"/>
       <discovery label="PlantUML" url="http://hallvard.github.io/plantuml"/>
