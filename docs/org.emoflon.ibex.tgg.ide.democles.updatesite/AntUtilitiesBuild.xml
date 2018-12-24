@@ -10,8 +10,8 @@
 	<property name="buildDirectory" value="build" />
 	<property name="updateSiteSourceProject" value="org.emoflon.ibex.tgg.ide.democles.updatesite" />
 	<property name="emoflonIbexUpdatesiteProject" value="emoflon-ibex-democles-updatesite" />
-	<property name="updateSiteLocationSnapshot" value="${emoflonCoreUpdateSiteProjectRoot}/snapshot/updatesite" />
-	<property name="updateSiteLocationStable" value="${emoflonCoreUpdateSiteProjectRoot}/stable/updatesite" />
+	<property name="updateSiteLocationSnapshot" value="${emoflonIbexUpdateSiteProjectRoot}/snapshot/updatesite" />
+	<property name="updateSiteLocationStable" value="${emoflonIbexUpdateSiteProjectRoot}/stable/updatesite" />
 	<property name="updateSiteArchive" value="${buildDirectory}/updatesite.zip" />
 
 
