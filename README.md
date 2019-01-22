@@ -7,7 +7,7 @@ Democles-specific component for [eMoflon::IBeX](https://github.com/eMoflon/emofl
 3. Install Xtext from this update site:
 	http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/
 4. Install eMoflon::IBeX from this update site:
-	https://emoflon.github.io/emoflon-ibex-democles/org.emoflon.ibex.tgg.ide.democles.updatesite/
+	https://emoflon.org/emoflon-ibex-democles-updatesite/snapshot/updatesite/
     - **Important**: Make sure you enable "contact all update sites" in the update manager
 		so all dependencies are automatically installed.
     - **Important**: After adding the IBex update site some extra update sites
