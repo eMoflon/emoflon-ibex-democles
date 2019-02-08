@@ -21,7 +21,13 @@ import language.TGGAttributeConstraintLibrary;
 import language.TGGNamedElement;
 import language.TGGRule;
 
+import org.emoflon.ibex.tgg.operational.monitoring.*;
+
 public class TGGIBeXToDemoclesPatternTransformation extends IBeXToDemoclesPatternTransformation {
+	
+	ObservableOperation observableOperation = new ObservableOperation();
+	IbexObserver generatedPatternsSizeObserver = new GeneratedPatternsSize(observableOperation);
+	
 	private IbexOptions options;
 	private Map<IBeXContextPattern, TGGNamedElement> patternToRuleMap;
 
@@ -34,6 +40,7 @@ public class TGGIBeXToDemoclesPatternTransformation extends IBeXToDemoclesPatter
 
 	@Override
 	protected Pattern transformPattern(final IBeXContextPattern ibexPattern) {
+		generatedPatternsSizeObserver.helper(ibexPattern);
 		if (patternMap.containsKey(ibexPattern.getName())) {
 			return patternMap.get(ibexPattern.getName());
 		}
