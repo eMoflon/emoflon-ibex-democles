@@ -18,7 +18,7 @@ public class IbexDemoclesBuilderExtension implements BuilderExtension {
 	@Override
 	public void run(IbexTGGBuilder builder, TripleGraphGrammarFile editorModel, TripleGraphGrammarFile flattenedEditorModel) {
 		try {
-			builder.createDefaultDebugRunFile("MODELGEN_App", (projectName, fileName) 
+			builder.createDefaultDebugRunFile("MODELGEN_Debug_App", (projectName, fileName) 
 				-> DefaultFilesGenerator.generateModelGenDebugFile(projectName, fileName, ENGINE, IMPORT));
 			builder.createDefaultRunFile("MODELGEN_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateModelGenFile(projectName, fileName, ENGINE, IMPORT));
