@@ -15,12 +15,14 @@
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.tgg.core.language"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.tgg.core.runtime"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.editor"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-sirius.git,master,org.emoflon.ibex.tgg.editor.feature"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.editor.ui"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.ide"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.ide.democles"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,docs/org.emoflon.ibex.tgg.ide.democles.feature"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,docs/org.emoflon.ibex.tgg.ide.democles.updatesite"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.runtime.democles"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.ui.debug"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,master,org.moflon.core.branding"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,master,org.moflon.core.build"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,master,org.moflon.core.build.tests"/>
@@ -57,10 +59,10 @@
 <workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1518877419851_4" label="core-deployment" name="deployment">
 <item elementID="=org.moflon.core.branding" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/emoflon-core-updatesite" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.moflon.releng.signing" type="4"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.moflon.core.releng.target" type="4"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.moflon.core.feature" type="4"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.moflon.core.releng.updatesite" type="4"/>
-<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.moflon.releng.signing" type="4"/>
 </workingSets>
 <workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1518877489367_5" label="core-ide" name="ide">
 <item elementID="=org.moflon.emf.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
@@ -114,88 +116,6 @@
 <item elementID="=org.emoflon.ibex.tgg.editor.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.emoflon.ibex.tgg.ide" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.emoflon.ibex.tgg.editor" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-</workingSets>
-<workingSets editPageId="org.eclipse.jdt.internal.ui.DynamicSourcesWorkingSet" id="1544876266298_0" label="Java Main Sources" name="main">
-<item elementID="=org.emoflon.ibex.common/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.common/gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.common/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.common/injection" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.common.editor.utils/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt/gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt/injection" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.democles/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor/src-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.ide/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.ide/src-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.ide/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.tests/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.tests/src-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.tests/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.ui/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.ui/src-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.ui/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.ui.tests/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.ui.tests/src-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.gt.editor.ui.tests/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.core.language/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.core.language/gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.core.language/injection" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.core.runtime/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.core.runtime/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.core.runtime/gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.core.runtime/injection" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.editor/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.editor/src-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.editor/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.editor.ui/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.editor.ui/src-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.editor.ui/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.ide/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.ide/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.ide.democles/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.ide.democles/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.runtime.democles/gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.runtime.democles/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.editor.diagram/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.editor.diagram.core/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.emoflon.ibex.tgg.editor.diagram.ui/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.build/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.build.tests/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.plugins/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.plugins.tests/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.preferences/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.propertycontainer/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.propertycontainer/gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.propertycontainer/injection" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.ui/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.ui/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.ui.autosetup/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.ui.autosetup.tests/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.ui.autosetup.tests/resources" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.ui.packageregistration/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.utilities/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.utilities.tests/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.core.xtext/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.build/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.codegen/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection/src-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.ide/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.ide/src-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.ide/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.tests/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.tests/resources" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.ui/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.ui/src-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.ui/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.ui/test" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.ui/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.ui/xtend-gen" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.git.ui/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.ui.debug" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 </workingSets>
 </psf>
