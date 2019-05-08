@@ -37,8 +37,8 @@ Note that Gurobi is only free for academical use (but not for commercial).
    For eMoflon including everything (e.g. for deployment)
    	- https://raw.githubusercontent.com/eMoflon/emoflon-ibex-democles/master/devProjectSet_Full.psf <br/>
 4. Execute MWE2
-    - Open packages ```org.emoflon.ibex.gt.editor/src/org.emoflon.ibex.gt.editor```, ```org.emoflon.ibex.tgg.editor/src/org.moflon.tgg.mosl```
-    - Right-click on ```GenerateGT.mwe2``` in the first package, ```GenerateTGG.mwe2``` in the second.
+    - Open packages ```org.emoflon.ibex.gt.editor/src/org.emoflon.ibex.gt.editor```, ```org.emoflon.ibex.tgg.editor/src/org.moflon.tgg.mosl```, and ```org.moflon.emf.injection```
+    - Right-click on ```GenerateGT.mwe2``` in the first package, ```GenerateTGG.mwe2``` in the second, and ```GenerateInjectionLanguage.mwe2``` in the third.
     - Press ```Run As -> MWE2 Workflow```.
 5. Set UTF-8 as file encoding for the development workspace (*Window &rarr; Preferences &rarr; General/Workspace*) and build all projects (*Project &rarr; Build All*) to trigger code generation (and get rid of errors).
 6. Set up your runtime and test workspaces by starting a runtime Eclipse workspace
