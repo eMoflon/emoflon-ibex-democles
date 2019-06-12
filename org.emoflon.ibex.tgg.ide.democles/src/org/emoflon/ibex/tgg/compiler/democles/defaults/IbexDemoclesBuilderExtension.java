@@ -18,16 +18,20 @@ public class IbexDemoclesBuilderExtension implements BuilderExtension {
 	@Override
 	public void run(IbexTGGBuilder builder, TripleGraphGrammarFile editorModel, TripleGraphGrammarFile flattenedEditorModel) {
 		try {
-			builder.createDefaultDebugRunFile("MODELGEN_App", (projectName, fileName) 
-				-> DefaultFilesGenerator.generateModelGenDebugFile(projectName, fileName, ENGINE, IMPORT));
+			builder.createDefaultDebugRunFile("MODELGEN_Debug_App", (projectName, fileName) 
+				-> DefaultFilesGenerator.generateModelGenDebugFile(projectName, fileName));
 			builder.createDefaultRunFile("MODELGEN_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateModelGenFile(projectName, fileName, ENGINE, IMPORT));
 			builder.createDefaultRunFile("SYNC_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateSyncAppFile(projectName, fileName, ENGINE, IMPORT));
 			builder.createDefaultRunFile("INITIAL_FWD_App", (projectName, fileName) 
-					-> DefaultFilesGenerator.generateInitialFwdAppFile(projectName, fileName, ENGINE, IMPORT));
+				-> DefaultFilesGenerator.generateInitialFwdAppFile(projectName, fileName, ENGINE, IMPORT));
+			builder.createDefaultDebugRunFile("INITIAL_FWD_Debug_App", (projectName, fileName) 
+				-> DefaultFilesGenerator.generateInitialFwdDebugAppFile(projectName, fileName));
 			builder.createDefaultRunFile("INITIAL_BWD_App", (projectName, fileName) 
-					-> DefaultFilesGenerator.generateInitialBwdAppFile(projectName, fileName, ENGINE, IMPORT));
+				-> DefaultFilesGenerator.generateInitialBwdAppFile(projectName, fileName, ENGINE, IMPORT));
+			builder.createDefaultDebugRunFile("INITIAL_BWD_Debug_App", (projectName, fileName) 
+				-> DefaultFilesGenerator.generateInitialBwdDebugAppFile(projectName, fileName));
 			builder.createDefaultRunFile("CC_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateCCAppFile(projectName, fileName, ENGINE, IMPORT));
 			builder.createDefaultRunFile("CO_App", (projectName, fileName) 
