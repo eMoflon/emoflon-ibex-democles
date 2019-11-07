@@ -370,6 +370,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 		IMatch match = this.createMatch(frame, pattern);
 		patternCollection.put(patternName, match);
 		app.addMatch(match);
+		app.notifySubscriptions();
 	}
 
 	private void handleDeleteEvent(DataFrame frame, Pattern pattern) {
@@ -392,6 +393,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	 */
 	private void removeMatch(IDataFrame iDataFrame, IMatch match) {
 		app.removeMatch(match);
+		app.notifySubscriptions();
 		Map<String, IMatch> matchList = matches.get(iDataFrame);
 		if (matchList == null) {
 			return;
