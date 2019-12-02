@@ -12,30 +12,27 @@ public class IbexDemoclesBuilderExtension implements BuilderExtension {
 
 	private Logger logger = Logger.getLogger(IbexDemoclesBuilderExtension.class);
 	
-	private static final String ENGINE = "DemoclesTGGEngine";
-	private static final String IMPORT = "import org.emoflon.ibex.tgg.runtime.engine.DemoclesTGGEngine;";
-	
 	@Override
 	public void run(IbexTGGBuilder builder, TripleGraphGrammarFile editorModel, TripleGraphGrammarFile flattenedEditorModel) {
 		try {
 			builder.createDefaultDebugRunFile("MODELGEN_Debug_App", (projectName, fileName) 
-				-> DefaultFilesGenerator.generateModelGenDebugFile(projectName, fileName, IMPORT));
+				-> DefaultFilesGenerator.generateModelGenDebugFile(projectName, fileName));
 			builder.createDefaultRunFile("MODELGEN_App", (projectName, fileName) 
-					-> DefaultFilesGenerator.generateModelGenFile(projectName, fileName, IMPORT));
+					-> DefaultFilesGenerator.generateModelGenFile(projectName, fileName));
 			builder.createDefaultRunFile("SYNC_App", (projectName, fileName) 
-					-> DefaultFilesGenerator.generateSyncAppFile(projectName, fileName, IMPORT));
+					-> DefaultFilesGenerator.generateSyncAppFile(projectName, fileName));
 			builder.createDefaultRunFile("INITIAL_FWD_App", (projectName, fileName) 
-				-> DefaultFilesGenerator.generateInitialFwdAppFile(projectName, fileName, IMPORT));
+				-> DefaultFilesGenerator.generateInitialFwdAppFile(projectName, fileName));
 			builder.createDefaultRunFile("INITIAL_BWD_App", (projectName, fileName) 
-				-> DefaultFilesGenerator.generateInitialBwdAppFile(projectName, fileName, IMPORT));
+				-> DefaultFilesGenerator.generateInitialBwdAppFile(projectName, fileName));
 			builder.createDefaultRunFile("CC_App", (projectName, fileName) 
-					-> DefaultFilesGenerator.generateCCAppFile(projectName, fileName, IMPORT));
+					-> DefaultFilesGenerator.generateCCAppFile(projectName, fileName));
 			builder.createDefaultRunFile("CO_App", (projectName, fileName) 
-					-> DefaultFilesGenerator.generateCOAppFile(projectName, fileName, IMPORT));
+					-> DefaultFilesGenerator.generateCOAppFile(projectName, fileName));
 			builder.createDefaultRunFile("FWD_OPT_App", (projectName, fileName) 
-					-> DefaultFilesGenerator.generateFWDOptAppFile(projectName, fileName, IMPORT));
+					-> DefaultFilesGenerator.generateFWDOptAppFile(projectName, fileName));
 			builder.createDefaultRunFile("BWD_OPT_App", (projectName, fileName) 
-					-> DefaultFilesGenerator.generateBWDOptAppFile(projectName, fileName, IMPORT));
+					-> DefaultFilesGenerator.generateBWDOptAppFile(projectName, fileName));
 			builder.createDefaultRunFile("_RegistrationHelper", (projectName, fileName)
 					-> DefaultFilesGenerator.generateRegHelperFile(projectName));
 			builder.enforceDefaultRunFile("_SchemaBasedAutoRegistration", (projectName, fileName)
