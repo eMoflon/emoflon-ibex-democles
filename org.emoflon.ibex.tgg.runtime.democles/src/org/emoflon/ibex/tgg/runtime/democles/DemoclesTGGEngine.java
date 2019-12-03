@@ -1,4 +1,4 @@
-package org.emoflon.ibex.tgg.runtime.engine;
+package org.emoflon.ibex.tgg.runtime.democles;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,11 +20,11 @@ import org.emoflon.ibex.tgg.compiler.transformations.patterns.ContextPatternTran
 import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.emoflon.ibex.tgg.operational.strategies.OperationalStrategy;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintModule;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGAttributeConstraintTypeModule;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGConstraintComponentBuilder;
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.TGGNativeOperationBuilder;
+import org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
+import org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps.TGGAttributeConstraintModule;
+import org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps.TGGAttributeConstraintTypeModule;
+import org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps.TGGConstraintComponentBuilder;
+import org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps.TGGNativeOperationBuilder;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.runtime.OperationBuilder;
 import org.gervarro.democles.common.runtime.VariableRuntime;
