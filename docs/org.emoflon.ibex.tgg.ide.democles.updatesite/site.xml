@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <feature url="features/org.emoflon.ibex.tgg.ide.democles.feature_1.0.0.qualifier.jar" id="org.emoflon.ibex.tgg.ide.democles.feature" version="1.0.0.qualifier">
-      <category name="eMoflon-Ibex-Democles"/>
+      <category name="eMoflon-Ibex"/>
    </feature>
-   <category-def name="eMoflon-Ibex-Democles" label="eMoflon::Ibex (Democles)"/>
+   <feature url="features/org.emoflon.ibex.tgg.ide.hipe.feature_1.0.0.qualifier.jar" id="org.emoflon.ibex.tgg.ide.hipe.feature" version="1.0.0.qualifier">
+      <category name="eMoflon-Ibex"/>
+   </feature>
+   <category-def name="eMoflon-Ibex" label="eMoflon::Ibex"/>
 </site>
