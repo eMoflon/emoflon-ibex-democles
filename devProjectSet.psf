@@ -52,10 +52,6 @@
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,191203_merge,org.moflon.core.xtext"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,191203_merge,org.moflon.emf.build"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,191203_merge,org.moflon.emf.codegen"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-core.git,191203_merge,org.moflon.emf.injection"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-core.git,191203_merge,org.moflon.emf.injection.ide"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-core.git,191203_merge,org.moflon.emf.injection.tests"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-core.git,191203_merge,org.moflon.emf.injection.ui"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,191203_merge,org.moflon.emf.ui"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,191203_merge,org.moflon.git.ui"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-releng.git,master,org.moflon.releng.signing"/>
@@ -81,12 +77,6 @@
 <item elementID="=org.moflon.core.ui.autosetup.tests" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.moflon.core.ui.autosetup" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.moflon.git.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-</workingSets>
-<workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1518877351561_2" label="core-injection" name="injection">
-<item elementID="=org.moflon.emf.injection.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.tests" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=org.moflon.emf.injection.ide" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 </workingSets>
 <workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1518877537370_6" label="core-utils" name="utils">
 <item elementID="=org.moflon.core.xtext" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
