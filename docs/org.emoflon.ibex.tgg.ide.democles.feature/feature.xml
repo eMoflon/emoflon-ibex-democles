@@ -31,6 +31,7 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
       <discovery label="PlantUML" url="http://hallvard.github.io/plantuml"/>
       <discovery label="Xtext" url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
       <discovery label="eMoflon Core" url="https://emoflon.org/emoflon-core-updatesite/snapshot/updatesite/"/>
+      <discovery label="HiPE" url="https://arikae.github.io/HiPE-Updatesite/hipe.updatesite"/>
    </url>
 
    <includes

@@ -3,28 +3,37 @@
 <provider id="org.eclipse.egit.core.GitProvider">
 <project reference="1.0,https://github.com/eMoflon/emoflon-core-updatesite.git,master,."/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-updatesite.git,master,."/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.common"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.common.editor.utils"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.gt"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.gt.democles"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.gt.editor"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.gt.editor.ide"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.gt.editor.tests"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.gt.editor.ui"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.gt.editor.ui.tests"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.editor"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.editor.ui"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.ide"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.ui.debug"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.ui.debug.adapter"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-victory,master,org.emoflon.victory.ui"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.common"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.gt"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.tgg.core.language"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex.git,master,org.emoflon.ibex.tgg.core.runtime"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.editor"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-sirius.git,master,org.emoflon.ibex.tgg.editor.diagram"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-sirius.git,master,org.emoflon.ibex.tgg.editor.diagram.core"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-sirius.git,master,org.emoflon.ibex.tgg.editor.diagram.ui"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-sirius.git,master,org.emoflon.ibex.tgg.editor.feature"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.editor.ui"/>
-<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-ui.git,master,org.emoflon.ibex.tgg.ide"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.ide.democles"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,docs/org.emoflon.ibex.tgg.ide.democles.feature"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,docs/org.emoflon.ibex.tgg.ide.democles.updatesite"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-ibex-democles.git,master,org.emoflon.ibex.tgg.runtime.democles"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-hipe.git,master,org.emoflon.ibex.gt.hipe"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-hipe.git,master,org.emoflon.ibex.tgg.ide.hipe"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-hipe.git,master,org.emoflon.ibex.tgg.ide.hipe.dependency.feature"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-hipe.git,master,org.emoflon.ibex.tgg.ide.hipe.feature"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-hipe.git,master,org.emoflon.ibex.tgg.ide.hipe.updatesite"/>
+<project reference="1.0,https://github.com/eMoflon/emoflon-ibex-hipe.git,master,org.emoflon.ibex.tgg.runtime.hipe"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,master,org.moflon.core.branding"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,master,org.moflon.core.build"/>
 <project reference="1.0,https://github.com/eMoflon/emoflon-core.git,master,org.moflon.core.build.tests"/>
@@ -100,11 +109,13 @@
 <item elementID="=org.emoflon.ibex.tgg.runtime.democles" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.emoflon.ibex.tgg.ide.democles" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 </workingSets>
-<workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1502781754321_5" label="ibex-democles-deployment" name="ibex-democles-deployment">
-<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.emoflon.ibex.tgg.ide.democles.updatesite" type="4"/>
-<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/emoflon-ibex-democles-updatesite" type="4"/>
+<workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1502781754321_5" label="ibex-deployment" name="ibex-deployment">
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.emoflon.ibex.tgg.ide.updatesite" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/emoflon-ibex-updatesite" type="4"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.emoflon.ibex.tgg.ide.democles.feature" type="4"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/org.emoflon.ibex.tgg.editor.feature" type="4"/>
+<item elementID="=org.emoflon.ibex.tgg.ide.hipe.dependency.feature" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.ide.hipe.feature" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 </workingSets>
 <workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1544879560064_9" label="ibex-sirius-tgg" name="ibex-sirius-tgg">
 <item elementID="=org.emoflon.ibex.tgg.editor.diagram" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
@@ -123,6 +134,14 @@
 <item elementID="=org.emoflon.ibex.tgg.editor.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.emoflon.ibex.tgg.ide" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item elementID="=org.emoflon.ibex.tgg.editor" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.ui.debug" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.ui.debug.adapter" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.victory.ui" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+</workingSets>
+<workingSets editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" id="1544879560064_10" label="ibex-hipe" name="ibex-hipe">
+<item elementID="=org.emoflon.ibex.gt.hipe" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.ide.hipe" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item elementID="=org.emoflon.ibex.tgg.runtime.hipe" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 </workingSets>
 <workingSets editPageId="org.eclipse.jdt.internal.ui.DynamicSourcesWorkingSet" id="1544876266298_0" label="Java Main Sources" name="main">
 <item elementID="=org.emoflon.ibex.common/src" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>

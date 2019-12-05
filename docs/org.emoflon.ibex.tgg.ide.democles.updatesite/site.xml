@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.emoflon.ibex.tgg.ide.democles.feature_1.0.0.qualifier.jar" id="org.emoflon.ibex.tgg.ide.democles.feature" version="1.0.0.qualifier">
+   <feature url="features/org.emoflon.ibex.tgg.ide.democles.feature_1.0.0.201912042056.jar" id="org.emoflon.ibex.tgg.ide.democles.feature" version="1.0.0.201912042056">
       <category name="eMoflon-Ibex"/>
    </feature>
-   <feature url="features/org.emoflon.ibex.tgg.ide.hipe.feature_1.0.0.qualifier.jar" id="org.emoflon.ibex.tgg.ide.hipe.feature" version="1.0.0.qualifier">
+   <feature url="features/org.emoflon.ibex.tgg.ide.hipe.feature_1.0.0.201912042056.jar" id="org.emoflon.ibex.tgg.ide.hipe.feature" version="1.0.0.201912042056">
       <category name="eMoflon-Ibex"/>
    </feature>
    <category-def name="eMoflon-Ibex" label="eMoflon::Ibex"/>
