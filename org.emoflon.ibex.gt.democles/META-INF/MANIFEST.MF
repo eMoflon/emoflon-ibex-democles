@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.emoflon.ibex.gt.democles;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: eMoflon::IBeX Developers
 Bundle-ActivationPolicy: lazy
-Export-Package: org.emoflon.ibex.gt.democles.runtime
+Export-Package: org.emoflon.ibex.gt.democles.ide.codegen,
+ org.emoflon.ibex.gt.democles.runtime
 Require-Bundle: org.eclipse.emf.ecore.xmi,
  org.emoflon.ibex.common,
  org.emoflon.ibex.gt,
