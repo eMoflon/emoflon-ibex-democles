@@ -21,6 +21,9 @@ import org.gervarro.democles.specification.emf.SpecificationPackage;
  *   <li>and each data type</li>
  * </ul>
  * <!-- end-user-doc -->
+ * <!-- begin-model-doc -->
+ * Runtime Attribute Constraint Model for converting Attribute Constraints to be used by Democles
+ * <!-- end-model-doc -->
  * @see TGGAttributeConstraint.TGGAttributeConstraintFactory
  * @model kind="package"
  * @generated
@@ -130,7 +133,7 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 
 	/**
 	 * Creates, registers, and initializes the <b>Package</b> for this model, and for any others upon which it depends.
-	 * 
+	 *
 	 * <p>This method is used to initialize {@link TGGAttributeConstraintPackage#eINSTANCE} when that field is accessed.
 	 * Clients should not invoke it directly. Instead, they should simply access that field to obtain the package.
 	 * <!-- begin-user-doc -->
@@ -144,7 +147,8 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 		if (isInited) return (TGGAttributeConstraintPackage)EPackage.Registry.INSTANCE.getEPackage(TGGAttributeConstraintPackage.eNS_URI);
 
 		// Obtain or create and register package
-		TGGAttributeConstraintPackage theTGGAttributeConstraintPackage = (TGGAttributeConstraintPackage)(EPackage.Registry.INSTANCE.get(eNS_URI) instanceof TGGAttributeConstraintPackage ? EPackage.Registry.INSTANCE.get(eNS_URI) : new TGGAttributeConstraintPackage());
+		Object registeredTGGAttributeConstraintPackage = EPackage.Registry.INSTANCE.get(eNS_URI);
+		TGGAttributeConstraintPackage theTGGAttributeConstraintPackage = registeredTGGAttributeConstraintPackage instanceof TGGAttributeConstraintPackage ? (TGGAttributeConstraintPackage)registeredTGGAttributeConstraintPackage : new TGGAttributeConstraintPackage();
 
 		isInited = true;
 
@@ -160,7 +164,6 @@ public class TGGAttributeConstraintPackage extends EPackageImpl {
 		// Mark meta-data to indicate it can't be changed
 		theTGGAttributeConstraintPackage.freeze();
 
-  
 		// Update the registry and return the package
 		EPackage.Registry.INSTANCE.put(TGGAttributeConstraintPackage.eNS_URI, theTGGAttributeConstraintPackage);
 		return theTGGAttributeConstraintPackage;
