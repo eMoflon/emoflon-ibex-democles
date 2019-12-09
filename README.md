@@ -31,11 +31,8 @@ Note that Gurobi is only free for academical use (but not for commercial).
     - In Eclipse: Go to ```Window->Preferences->General->Workspace```.
     - Change the text file encoding to 'Other: UTF-8'.
 3. Go to ```File/Import.../Team/Team Project Set```, check URL and enter in and import one of these PSF files:<br/>
-   For eMoflon without the Sirius based plugin for TGGs:	<br/>
+   For eMoflon including everything:	<br/>
 	- https://raw.githubusercontent.com/eMoflon/emoflon-ibex-democles/master/devProjectSet.psf <br/>
-	
-   For eMoflon including everything (e.g. for deployment)
-   	- https://raw.githubusercontent.com/eMoflon/emoflon-ibex-democles/master/devProjectSet_Full.psf <br/>
 4. Execute MWE2
     - Open packages ```org.emoflon.ibex.gt.editor/src/org.emoflon.ibex.gt.editor```, ```org.emoflon.ibex.tgg.editor/src/org.moflon.tgg.mosl```, and ```org.moflon.emf.injection```
     - Right-click on ```GenerateGT.mwe2``` in the first package, ```GenerateTGG.mwe2``` in the second, and ```GenerateInjectionLanguage.mwe2``` in the third.
