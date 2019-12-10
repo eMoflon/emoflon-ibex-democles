@@ -7,8 +7,7 @@ Bundle-Vendor: eMoflon::IBeX Developers
 Bundle-ActivationPolicy: lazy
 Export-Package: org.emoflon.ibex.gt.democles.ide.codegen,
  org.emoflon.ibex.gt.democles.runtime
-Require-Bundle: org.eclipse.emf.ecore.xmi,
- org.emoflon.core.dependencies;bundle-version="1.0.0";visibility:=reexport,
+Require-Bundle: org.emoflon.core.dependencies;bundle-version="1.0.0";visibility:=reexport,
  org.emoflon.ibex.common,
  org.emoflon.ibex.gt
 Automatic-Module-Name: org.emoflon.ibex.gt.democles
