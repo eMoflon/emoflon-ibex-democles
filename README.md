@@ -4,24 +4,21 @@ Democles-specific component for [eMoflon::IBeX](https://github.com/eMoflon/emofl
 ## How to install
 1. Install [GraphViz](http://www.graphviz.org/download/).
 2. Get the latest version of the [Eclipse Modeling Tools](https://www.eclipse.org/downloads/packages/).
-3. Install Xtext from this update site:
+3. Install Xtext from this update site (or use the Eclipse Marketplace):
 	http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/
-4. Install eMoflon::IBeX from this update site:
+4. Install PlantUML from this update site (or use the Eclipse Marketplace):
+	http://hallvard.github.io/plantuml/
+5. Install eMoflon::IBeX from this update site:
 	https://emoflon.org/emoflon-ibex-updatesite/snapshot/updatesite/
-    - **Important**: Make sure you enable "contact all update sites" in the update manager
-		so all dependencies are automatically installed.
-    - **Important**: After adding the IBex update site some extra update sites
-		will be added automatically for all dependencies.
-		Unfortunately, you have to first click on `Manage` and *enable* all these update sites first
-		before clicking `Install`.
+    - Select the eMoflon::IBeX (Democles) feature to install eMoflon::IBeX along with the Democles pattern matching tool.
 
 Now you are ready to use eMoflon::IBeX Democles.
 
-5. (Optional) Install [GLPK for Windows](https://sourceforge.net/projects/winglpk/)
+6. (Optional) Install [GLPK for Windows](https://sourceforge.net/projects/winglpk/)
 	or install GLPK via your package manager (Linux).
-6. (Optional) Install [Gurobi](http://www.gurobi.com/downloads/gurobi-optimizer) 7.0.2
+7. (Optional) Install [Gurobi](http://www.gurobi.com/downloads/gurobi-optimizer) 7.0.2
 	(make sure it is exactly this version!)
-7. (Optional) Install [Google OR](https://developers.google.com/optimization/introduction/installing/binary) (not necessary on 64-bit Windows)
+8. (Optional) Install [Google OR](https://developers.google.com/optimization/introduction/installing/binary) (not necessary on 64-bit Windows)
 
 Note that Gurobi is only free for academical use (but not for commercial).
 
