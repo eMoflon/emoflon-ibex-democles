@@ -1,4 +1,4 @@
-package org.emoflon.ibex.tgg.runtime.engine;
+package org.emoflon.ibex.tgg.runtime.democles;
 
 import org.emoflon.ibex.gt.democles.runtime.DemoclesGTMatch;
 import org.emoflon.ibex.tgg.operational.matches.ITGGMatch;

@@ -1,8 +1,8 @@
-package org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps;
+package org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps;
 
 import java.util.List;
 
-import org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations.TGGAttributeNativeOperation;
+import org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps.operations.TGGAttributeNativeOperation;
 import org.gervarro.democles.common.Adornment;
 import org.gervarro.democles.common.runtime.OperationBuilder;
 import org.gervarro.democles.common.runtime.VariableRuntime;

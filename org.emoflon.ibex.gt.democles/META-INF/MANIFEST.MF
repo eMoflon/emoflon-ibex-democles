@@ -5,21 +5,10 @@ Bundle-SymbolicName: org.emoflon.ibex.gt.democles;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: eMoflon::IBeX Developers
 Bundle-ActivationPolicy: lazy
-Export-Package: org.emoflon.ibex.gt.democles.runtime
-Require-Bundle: org.eclipse.emf.ecore.xmi,
+Export-Package: org.emoflon.ibex.gt.democles.ide.codegen,
+ org.emoflon.ibex.gt.democles.runtime
+Require-Bundle: org.emoflon.core.dependencies;bundle-version="1.0.0";visibility:=reexport,
  org.emoflon.ibex.common,
- org.emoflon.ibex.gt,
- org.gervarro.democles.common;visibility:=reexport,
- org.gervarro.democles.emf;visibility:=reexport,
- org.gervarro.democles.interpreter;visibility:=reexport,
- org.gervarro.democles.interpreter.emf;visibility:=reexport,
- org.gervarro.democles.interpreter.incremental;visibility:=reexport,
- org.gervarro.democles.interpreter.incremental.emf;visibility:=reexport,
- org.gervarro.democles.notification.emf;visibility:=reexport,
- org.gervarro.democles.plan.incremental.leaf;visibility:=reexport,
- org.gervarro.democles.specification.emf;visibility:=reexport,
- org.gervarro.notification;visibility:=reexport,
- org.gervarro.plan.dynprog;visibility:=reexport,
- org.gervarro.util;visibility:=reexport
+ org.emoflon.ibex.gt
 Automatic-Module-Name: org.emoflon.ibex.gt.democles
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

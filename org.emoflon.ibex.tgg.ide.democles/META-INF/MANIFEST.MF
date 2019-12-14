@@ -8,21 +8,16 @@ Export-Package: org.emoflon.ibex.tgg.compiler.democles.defaults,
  org.emoflon.ibex.tgg.ide.democles.visualisation
 Require-Bundle: net.sourceforge.plantuml.eclipse,
  org.apache.log4j,
- org.eclipse.core.runtime,
- org.eclipse.emf.ecore,
- org.eclipse.emf.ecore.editor,
  org.eclipse.jface,
  org.eclipse.ui.workbench,
- org.eclipse.xtend.lib,
- org.eclipse.xtend.lib.macro,
  org.eclipse.xtext.xbase.lib,
- org.gervarro.democles.specification.emf,
+ org.emoflon.core.dependencies;bundle-version="1.0.0",
+ org.moflon.core.plugins,
+ org.moflon.core.ui,
+ org.moflon.core.utilities,
  org.emoflon.ibex.tgg.core.language,
  org.emoflon.ibex.tgg.core.runtime,
  org.emoflon.ibex.tgg.editor,
- org.emoflon.ibex.tgg.ide,
- org.moflon.core.plugins,
- org.moflon.core.ui,
- org.moflon.core.utilities
+ org.emoflon.ibex.tgg.ide
 Automatic-Module-Name: org.emoflon.ibex.tgg.ide.democles
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

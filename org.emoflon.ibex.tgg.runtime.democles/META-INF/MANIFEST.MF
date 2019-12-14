@@ -1,29 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: eMoflon::IBeX Bidirectional Model Transformation via Triple Graph Grammars and pattern matching with Democles - Runtime
+Bundle-Name: %pluginName
 Bundle-SymbolicName: org.emoflon.ibex.tgg.runtime.democles;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: eMoflon::IBeX Developers
+Bundle-Vendor: %providerName
 Bundle-ClassPath: .
 Bundle-Localization: plugin
 Require-Bundle: org.apache.log4j,
- org.eclipse.core.runtime,
- org.eclipse.emf.ecore,
- org.eclipse.emf.ecore.xmi,
- org.gervarro.util,
- org.gervarro.plan.dynprog,
- org.gervarro.notification,
- org.gervarro.democles.common,
- org.gervarro.democles.plan,
- org.gervarro.democles.emf,
- org.gervarro.democles.plan.emf,
- org.gervarro.democles.specification.emf,
- org.gervarro.democles.interpreter,
- org.gervarro.democles.interpreter.emf,
- org.gervarro.democles.interpreter.incremental,
- org.gervarro.democles.interpreter.incremental.emf,
- org.gervarro.democles.plan.incremental.leaf,
- org.gervarro.democles.notification.emf,
+ org.emoflon.core.dependencies;bundle-version="1.0.0",
  org.emoflon.ibex.common,
  org.emoflon.ibex.gt.democles;visibility:=reexport,
  org.emoflon.ibex.tgg.core.language,
@@ -32,8 +16,8 @@ Require-Bundle: org.apache.log4j,
 Bundle-ActivationPolicy: lazy
 Export-Package: TGGAttributeConstraint,
  TGGAttributeConstraint.util,
- org.emoflon.ibex.tgg.runtime.engine,
- org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps,
- org.emoflon.ibex.tgg.runtime.engine.csp.nativeOps.operations
+ org.emoflon.ibex.tgg.runtime.democles,
+ org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps,
+ org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps.operations
 Automatic-Module-Name: org.emoflon.ibex.tgg.runtime.democles
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
