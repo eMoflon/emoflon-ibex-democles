@@ -19,7 +19,8 @@ import org.emoflon.ibex.gt.democles.runtime.IBeXToDemoclesPatternTransformation;
 import org.emoflon.ibex.tgg.compiler.transformations.patterns.ContextPatternTransformation;
 import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
-import org.emoflon.ibex.tgg.operational.strategies.OperationalStrategy;
+import org.emoflon.ibex.tgg.operational.strategies.modules.IbexExecutable;
+import org.emoflon.ibex.tgg.operational.strategies.modules.MatchDistributor;
 import org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps.TGGAttributeConstraintAdornmentStrategy;
 import org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps.TGGAttributeConstraintModule;
 import org.emoflon.ibex.tgg.runtime.democles.csp.nativeOps.TGGAttributeConstraintTypeModule;
@@ -47,7 +48,6 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	private IbexOptions options;
 	private IBeXPatternSet ibexPatterns;
 	private Map<IBeXContextPattern, TGGNamedElement> patternToRuleMap;
-	private OperationalStrategy strategy;
 
 	/**
 	 * Creates a new DemoclesTGGEngine.
@@ -57,13 +57,12 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	}
 
 	@Override
-	public void initialise(final IbexOptions options, Registry registry, IMatchObserver matchObserver) {
+	public void initialise(IbexExecutable executable, final IbexOptions options, Registry registry, IMatchObserver matchObserver) {
 		super.initialise(registry, matchObserver);
 		
 		this.options = options;
-		this.strategy = (OperationalStrategy) matchObserver;
 		
-		ContextPatternTransformation compiler = new ContextPatternTransformation(options, strategy);
+		ContextPatternTransformation compiler = new ContextPatternTransformation(options, (MatchDistributor) matchObserver);
 		ibexPatterns = compiler.transform();
 		patternToRuleMap = compiler.getPatternToRuleMap();
 		initPatterns(ibexPatterns);
@@ -87,10 +86,6 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	}
 
 	private Optional<TGGConstraintComponentBuilder<VariableRuntime>> handleTGGAttributeConstraints() {
-		if (!this.options.blackInterpSupportsAttrConstrs()) {
-			return Optional.empty();
-		}
-
 		// Handle constraints for the EMF to Java transformation
 		TGGAttributeConstraintModule.INSTANCE.registerConstraintTypes(options.constraintProvider());
 		TypeModule<TGGAttributeConstraintModule> tggAttributeConstraintTypeModule = new TGGAttributeConstraintTypeModule(
