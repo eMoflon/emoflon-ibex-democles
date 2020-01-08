@@ -15,8 +15,8 @@ Require-Bundle: net.sourceforge.plantuml.eclipse,
  org.moflon.core.plugins,
  org.moflon.core.ui,
  org.moflon.core.utilities,
- org.emoflon.ibex.tgg.core.language,
- org.emoflon.ibex.tgg.core.runtime,
+ org.emoflon.ibex.tgg.language,
+ org.emoflon.ibex.tgg.runtime,
  org.emoflon.ibex.tgg.editor,
  org.emoflon.ibex.tgg.ide
 Automatic-Module-Name: org.emoflon.ibex.tgg.ide.democles

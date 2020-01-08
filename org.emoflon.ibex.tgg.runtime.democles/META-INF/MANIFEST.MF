@@ -10,8 +10,8 @@ Require-Bundle: org.apache.log4j,
  org.emoflon.core.dependencies;bundle-version="1.0.0",
  org.emoflon.ibex.common,
  org.emoflon.ibex.gt.democles;visibility:=reexport,
- org.emoflon.ibex.tgg.core.language,
- org.emoflon.ibex.tgg.core.runtime,
+ org.emoflon.ibex.tgg.language,
+ org.emoflon.ibex.tgg.runtime,
  org.emoflon.ibex.gt;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: TGGAttributeConstraint,
