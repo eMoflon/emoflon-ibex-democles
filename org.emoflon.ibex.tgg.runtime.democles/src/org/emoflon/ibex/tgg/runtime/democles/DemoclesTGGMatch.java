@@ -1,6 +1,5 @@
 package org.emoflon.ibex.tgg.runtime.democles;
 
-import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.gt.democles.runtime.DemoclesGTMatch;
 import org.emoflon.ibex.tgg.compiler.patterns.Pattern2Type;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternType;
