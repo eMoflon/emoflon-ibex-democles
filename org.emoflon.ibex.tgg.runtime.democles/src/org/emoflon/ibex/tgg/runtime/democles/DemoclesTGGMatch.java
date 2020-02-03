@@ -4,7 +4,7 @@ import org.emoflon.ibex.gt.democles.runtime.DemoclesGTMatch;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternUtil;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternType;
 import org.emoflon.ibex.tgg.operational.matches.ITGGMatch;
-import org.emoflon.ibex.tgg.operational.matches.SimpleMatch;
+import org.emoflon.ibex.tgg.operational.matches.SimpleTGGMatch;
 import org.gervarro.democles.common.IDataFrame;
 import org.gervarro.democles.specification.emf.Pattern;
 
@@ -26,7 +26,7 @@ public class DemoclesTGGMatch extends DemoclesGTMatch implements ITGGMatch {
 
 	@Override
 	public ITGGMatch copy() {
-		SimpleMatch copy = new SimpleMatch(getPatternName());
+		SimpleTGGMatch copy = new SimpleTGGMatch(getPatternName());
 		getParameterNames().forEach(n -> copy.put(n, get(n)));
 		return copy;
 	}
