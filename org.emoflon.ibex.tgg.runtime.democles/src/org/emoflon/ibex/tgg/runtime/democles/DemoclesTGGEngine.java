@@ -87,14 +87,14 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 
 	private Optional<TGGConstraintComponentBuilder<VariableRuntime>> handleTGGAttributeConstraints() {
 		// Handle constraints for the EMF to Java transformation
-		TGGAttributeConstraintModule.INSTANCE.registerConstraintTypes(options.constraintProvider());
+		TGGAttributeConstraintModule.INSTANCE.registerConstraintTypes(options.csp.constraintProvider());
 		TypeModule<TGGAttributeConstraintModule> tggAttributeConstraintTypeModule = new TGGAttributeConstraintTypeModule(
 				TGGAttributeConstraintModule.INSTANCE);
 		patternBuilder.addConstraintTypeSwitch(tggAttributeConstraintTypeModule.getConstraintTypeSwitch());
 
 		// Native operation
 		final TGGNativeOperationBuilder<VariableRuntime> tggNativeOperationModule = new TGGNativeOperationBuilder<VariableRuntime>(
-				options.constraintProvider());
+				options.csp.constraintProvider());
 		// Batch operations
 		final GenericOperationBuilder<VariableRuntime> tggBatchOperationModule = new GenericOperationBuilder<VariableRuntime>(
 				tggNativeOperationModule, TGGAttributeConstraintAdornmentStrategy.INSTANCE);
@@ -106,13 +106,13 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 
 	@Override
 	public void monitor(final ResourceSet resourceSet) {
-		if (options.debug()) {
-			savePatterns(resourceSet, options.projectPath() + "/debug/democles-patterns.xmi", patterns.values()//
+		if (options.debug.ibexDebug()) {
+			savePatterns(resourceSet, options.project.path() + "/debug/democles-patterns.xmi", patterns.values()//
 					.stream()//
 					.sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))//
 					.collect(Collectors.toList()));
 
-			savePatterns(resourceSet, options.projectPath() + "/debug/ibex-patterns.xmi", Arrays.asList(ibexPatterns));
+			savePatterns(resourceSet, options.project.path() + "/debug/ibex-patterns.xmi", Arrays.asList(ibexPatterns));
 		}
 
 		super.monitor(resourceSet);
