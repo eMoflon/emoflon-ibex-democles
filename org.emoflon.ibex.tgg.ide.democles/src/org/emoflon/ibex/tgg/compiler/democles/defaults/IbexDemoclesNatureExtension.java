@@ -21,23 +21,6 @@ public class IbexDemoclesNatureExtension implements NatureExtension {
 				changed |= ManifestFileUpdater.updateDependencies(
 						manifest,
 						Arrays.asList(
-								// Democles deps
-								"org.gervarro.democles.common",
-								"org.gervarro.democles.specification.emf",
-								"org.gervarro.democles.interpreter",
-								"org.gervarro.democles.emf",
-								"org.gervarro.democles.interpreter.emf",
-								"org.gervarro.democles.interpreter.incremental",
-								"org.gervarro.democles.interpreter.incremental.emf",
-								"org.gervarro.democles.interpreter.lightning",
-								"org.gervarro.democles.notification.emf",
-								"org.gervarro.democles.plan",
-								"org.gervarro.democles.plan.emf",
-								"org.gervarro.democles.plan.incremental.leaf",
-								"org.gervarro.util",
-								"org.gervarro.notification",
-								"org.gervarro.plan.dynprog",
-
 								// Ibex Democles deps
 								"org.emoflon.ibex.tgg.runtime.democles"
 						));
