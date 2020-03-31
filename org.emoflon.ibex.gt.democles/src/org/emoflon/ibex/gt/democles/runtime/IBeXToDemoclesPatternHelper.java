@@ -16,6 +16,7 @@ import org.gervarro.democles.specification.emf.constraint.emf.emf.Reference;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraint;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintFactory;
 
+import IBeXLanguage.IBeXArithmeticValue;
 import IBeXLanguage.IBeXAttributeConstraint;
 import IBeXLanguage.IBeXAttributeExpression;
 import IBeXLanguage.IBeXAttributeParameter;
@@ -235,6 +236,10 @@ public class IBeXToDemoclesPatternHelper {
 		democlesPatternBody.getConstraints().add(attribute);
 
 		ConstraintVariable valueVariable;
+		//arithmetic values constraints are checked in the generated rule/pattern class; are ignored in democles
+		if(value instanceof IBeXArithmeticValue) {
+			return;
+		}
 		if (value instanceof IBeXAttributeExpression) {
 			valueVariable = DemoclesPatternUtils
 					.addConstraintForAttributeExpressionToBody((IBeXAttributeExpression) value, democlesPatternBody);
