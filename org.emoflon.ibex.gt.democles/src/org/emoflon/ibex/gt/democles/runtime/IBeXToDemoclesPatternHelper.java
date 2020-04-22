@@ -4,6 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeConstraint;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeExpression;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeParameter;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeValue;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXConstant;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXContextPattern;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXEdge;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXEnumLiteral;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXNode;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXNodePair;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.ConstraintVariable;
 import org.gervarro.democles.specification.emf.Pattern;
@@ -16,16 +26,6 @@ import org.gervarro.democles.specification.emf.constraint.emf.emf.Reference;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraint;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintFactory;
 
-import IBeXLanguage.IBeXAttributeConstraint;
-import IBeXLanguage.IBeXAttributeExpression;
-import IBeXLanguage.IBeXAttributeParameter;
-import IBeXLanguage.IBeXAttributeValue;
-import IBeXLanguage.IBeXConstant;
-import IBeXLanguage.IBeXContextPattern;
-import IBeXLanguage.IBeXEdge;
-import IBeXLanguage.IBeXEnumLiteral;
-import IBeXLanguage.IBeXNode;
-import IBeXLanguage.IBeXNodePair;
 
 /**
  * Helper which can transform of nodes, edges and attribute constraints of an

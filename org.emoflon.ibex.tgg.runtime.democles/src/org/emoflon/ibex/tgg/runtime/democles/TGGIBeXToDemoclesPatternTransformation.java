@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 import org.emoflon.ibex.common.patterns.IBeXPatternUtils;
 import org.emoflon.ibex.gt.democles.runtime.IBeXToDemoclesPatternHelper;
 import org.emoflon.ibex.gt.democles.runtime.IBeXToDemoclesPatternTransformation;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXContextPattern;
 import org.emoflon.ibex.tgg.operational.csp.sorting.SearchPlanAction;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.PatternBody;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable;
 
-import IBeXLanguage.IBeXContextPattern;
 import language.NAC;
 import language.TGGAttributeConstraint;
 import language.TGGAttributeConstraintLibrary;

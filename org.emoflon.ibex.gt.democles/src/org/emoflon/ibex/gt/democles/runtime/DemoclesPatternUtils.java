@@ -4,6 +4,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.eclipse.emf.ecore.EAttribute;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeConstraint;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeExpression;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXRelation;
 import org.gervarro.democles.specification.emf.Constant;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.ConstraintVariable;
@@ -16,9 +19,6 @@ import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraint;
 import org.gervarro.democles.specification.emf.constraint.relational.RelationalConstraintFactory;
 
-import IBeXLanguage.IBeXAttributeConstraint;
-import IBeXLanguage.IBeXAttributeExpression;
-import IBeXLanguage.IBeXRelation;
 
 /**
  * Utility methods for transforming attribute constraints from the IBeX model to

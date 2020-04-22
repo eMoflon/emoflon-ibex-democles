@@ -8,18 +8,18 @@ import java.util.Optional;
 
 import org.emoflon.ibex.common.patterns.IBeXPatternUtils;
 import org.emoflon.ibex.gt.transformations.AbstractModelTransformation;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXContext;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXContextAlternatives;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXContextPattern;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXNode;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXPatternInvocation;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXPatternSet;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.PatternInvocationConstraint;
 import org.gervarro.democles.specification.emf.SpecificationFactory;
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable;
 
-import IBeXLanguage.IBeXContext;
-import IBeXLanguage.IBeXContextAlternatives;
-import IBeXLanguage.IBeXContextPattern;
-import IBeXLanguage.IBeXNode;
-import IBeXLanguage.IBeXPatternInvocation;
-import IBeXLanguage.IBeXPatternSet;
 
 /**
  * Transformation from the IBeX model to Democles Patterns.

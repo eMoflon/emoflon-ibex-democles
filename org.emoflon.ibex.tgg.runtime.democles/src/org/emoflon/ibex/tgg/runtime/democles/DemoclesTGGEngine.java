@@ -16,6 +16,8 @@ import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.common.operational.IMatchObserver;
 import org.emoflon.ibex.gt.democles.runtime.DemoclesGTEngine;
 import org.emoflon.ibex.gt.democles.runtime.IBeXToDemoclesPatternTransformation;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXContextPattern;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXPatternSet;
 import org.emoflon.ibex.tgg.compiler.transformations.patterns.ContextPatternTransformation;
 import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
 import org.emoflon.ibex.tgg.operational.defaults.IbexOptions;
@@ -37,8 +39,6 @@ import org.gervarro.democles.runtime.GenericOperationBuilder;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.TypeModule;
 
-import IBeXLanguage.IBeXContextPattern;
-import IBeXLanguage.IBeXPatternSet;
 import language.TGGNamedElement;
 
 /**
