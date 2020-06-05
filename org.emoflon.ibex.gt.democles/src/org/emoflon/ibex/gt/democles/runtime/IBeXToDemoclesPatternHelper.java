@@ -224,8 +224,8 @@ public class IBeXToDemoclesPatternHelper {
 	 */
 	private void transformAttributeConstraint(final IBeXAttributeConstraint ac) {
 		IBeXAttributeValue value = ac.getValue();
-		if (value instanceof IBeXAttributeParameter) {
-			// Cannot handle parameters as their values are only known at runtime.
+		if (!(value instanceof IBeXAttributeExpression || value instanceof IBeXConstant || value instanceof IBeXEnumLiteral)) {
+			// Cannot handle parameters or arithmetic expressions as their values are only known at runtime.
 			return;
 		}
 
