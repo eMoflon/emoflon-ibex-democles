@@ -105,7 +105,7 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 	}
 
 	@Override
-	public void monitor(final ResourceSet resourceSet) {
+	public void monitor(final Collection<Resource> resources) {
 		if (options.debug.ibexDebug()) {
 			savePatterns(resourceSet, options.project.path() + "/debug/democles-patterns.xmi", patterns.values()//
 					.stream()//
@@ -115,7 +115,7 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 			savePatterns(resourceSet, options.project.path() + "/debug/ibex-patterns.xmi", Arrays.asList(ibexPatterns));
 		}
 
-		super.monitor(resourceSet);
+		super.monitor(resources);
 	}
 
 	/**

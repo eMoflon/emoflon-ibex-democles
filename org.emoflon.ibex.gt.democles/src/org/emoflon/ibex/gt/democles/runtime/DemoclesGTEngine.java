@@ -123,6 +123,8 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	 */
 	protected Optional<String> debugPath = Optional.empty();
 
+	protected ResourceSetImpl resourceSet;
+
 	/**
 	 * Creates a new DemoclesGTEngine.
 	 */
@@ -258,7 +260,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 
 	@Override
 	public ResourceSet createAndPrepareResourceSet(final String workspacePath) {
-		ResourceSet resourceSet = new ResourceSetImpl();
+		resourceSet = new ResourceSetImpl();
 		// In contrast to EMFDemoclesPatternMetamodelPlugin.createDefaultResourceSet, we
 		// do not delegate directly to the global registry!
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap()
@@ -275,8 +277,8 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void monitor(final ResourceSet resourceSet) {
-		for (Resource r : resourceSet.getResources()) {
+	public void monitor(final Collection<Resource> resources) {
+		for (Resource r : resources) {
 			if ("ecore".equals(r.getURI().fileExtension())) {
 				logger.warn("Are you sure your resourceSet should contain a resource for a metamodel?: " + r.getURI());
 				logger.warn("You should probably initialise this metamodel and make sure your "
@@ -310,7 +312,9 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 					});
 				});
 
-		observer.install(resourceSet);
+		resources.forEach(r -> {
+			observer.install(r);
+		});
 	}
 
 	@Override
