@@ -22,11 +22,31 @@ public class DemoclesGTMatch extends SimpleMatch {
 	 */
 	public DemoclesGTMatch(final IDataFrame frame, final Pattern pattern) {
 		super(pattern.getName());
+		if (TGGMatchParameterOrderProvider.isInitialized())
+			initWithOrderedParams(frame, pattern);
+		else
+			init(frame, pattern);
+	}
+
+	private void init(final IDataFrame frame, final Pattern pattern) {
+		for (int i = 0; i < pattern.getSymbolicParameters().size(); i++) {
+			String parameterName = pattern.getSymbolicParameters().get(i).getName();
+			Object parameterValue = frame.getValue(i);
+			put(parameterName, parameterValue);
+		}
+	}
+
+	/**
+	 * Inserts parameters in a predefined order for determined match hashing.
+	 * 
+	 * @param frame
+	 * @param pattern
+	 */
+	private void initWithOrderedParams(final IDataFrame frame, final Pattern pattern) {
 		List<String> params = null;
 		if (pattern.getName() != null)
 			params = TGGMatchParameterOrderProvider.getParams(PatternSuffixes.removeSuffix(pattern.getName()));
 		if (params != null) {
-			// Insert parameters in a predefined order for determined match hashing
 			Map<String, Object> param2value = new HashMap<>();
 			for (int i = 0; i < pattern.getSymbolicParameters().size(); i++) {
 				String parameterName = pattern.getSymbolicParameters().get(i).getName();
@@ -36,12 +56,6 @@ public class DemoclesGTMatch extends SimpleMatch {
 			for (String p : params) {
 				if (param2value.containsKey(p))
 					put(p, param2value.get(p));
-			}
-		} else {
-			for (int i = 0; i < pattern.getSymbolicParameters().size(); i++) {
-				String parameterName = pattern.getSymbolicParameters().get(i).getName();
-				Object parameterValue = frame.getValue(i);
-				put(parameterName, parameterValue);
 			}
 		}
 	}
