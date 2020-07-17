@@ -57,6 +57,8 @@ public class DemoclesGTMatch extends SimpleMatch {
 				if (param2value.containsKey(p))
 					put(p, param2value.get(p));
 			}
+		} else {
+			init(frame, pattern);
 		}
 	}
 }
