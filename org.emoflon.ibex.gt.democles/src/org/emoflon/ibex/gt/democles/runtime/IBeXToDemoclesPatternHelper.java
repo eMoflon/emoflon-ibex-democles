@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXArithmeticValue;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeConstraint;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeExpression;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeParameter;
@@ -224,7 +225,7 @@ public class IBeXToDemoclesPatternHelper {
 	 */
 	private void transformAttributeConstraint(final IBeXAttributeConstraint ac) {
 		IBeXAttributeValue value = ac.getValue();
-		if (value instanceof IBeXAttributeParameter) {
+		if (value instanceof IBeXAttributeParameter || value instanceof IBeXArithmeticValue) {
 			// Cannot handle parameters as their values are only known at runtime.
 			return;
 		}
