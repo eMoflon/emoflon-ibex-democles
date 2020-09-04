@@ -6,14 +6,13 @@ import java.util.Objects;
 
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeConstraint;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeExpression;
-import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeParameter;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXAttributeValue;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXConstant;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXContextPattern;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXEdge;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXEnumLiteral;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXInjectivityConstraint;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXNode;
-import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXNodePair;
 import org.gervarro.democles.specification.emf.ConstraintParameter;
 import org.gervarro.democles.specification.emf.ConstraintVariable;
 import org.gervarro.democles.specification.emf.Pattern;
@@ -135,7 +134,7 @@ public class IBeXToDemoclesPatternHelper {
 	 * Adds a relational constraint (unequal) for each injectivity constraints.
 	 */
 	private void transformInjectivityConstraints() {
-		for (final IBeXNodePair injectivityNodePair : ibexPattern.getInjectivityConstraints()) {
+		for (final IBeXInjectivityConstraint injectivityNodePair : ibexPattern.getInjectivityConstraints()) {
 			RelationalConstraint constraint = transformInjectivityToRelationalConstraint(injectivityNodePair);
 			democlesPatternBody.getConstraints().add(constraint);
 		}
@@ -149,7 +148,7 @@ public class IBeXToDemoclesPatternHelper {
 	 *            the pair of nodes which must be different
 	 * @return the constraint
 	 */
-	private RelationalConstraint transformInjectivityToRelationalConstraint(final IBeXNodePair injectivityConstraint) {
+	private RelationalConstraint transformInjectivityToRelationalConstraint(final IBeXInjectivityConstraint injectivityConstraint) {
 		RelationalConstraint unequalConstraint = democlesRelationalConstraintFactory.createUnequal();
 		injectivityConstraint.getValues().forEach(node -> {
 			ConstraintParameter p = democlesSpecificationFactory.createConstraintParameter();
