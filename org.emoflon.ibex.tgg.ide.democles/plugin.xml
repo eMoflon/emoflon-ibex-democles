@@ -9,16 +9,10 @@
       </diagramTextProvider>
    </extension>
    <extension
-         point="org.emoflon.ibex.tgg.ide.IbexTGGBuilderExtension">
+         point="org.emoflon.ibex.tgg.language.TGGEngineBuilderExtension">
       <builder_extension
             class="org.emoflon.ibex.tgg.compiler.democles.defaults.IbexDemoclesBuilderExtension">
       </builder_extension>
-   </extension>
-   <extension
-         point="org.emoflon.ibex.tgg.ide.IbexTGGNatureExtension">
-      <nature_extension
-            class="org.emoflon.ibex.tgg.compiler.democles.defaults.IbexDemoclesNatureExtension">
-      </nature_extension>
    </extension>
 
 </plugin>

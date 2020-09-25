@@ -17,6 +17,7 @@ import org.emoflon.ibex.common.operational.IMatchObserver;
 import org.emoflon.ibex.gt.democles.runtime.DemoclesGTEngine;
 import org.emoflon.ibex.gt.democles.runtime.IBeXToDemoclesPatternTransformation;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXContextPattern;
+import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXModel;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXPatternSet;
 import org.emoflon.ibex.tgg.compiler.transformations.patterns.ContextPatternTransformation;
 import org.emoflon.ibex.tgg.operational.IBlackInterpreter;
@@ -63,7 +64,8 @@ public class DemoclesTGGEngine extends DemoclesGTEngine implements IBlackInterpr
 		this.options = options;
 		
 		ContextPatternTransformation compiler = new ContextPatternTransformation(options, (MatchDistributor) matchObserver);
-		ibexPatterns = compiler.transform();
+		IBeXModel ibexModel = compiler.transform();
+		ibexPatterns = ibexModel.getPatternSet();
 		patternToRuleMap = compiler.getPatternToRuleMap();
 		initPatterns(ibexPatterns);
 	}
