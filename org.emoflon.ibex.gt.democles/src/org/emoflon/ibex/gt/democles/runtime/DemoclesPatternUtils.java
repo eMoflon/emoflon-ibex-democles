@@ -90,21 +90,6 @@ public class DemoclesPatternUtils {
 	}
 
 	/**
-	 * Adds a variable for the node/attribute of the attribute constraint to the
-	 * body if such a variable does not exist yet. Otherwise, the existing variable
-	 * is returned.
-	 * 
-	 * @param ac
-	 *            the attribute constraint whose attribute to create a variable for
-	 * @param body
-	 *            the pattern body
-	 * @return the variable for the attribute
-	 */
-	public static EMFVariable addAttributeVariableToBody(final IBeXAttributeConstraint ac, final PatternBody body) {
-		return addAttributeVariableToBody(ac.getNode().getName(), ac.getType(), body);
-	}
-
-	/**
 	 * Adds a constraint for the attribute expression to the body.
 	 * 
 	 * @param attributeExpression

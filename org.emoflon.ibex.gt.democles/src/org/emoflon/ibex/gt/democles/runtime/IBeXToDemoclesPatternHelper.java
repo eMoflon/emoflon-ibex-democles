@@ -222,33 +222,48 @@ public class IBeXToDemoclesPatternHelper {
 	 *            the body
 	 */
 	private void transformAttributeConstraint(final IBeXAttributeConstraint ac) {
-		IBeXAttributeValue value = ac.getValue();
-		if (!(value instanceof IBeXAttributeExpression || value instanceof IBeXConstant || value instanceof IBeXEnumLiteral)) {
+		IBeXAttributeValue lhs = ac.getLhs();
+		IBeXAttributeValue rhs = ac.getRhs();
+		if (!(lhs instanceof IBeXAttributeExpression || lhs instanceof IBeXConstant || lhs instanceof IBeXEnumLiteral)) {
+			// Cannot handle parameters or arithmetic expressions as their values are only known at runtime.
+			return;
+		}
+		
+		if (!(rhs instanceof IBeXAttributeExpression || rhs instanceof IBeXConstant || rhs instanceof IBeXEnumLiteral)) {
 			// Cannot handle parameters or arithmetic expressions as their values are only known at runtime.
 			return;
 		}
 
-		EMFVariable attributeVariable = DemoclesPatternUtils.addAttributeVariableToBody(ac, democlesPatternBody);
-		Attribute attribute = DemoclesPatternUtils.addAttributeConstraint(ac.getType(),
-				nodeToVariable.get(ac.getNode()), attributeVariable, democlesPatternBody);
-		democlesPatternBody.getConstraints().add(attribute);
-
-		ConstraintVariable valueVariable;
-		if (value instanceof IBeXAttributeExpression) {
-			valueVariable = DemoclesPatternUtils
-					.addConstraintForAttributeExpressionToBody((IBeXAttributeExpression) value, democlesPatternBody);
+		ConstraintVariable lhsVariable;
+		if (lhs instanceof IBeXAttributeExpression) {
+			lhsVariable = DemoclesPatternUtils
+					.addConstraintForAttributeExpressionToBody((IBeXAttributeExpression) lhs, democlesPatternBody);
 		} else {
 			Object constantValue = null;
-			if (value instanceof IBeXConstant) {
-				constantValue = ((IBeXConstant) value).getValue();
-			} else if (value instanceof IBeXEnumLiteral) {
-				constantValue = ((IBeXEnumLiteral) value).getLiteral().getInstance();
+			if (lhs instanceof IBeXConstant) {
+				constantValue = ((IBeXConstant) lhs).getValue();
+			} else if (lhs instanceof IBeXEnumLiteral) {
+				constantValue = ((IBeXEnumLiteral) lhs).getLiteral().getInstance();
 			}
-			valueVariable = DemoclesPatternUtils.addConstantToBody(constantValue, democlesPatternBody);
+			lhsVariable = DemoclesPatternUtils.addConstantToBody(constantValue, democlesPatternBody);
+		}
+		
+		ConstraintVariable rhsVariable;
+		if (rhs instanceof IBeXAttributeExpression) {
+			rhsVariable = DemoclesPatternUtils
+					.addConstraintForAttributeExpressionToBody((IBeXAttributeExpression) rhs, democlesPatternBody);
+		} else {
+			Object constantValue = null;
+			if (rhs instanceof IBeXConstant) {
+				constantValue = ((IBeXConstant) rhs).getValue();
+			} else if (rhs instanceof IBeXEnumLiteral) {
+				constantValue = ((IBeXEnumLiteral) rhs).getLiteral().getInstance();
+			}
+			rhsVariable = DemoclesPatternUtils.addConstantToBody(constantValue, democlesPatternBody);
 		}
 
 		RelationalConstraint relationalConstraint = DemoclesPatternUtils
-				.createRelationalConstraintForAttribute(ac.getRelation(), attributeVariable, valueVariable);
+				.createRelationalConstraintForAttribute(ac.getRelation(), lhsVariable, rhsVariable);
 		democlesPatternBody.getConstraints().add(relationalConstraint);
 	}
 }
