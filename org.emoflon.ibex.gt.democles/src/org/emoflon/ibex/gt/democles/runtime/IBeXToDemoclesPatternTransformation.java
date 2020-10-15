@@ -1,6 +1,7 @@
 package org.emoflon.ibex.gt.democles.runtime;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,11 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 	 * Mapping between pattern names and Democles patterns.
 	 */
 	protected HashMap<String, Pattern> patternMap = new HashMap<>();
+	
+	@Override
+	public List<Pattern> transform(Collection<IBeXPatternSet> sourceModels) {
+		throw new UnsupportedOperationException("Transformation from many IBeXPattern-Models to an aggregate DemoclesPattern-Model is not supported!");
+	}
 
 	@Override
 	public List<Pattern> transform(final IBeXPatternSet ibexPatternSet) {
@@ -152,4 +158,5 @@ public class IBeXToDemoclesPatternTransformation extends AbstractModelTransforma
 
 		return invocationConstraint;
 	}
+
 }
