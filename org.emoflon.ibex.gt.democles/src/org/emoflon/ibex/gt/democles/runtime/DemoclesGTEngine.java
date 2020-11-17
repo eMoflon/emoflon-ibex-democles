@@ -128,6 +128,8 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 
 	protected ResourceSetImpl resourceSet;
 
+	private final IPatternInterpreterProperties properties = new DemoclesProperties();
+
 	/**
 	 * Creates a new DemoclesGTEngine.
 	 */
@@ -443,6 +445,6 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 
 	@Override
 	public IPatternInterpreterProperties getProperties() {
-		return new DemoclesProperties();
+		return properties ;
 	}
 }
