@@ -27,6 +27,7 @@ import org.emoflon.ibex.common.emf.EMFSaveUtils;
 import org.emoflon.ibex.common.operational.IContextPatternInterpreter;
 import org.emoflon.ibex.common.operational.IMatch;
 import org.emoflon.ibex.common.operational.IMatchObserver;
+import org.emoflon.ibex.common.operational.IPatternInterpreterProperties;
 import org.emoflon.ibex.patternmodel.IBeXPatternModel.IBeXPatternSet;
 import org.gervarro.democles.common.DataFrame;
 import org.gervarro.democles.common.IDataFrame;
@@ -438,5 +439,10 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 	 */
 	protected static String getPatternID(final Pattern pattern) {
 		return PatternMatcherPlugin.getIdentifier(pattern.getName(), pattern.getSymbolicParameters().size());
+	}
+
+	@Override
+	public IPatternInterpreterProperties getProperties() {
+		return new DemoclesProperties();
 	}
 }
