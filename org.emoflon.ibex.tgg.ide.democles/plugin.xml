@@ -2,17 +2,16 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.sourceforge.plantuml.eclipse.diagramTextProvider">
-      <diagramTextProvider
-            priority="20"
-            providerClass="org.emoflon.ibex.tgg.ide.democles.visualisation.IbexDemoclesPatternVisualiser">
-      </diagramTextProvider>
-   </extension>
-   <extension
          point="org.emoflon.ibex.tgg.language.TGGEngineBuilderExtension">
       <builder_extension
             class="org.emoflon.ibex.tgg.compiler.democles.defaults.IbexDemoclesBuilderExtension">
       </builder_extension>
+   </extension>
+   <extension
+         point="org.moflon.core.ui.DiagramTextProvider">
+      <diagram_text_provider
+            class="org.emoflon.ibex.tgg.ide.democles.visualisation.IbexDemoclesPatternVisualiser">
+      </diagram_text_provider>
    </extension>
 
 </plugin>
