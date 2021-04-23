@@ -54,7 +54,6 @@ public class IbexDemoclesPatternVisualiser implements EMoflonDiagramTextProvider
 
 	@Override
 	public boolean supportsSelection(ISelection arg0) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }
