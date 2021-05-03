@@ -9,12 +9,12 @@ import org.eclipse.ui.IEditorPart;
 import org.gervarro.democles.specification.emf.Pattern;
 import org.gervarro.democles.specification.emf.PatternBody;
 import org.moflon.core.ui.visualisation.EMoflonPlantUMLGenerator;
-import org.moflon.core.ui.visualisation.common.EMoflonVisualiser;
+import org.moflon.core.ui.visualisation.common.EMoflonDiagramTextProvider;
 
-public class IbexDemoclesPatternVisualiser extends EMoflonVisualiser {
+public class IbexDemoclesPatternVisualiser implements EMoflonDiagramTextProvider {
 
 	@Override
-	protected String getDiagramBody(IEditorPart editor, ISelection selection) {
+	public String getDiagramBody(IEditorPart editor, ISelection selection) {
 		return maybeVisualisePattern(editor, selection).orElse(
 			   EMoflonPlantUMLGenerator.emptyDiagram());
 	}
@@ -50,5 +50,10 @@ public class IbexDemoclesPatternVisualiser extends EMoflonVisualiser {
 	@Override
 	public boolean supportsEditor(IEditorPart editor) {
 		return extractPatternBodyFromEditor(editor).isPresent();
+	}
+
+	@Override
+	public boolean supportsSelection(ISelection arg0) {
+		return false;
 	}
 }
