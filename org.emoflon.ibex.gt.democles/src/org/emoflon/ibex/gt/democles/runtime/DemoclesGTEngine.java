@@ -74,6 +74,8 @@ import org.gervarro.democles.specification.impl.DefaultPatternFactory;
 import org.gervarro.democles.specification.impl.PatternInvocationConstraintModule;
 import org.gervarro.notification.model.ModelDelta;
 
+import persistence.XtendXMIResourceFactoryImpl;
+
 
 /**
  * Engine for (unidirectional) graph transformations with Democles.
@@ -269,7 +271,7 @@ public class DemoclesGTEngine implements IContextPatternInterpreter, MatchEventL
 		// In contrast to EMFDemoclesPatternMetamodelPlugin.createDefaultResourceSet, we
 		// do not delegate directly to the global registry!
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap()
-				.put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
+				.put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XtendXMIResourceFactoryImpl());
 
 		try {
 			EMFDemoclesPatternMetamodelPlugin.setWorkspaceRootDirectory(resourceSet,
