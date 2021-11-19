@@ -13,4 +13,4 @@ Require-Bundle: org.emoflon.core.dependencies;bundle-version="1.0.0";visibility:
  org.emoflon.ibex.patternmodel,
  org.emoflon.ibex.tgg.runtime
 Automatic-Module-Name: org.emoflon.ibex.gt.democles
-Bundle-RequiredExecutionEnvironment: JavaSE-15
+Bundle-RequiredExecutionEnvironment: JavaSE-16

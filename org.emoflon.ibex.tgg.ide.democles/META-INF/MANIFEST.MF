@@ -20,4 +20,4 @@ Require-Bundle: net.sourceforge.plantuml.eclipse,
  org.emoflon.ibex.tgg.editor,
  org.emoflon.ibex.tgg.ide
 Automatic-Module-Name: org.emoflon.ibex.tgg.ide.democles
-Bundle-RequiredExecutionEnvironment: JavaSE-15
+Bundle-RequiredExecutionEnvironment: JavaSE-16
