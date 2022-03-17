@@ -8,9 +8,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.emoflon.ibex.common.project.ManifestHelper;
+import org.emoflon.ibex.tgg.builder.TGGBuildUtil;
 import org.emoflon.ibex.tgg.codegen.DefaultFilesGenerator;
 import org.emoflon.ibex.tgg.codegen.TGGEngineBuilderExtension;
-import org.emoflon.ibex.tgg.ide.admin.IbexTGGBuilder;
 import org.moflon.core.plugins.manifest.ManifestFileUpdater;
 import org.moflon.core.utilities.LogUtils;
 import org.moflon.tgg.mosl.tgg.TripleGraphGrammarFile;
@@ -28,29 +28,29 @@ public class IbexDemoclesBuilderExtension implements TGGEngineBuilderExtension {
 		updateManifest();
 		
 		try {
-			IbexTGGBuilder.createDefaultDebugRunFile( project,"MODELGEN_Debug_App", (projectName, fileName) 
+			TGGBuildUtil.createDefaultDebugRunFile( project,"MODELGEN_Debug_App", (projectName, fileName) 
 				-> DefaultFilesGenerator.generateModelGenDebugFile(projectName, fileName));
-			IbexTGGBuilder.createDefaultRunFile(project, "MODELGEN_App", (projectName, fileName) 
+			TGGBuildUtil.createDefaultRunFile(project, "MODELGEN_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateModelGenFile(projectName, fileName));
-			IbexTGGBuilder.createDefaultRunFile(project, "SYNC_App", (projectName, fileName) 
+			TGGBuildUtil.createDefaultRunFile(project, "SYNC_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateSyncAppFile(projectName, fileName));
-			IbexTGGBuilder.createDefaultRunFile(project, "INITIAL_FWD_App", (projectName, fileName) 
+			TGGBuildUtil.createDefaultRunFile(project, "INITIAL_FWD_App", (projectName, fileName) 
 				-> DefaultFilesGenerator.generateInitialFwdAppFile(projectName, fileName));
-			IbexTGGBuilder.createDefaultRunFile(project, "INITIAL_BWD_App", (projectName, fileName) 
+			TGGBuildUtil.createDefaultRunFile(project, "INITIAL_BWD_App", (projectName, fileName) 
 				-> DefaultFilesGenerator.generateInitialBwdAppFile(projectName, fileName));
-			IbexTGGBuilder.createDefaultRunFile(project, "CC_App", (projectName, fileName) 
+			TGGBuildUtil.createDefaultRunFile(project, "CC_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateCCAppFile(projectName, fileName));
-			IbexTGGBuilder.createDefaultRunFile(project, "CO_App", (projectName, fileName) 
+			TGGBuildUtil.createDefaultRunFile(project, "CO_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateCOAppFile(projectName, fileName));
-			IbexTGGBuilder.createDefaultRunFile(project, "FWD_OPT_App", (projectName, fileName) 
+			TGGBuildUtil.createDefaultRunFile(project, "FWD_OPT_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateFWDOptAppFile(projectName, fileName));
-			IbexTGGBuilder.createDefaultRunFile(project, "BWD_OPT_App", (projectName, fileName) 
+			TGGBuildUtil.createDefaultRunFile(project, "BWD_OPT_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateBWDOptAppFile(projectName, fileName));
-			IbexTGGBuilder.createDefaultRunFile(project, "INTEGRATE_App", (projectName, fileName) 
+			TGGBuildUtil.createDefaultRunFile(project, "INTEGRATE_App", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateIntegrateAppFile(projectName, fileName));
-			IbexTGGBuilder.enforceDefaultConfigFile(project, "_DefaultRegistrationHelper", (projectName, fileName) 
+			TGGBuildUtil.enforceDefaultConfigFile(project, "_DefaultRegistrationHelper", (projectName, fileName) 
 					-> DefaultFilesGenerator.generateDefaultRegHelperFile(projectName));
-			IbexTGGBuilder.createDefaultConfigFile(project, "DemoclesRegistrationHelper", (projectName, fileName)
+			TGGBuildUtil.createDefaultConfigFile(project, "DemoclesRegistrationHelper", (projectName, fileName)
 					-> DefaultFilesGenerator.generateRegHelperFile(projectName, editorModel));
 		} catch (CoreException e) {
 			LogUtils.error(logger, e);
