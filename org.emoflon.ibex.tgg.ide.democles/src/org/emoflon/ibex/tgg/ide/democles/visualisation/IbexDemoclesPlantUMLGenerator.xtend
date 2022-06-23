@@ -1,15 +1,15 @@
 package org.emoflon.ibex.tgg.ide.democles.visualisation
 
+import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EDataType
+import org.eclipse.emf.ecore.EReference
 import org.gervarro.democles.specification.emf.Pattern
 import org.gervarro.democles.specification.emf.PatternBody
 import org.gervarro.democles.specification.emf.PatternInvocationConstraint
 import org.gervarro.democles.specification.emf.Variable
 import org.gervarro.democles.specification.emf.constraint.emf.emf.EMFVariable
 import org.gervarro.democles.specification.emf.constraint.emf.emf.Reference
-import org.emoflon.ibex.tgg.ide.visualisation.IbexPlantUMLGenerator
-import org.eclipse.emf.ecore.EClassifier
-import org.eclipse.emf.ecore.EReference
+import org.emoflon.ibex.tgg.editor.ide.visualisation.IbexPlantUMLGenerator
 
 class IbexDemoclesPlantUMLGenerator extends IbexPlantUMLGenerator {
 
