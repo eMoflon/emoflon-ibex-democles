@@ -8,12 +8,12 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.emoflon.ibex.common.project.ManifestHelper;
-import org.emoflon.ibex.tgg.builder.TGGBuildUtil;
 import org.emoflon.ibex.tgg.codegen.DefaultFilesGenerator;
 import org.emoflon.ibex.tgg.codegen.TGGEngineBuilderExtension;
+import org.emoflon.ibex.tgg.editor.builder.TGGBuildUtil;
+import org.emoflon.ibex.tgg.editor.tgg.TripleGraphGrammarFile;
 import org.moflon.core.plugins.manifest.ManifestFileUpdater;
 import org.moflon.core.utilities.LogUtils;
-import org.moflon.tgg.mosl.tgg.TripleGraphGrammarFile;
 
 public class IbexDemoclesBuilderExtension implements TGGEngineBuilderExtension {
 
