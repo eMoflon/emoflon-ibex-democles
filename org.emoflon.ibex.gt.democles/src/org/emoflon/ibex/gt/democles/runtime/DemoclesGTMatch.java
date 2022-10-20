@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.emoflon.ibex.common.operational.SimpleMatch;
+import org.emoflon.ibex.common.engine.SimpleMatch;
 import org.emoflon.ibex.tgg.compiler.patterns.PatternSuffixes;
 import org.emoflon.ibex.tgg.operational.matches.TGGMatchParameterOrderProvider;
 import org.gervarro.democles.common.IDataFrame;
